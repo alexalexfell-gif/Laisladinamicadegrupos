@@ -176,24 +176,20 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 5: El Pacto</h2><p class="instruction">Los diplomáticos negocian. Selecciona participantes y sus objetos (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Diplomático: ${e.rolesNombres['Diplomático'] || 'No asignado'}</span>${renderMaletinUI(i)}<input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa</label><div id="pact_choice_${i}" style="display:none; margin-top:10px;"><b>Elegir:</b><select id="pact_sel_${i}" multiple style="height:80px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Cerrar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
-        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques. Equipos con Alianza Militar no pueden atacarse entre sí.</p><div class="grid">${Game.equipos.map((e, i) => {
+        // Identificar quiénes están en el pacto actual
+        let pactTeams = Array.from(document.querySelectorAll('.p-check:checked')).map(c => parseInt(c.value));
+        
+        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques. Equipos con Alianza Militar (Pacto) no pueden atacarse entre sí.</p><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             
-            // LÓGICA DE ALIANZA: Verificar si este equipo tiene una alianza militar
-            const tieneAlianza = e.inventario.some(it => it.id === 'alianza_mil');
+            // Filtrar víctimas: No puede ser él mismo, y si están en el pacto, no pueden atacarse entre ellos
+            const victimasValidas = Game.equipos.map((v, vi) => {
+                if (i === vi) return null; 
+                if (pactTeams.includes(i) && pactTeams.includes(vi)) return null; // Bloqueo por Pacto/Alianza Militar
+                return `<option value="${vi}">${v.nombre}</option>`;
+            }).filter(opt => opt !== null).join("");
 
             return `<div class="card"><h3>${e.nombre} ${e.venganza?'🔥':''}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => {
-                
-                // Filtrar víctimas: No puede ser él mismo, y si tiene Alianza Mil, no puede atacar a otros con Alianza Mil
-                const victimasValidas = Game.equipos.map((v, vi) => {
-                    if (i === vi) return null; 
-                    
-                    const vTieneAlianza = v.inventario.some(it => it.id === 'alianza_mil');
-                    if (tieneAlianza && vTieneAlianza) return null; // Bloqueo por Alianza Militar
-                    
-                    return `<option value="${vi}">${v.nombre}</option>`;
-                }).filter(opt => opt !== null).join("");
-
                 return `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Ataque ${a+1}:</b>
                     <select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})">
                         <option value="">¿Víctima?</option>
@@ -431,12 +427,4 @@ window.onload = render;
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
