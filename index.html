@@ -5,6 +5,7 @@
 <title>La isla - Dinámica grupal</title>
 
 <style>
+
 body{
 font-family: Arial;
 padding:20px;
@@ -32,6 +33,7 @@ overflow:auto;
 font-size:13px;
 margin-top:20px;
 }
+
 </style>
 </head>
 
@@ -42,11 +44,13 @@ margin-top:20px;
 
 <script>
 
-/* ===========================
+/* ===============================
 ESTADO GLOBAL
-=========================== */
+=============================== */
 
 let paso=0;
+
+/* Roles */
 
 const rolesDisponibles=[
 "Ladrón",
@@ -56,33 +60,39 @@ const rolesDisponibles=[
 "Recolector"
 ];
 
+/* Grupos */
+
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
+
 nombre,
+
 miembros:Array(5).fill().map(()=>({
 nombre:"",
 roles:[]
 })),
+
 recursos:[]
+
 }));
 
-/* ===========================
+/* ===============================
 FLUJO
-=========================== */
+=============================== */
 
 function siguiente(){
 paso++;
 mostrar();
 }
 
-/* ===========================
+/* ===============================
 RENDER
-=========================== */
+=============================== */
 
 function mostrar(){
 
 let html="";
 
-/* ---------- PASO 0 ---------- */
+/* ===== INTRODUCCIÓN ===== */
 
 if(paso===0){
 
@@ -90,6 +100,38 @@ html+=`
 <h2>La isla - Dinámica grupal</h2>
 
 <p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
+
+<p>
+Dinámica grupal para la evaluación del liderazgo,
+trabajo en equipo y estrategia.
+</p>
+
+<hr>
+
+<h3>Introducción</h3>
+
+<p>
+Tras un naufragio, tres equipos han llegado a una isla desconocida.
+Deberán organizarse, conseguir recursos, negociar, robar, luchar
+y sobrevivir.
+</p>
+
+<h4>Objetivos de supervivencia</h4>
+
+<ul>
+<li>4 puntos en Alimentación</li>
+<li>3 puntos en Utilidad</li>
+<li>2 puntos en Orientación</li>
+</ul>
+
+<hr>
+
+<h4>Reglas</h4>
+
+<ul>
+<li>Mínimo 2 equipos</li>
+<li>Mínimo 3 jugadores por equipo</li>
+</ul>
 
 <hr>
 
@@ -105,22 +147,29 @@ html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
 }
 
 html+="</div>";
+
 });
 
 html+=`<button onclick="guardarJugadores()">Comenzar</button>`;
 }
 
-/* ---------- PASO 1 ROLES ---------- */
+/* ===== ROLES ===== */
 
 if(paso===1){
 
-html+="<h3>Asignación de Roles</h3>";
+html+=`<h3>Asignación de Roles</h3>`;
+
+const rolesDisponiblesLocal=[
+"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
+];
 
 grupos.forEach((g,i)=>{
 
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
-let total=g.miembros.filter(m=>m.nombre!=="").length;
+let jugadores=g.miembros.filter(m=>m.nombre!=="");
+
+let total=jugadores.length;
 
 g.miembros.forEach((m,j)=>{
 
@@ -130,7 +179,7 @@ html+=`<div>${m.nombre}</div>`;
 
 html+=`<select id="rol${i}_${j}">`;
 
-rolesDisponibles.forEach(r=>{
+rolesDisponiblesLocal.forEach(r=>{
 html+=`<option>${r}</option>`;
 });
 
@@ -145,7 +194,7 @@ html+="</div>";
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-/* ---------- RESULTADOS ---------- */
+/* RESULTADOS */
 
 if(paso===2){
 calcularResultados();
@@ -153,11 +202,12 @@ return;
 }
 
 document.getElementById("contenido").innerHTML=html;
+
 }
 
-/* ===========================
+/* ===============================
 LOGICA
-=========================== */
+=============================== */
 
 function guardarJugadores(){
 
@@ -185,13 +235,15 @@ throw new Error();
 siguiente();
 }
 
-/* -------------------------- */
+/* ----------------------------- */
 
 function guardarRoles(){
 
 grupos.forEach((g,i)=>{
 
-let total=g.miembros.filter(m=>m.nombre!=="").length;
+let jugadores=g.miembros.filter(m=>m.nombre!=="");
+
+let total=jugadores.length;
 
 let rolesUsados=new Set();
 
@@ -199,26 +251,7 @@ g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
 
-let oblig=1;
-
-/* ===== REGLAS EXACTAS ===== */
-
-if(total===3){
-if(j===0 || j===1) oblig=2;
-}
-
-else if(total===4){
-if(j===0) oblig=2;
-}
-
-else if(total===5){
-oblig=1;
-}
-
-/* ===== LECTURA SELECT ===== */
-
 let sel=document.getElementById(`rol${i}_${j}`);
-
 if(!sel) return;
 
 let rol=sel.value;
@@ -232,9 +265,19 @@ throw new Error();
 
 rolesUsados.add(rol);
 
-/* Guardar roles */
+/* Distribución de roles */
 
-m.roles=Array(oblig).fill(rol);
+let cantidad=1;
+
+if(total===3 && (j===0 || j===1)){
+cantidad=2;
+}
+
+else if(total===4 && j===0){
+cantidad=2;
+}
+
+m.roles=Array(cantidad).fill(rol);
 
 });
 
@@ -243,17 +286,13 @@ m.roles=Array(oblig).fill(rol);
 siguiente();
 }
 
-/* -------------------------- */
+/* ----------------------------- */
 
 function calcularResultados(){
 
-let html="=== RESULTADOS FINALES ===<br>";
+document.getElementById("log").innerHTML=
+"=== RESULTADOS FINALES ===";
 
-grupos.forEach(g=>{
-html+=g.nombre+"<br>";
-});
-
-document.getElementById("log").innerHTML=html;
 }
 
 mostrar();
@@ -262,6 +301,5 @@ mostrar();
 
 </body>
 </html>
-
 
 
