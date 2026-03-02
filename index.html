@@ -16,14 +16,13 @@ select, input, button { margin:5px; padding:5px; }
 </head>
 <body>
 
-<h1>La Isla - Dinámica grupal</h1>
-<h2>Facilitador: Alejandro Scuro Rossi</h2>
+<h1>La Isla - Dinámica Grupal</h1>
 
 <div id="contenido"></div>
 <button onclick="siguientePaso()" style="margin-top:20px;">Siguiente Paso</button>
 
 <script>
-// ----- Datos iniciales -----
+// ---------------- Datos iniciales ----------------
 let pasoActual = 0;
 
 let grupos = [
@@ -56,13 +55,16 @@ const recursosEspeciales = [
 let objetosDescartados = [];
 let pactos = [];
 
-// ----- Funciones -----
+// ---------------- Funciones ----------------
 function mostrarPaso(){
   let html = "";
+
   switch(pasoActual){
-    case 0:
+    case 0: // Introducción
+      html += "<h2>Autor: Alejandro Scuro Rossi</h2>";
       html += "<h3>Paso 1: Introducción</h3>";
-      html += "<p>3 equipos en una isla. Sobrevivir requiere acumular objetos:</p>";
+      html += "<p>Dinámica grupal para evaluar <strong>Liderazgo, trabajo en equipo y estrategia</strong>.</p>";
+      html += "<p>3 equipos en una isla. Para sobrevivir deberán acumular objetos y gestionar recursos:</p>";
       html += "<ul style='text-align:left; display:inline-block;'><li>Alimentación: mínimo 4 puntos</li><li>Utilidad: mínimo 3 puntos</li><li>Orientación: mínimo 2 puntos</li></ul>";
       break;
 
@@ -71,8 +73,7 @@ function mostrarPaso(){
       grupos.forEach((g,i)=>{
         html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
         g.miembros.forEach((m,j)=>{
-          html += `<div class="select-block">Jugador ${j+1}: 
-            <input type="text" id="nombre${i}${j}" placeholder="Nombre"> `;
+          html += `<div class="select-block">Jugador ${j+1}: <input type="text" id="nombre${i}${j}" placeholder="Nombre"> `;
           html += `Rol: <select id="rol${i}${j}" onchange="validarRoles(${i})">
             <option value="">--Selecciona rol--</option>`;
           rolesDisponibles.forEach(r => html += `<option value="${r}">${r}</option>`);
@@ -85,7 +86,7 @@ function mostrarPaso(){
           objetosRol.forEach(o => html += `<option value="${o}">${o}</option>`);
           html += `</select><br>`;
         }
-        html += `</div></div><br>`;
+        html += "</div></div><br>";
       });
       html += `<button onclick="guardarPaso2()">Guardar nombres, roles y objetos</button>`;
       break;
@@ -99,19 +100,21 @@ function mostrarPaso(){
           recursosBase.forEach(obj=> html += `<option value="${obj.nombre}">${obj.nombre}</option>`);
           html += `</select><br>`;
         }
-        html += `</div>`;
+        html += "</div>";
       });
       html += `<button onclick="guardarPaso3()">Guardar recursos</button>`;
       break;
 
-    // Aquí se pueden agregar Paso 4 (Robo), Paso 5 (Pacto), Paso 6 (Combate), Paso 7 (Recolección), Paso 8 (Intercambio), Paso 9 (Resultados)
+    // Para simplificar, los pasos 4-9 se pueden agregar siguiendo esta misma lógica
     default:
-      html += "<h3>Pasos avanzados aún no implementados visualmente</h3>";
+      html += "<h3>Próximos pasos (4 a 9) aún no implementados visualmente</h3>";
+      break;
   }
+
   document.getElementById("contenido").innerHTML = html;
 }
 
-// Validaciones
+// ---------------- Validaciones ----------------
 function validarRoles(indiceGrupo){
   let seleccionados = [];
   grupos[indiceGrupo].miembros.forEach((m,j)=>{
@@ -151,7 +154,7 @@ function validarObjetos(indiceGrupo){
   }
 }
 
-// Guardar Paso 2
+// ---------------- Guardar datos ----------------
 function guardarPaso2(){
   grupos.forEach((g,i)=>{
     g.roles = [];
@@ -170,7 +173,6 @@ function guardarPaso2(){
   alert("Nombres, roles y objetos de rol guardados correctamente");
 }
 
-// Guardar Paso 3
 function guardarPaso3(){
   grupos.forEach((g,i)=>{
     for(let r=0;r<5;r++){
@@ -181,8 +183,8 @@ function guardarPaso3(){
   alert("Recursos guardados");
 }
 
-// Siguiente paso
-function siguientePaso(){ mostrarPaso(); pasoActual++; }
+// ---------------- Siguiente paso ----------------
+function siguientePaso(){ pasoActual++; mostrarPaso(); }
 
 // Mostrar primer paso
 mostrarPaso();
