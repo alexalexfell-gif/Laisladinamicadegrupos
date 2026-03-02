@@ -14,6 +14,7 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         button { background: var(--success); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; font-size: 1rem; margin-top: 10px; }
         button:hover { background: #2ecc71; transform: translateY(-1px); }
+        .role-tag { font-size: 0.8em; font-weight: bold; color: var(--accent); display: block; margin-top: 5px; text-transform: uppercase; }
         .instruction-highlight { color: #c0392b; font-weight: bold; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px dashed #e74c3c; margin-bottom: 20px; text-align: center; }
         .kbd { background: #eee; border-radius: 3px; border: 1px solid #b4b4b4; padding: 1px 4px; font-family: monospace; font-size: 0.9em; }
         select, input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
@@ -58,9 +59,9 @@ const PACTO_OBJ = [
 let Game = {
     paso: 1,
     equipos: [
-        { nombre: "Alfa", inventario: [], trades: 0, attacks: 1 },
-        { nombre: "Beta", inventario: [], trades: 0, attacks: 1 },
-        { nombre: "Omega", inventario: [], trades: 0, attacks: 1 }
+        { nombre: "Alfa", inventario: [], roles: {}, trades: 0, attacks: 1 },
+        { nombre: "Beta", inventario: [], roles: {}, trades: 0, attacks: 1 },
+        { nombre: "Omega", inventario: [], roles: {}, trades: 0, attacks: 1 }
     ],
     descarte: [], recoleccionTurno: 0, ordenRecoleccion: [0, 1, 2, 2, 1, 0]
 };
@@ -81,28 +82,24 @@ function render() {
         ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ La Isla</h1><button onclick="Game.paso=2; render();">Iniciar</button></div>`;
     } 
     else if (Game.paso === 2) {
-        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro</h2><div class="grid">${Game.equipos.map((e, i) => `
-            <div class="card"><h3>${e.nombre}</h3><select id="sz_${i}"><option value="5">5 Miembros</option></select></div>`).join("")}</div><button onclick="Game.paso=3; render();">Siguiente</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro de Equipos</h2><div class="grid">${Game.equipos.map((e, i) => `
+            <div class="card"><h3>${e.nombre}</h3>
+            <select id="sz_${i}" onchange="updateFields(${i})">
+                <option value="5">5 Miembros</option>
+                <option value="4">4 Miembros</option>
+                <option value="3">3 Miembros</option>
+            </select>
+            <div id="fields_${i}">${generateFields(5, i)}</div></div>`).join("")}</div>
+            <button onclick="saveRoles()">Guardar y Siguiente</button></div>`;
     }
     else if (Game.paso === 3) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2>
-            <p class="instruction-highlight">Selecciona 5 elementos usando <span class="kbd">Ctrl + Clic izquierdo</span>.</p>
-            <div class="grid">${Game.equipos.map((e, i) => `
-                <div class="card"><h3>${e.nombre}</h3>
-                <select id="p_${i}" multiple style="height:200px;">
-                    ${CATALOGO_BASE_UNICO.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}
-                </select></div>`).join("")}</div>
-            <button onclick="saveInvPaso3()">Siguiente: Objetos de Rol</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction-highlight">Selecciona 5 elementos con <span class="kbd">Ctrl + Clic</span>.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:200px;">${CATALOGO_BASE_UNICO.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInvPaso3()">Siguiente: Objetos de Rol</button></div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Objetos de Rol</h2>
-            <p class="instruction-highlight">Selecciona 2 con <span class="kbd">Ctrl + Clic izquierdo</span>.</p>
-            <div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Objetos de Rol</h2><p class="instruction-highlight">Selecciona 2 con <span class="kbd">Ctrl + Clic</span>.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
     }
     else if (Game.paso === 4) {
-        ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><div class="grid">${Game.equipos.map((e, i) => `
-            <div class="card"><h3>${e.nombre}</h3><select id="a_${i}" onchange="toggleRoboUI(${i})"><option value="def">🛡️ Defender</option><option value="atk">👤 Robar</option></select>
-            <div id="u_${i}" style="display:none; margin-top:10px;"><select id="v_${i}" onchange="loadVictimInv(${i})"><option value="">¿A quién?</option>${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><select id="it_${i}_1"></select></div></div>`).join("")}</div><button onclick="processNight()">Resolver</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="a_${i}" onchange="toggleRoboUI(${i})"><option value="def">🛡️ Defender</option><option value="atk">👤 Robar</option></select><div id="u_${i}" style="display:none; margin-top:10px;"><select id="v_${i}" onchange="loadVictimInv(${i})"><option value="">¿A quién?</option>${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><select id="it_${i}_1"></select></div></div>`).join("")}</div><button onclick="processNight()">Resolver</button></div>`;
     }
     else if (Game.paso === 5) {
         ui.innerHTML = `<div class="card"><h2>Paso 5: Alianza</h2><div class="pacto-selector">${[0,1,2].map(i => `<div style="margin:0 10px;"><input type="checkbox" class="p-check" id="eq${i}" value="${i}"><label for="eq${i}"> ${Game.equipos[i].nombre}</label></div>`).join("")}</div><div id="pacto-area" class="grid"></div><button onclick="confirmarPacto()">Confirmar Alianza</button></div>`;
@@ -119,15 +116,12 @@ function render() {
     }
     else if (Game.paso === 7) {
         const eqA = Game.equipos[Game.ordenRecoleccion[Game.recoleccionTurno]];
-        ui.innerHTML = `<div class="card" style="text-align:center;"><h2>Paso 7: Recolección</h2><p>Quedan ${Game.descarte.length} objetos en la isla.</p>
-            <select id="pick-recoleccion" style="max-width:400px;"><option value="">-- Selecciona --</option>${Game.descarte.map((o, idx) => `<option value="${idx}">${o.n}</option>`).join("")}</select>
-            <button onclick="tomarObjetoRecoleccion()" style="max-width:400px; margin:auto; display:block;">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card" style="text-align:center;"><h2>Paso 7: Recolección</h2><p>Quedan ${Game.descarte.length} objetos en la isla.</p><select id="pick-recoleccion" style="max-width:400px;"><option value="">-- Elige --</option>${Game.descarte.map((o, idx) => `<option value="${idx}">${o.n}</option>`).join("")}</select><button onclick="tomarObjetoRecoleccion()">Confirmar</button></div>`;
     }
     else if (Game.paso === 8) {
-        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado Final</h2><p>Máximo 2 intercambios por equipo.</p><div class="grid">${Game.equipos.map((e, i) => `
-            <div class="card"><h3>${e.nombre} (Intercambios: ${e.trades}/2)</h3>
-            ${e.trades < 2 ? `<div class="trade-box"><select id="partner_${i}" onchange="loadTradeOptions(${i})"><option value="">-- Con quién --</option>${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select>
-            <div id="trade_ui_${i}" style="display:none;"><label>Entregas:</label><select id="give_${i}"></select><label>Recibes:</label><select id="take_${i}"></select><button onclick="execTrade(${i})">Intercambiar</button></div></div>` : 'Límite alcanzado'}</div>`).join("")}</div><button onclick="Game.paso=9; render();">Ver Resultados</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado Final</h2><div class="grid">${Game.equipos.map((e, i) => `
+            <div class="card"><h3>${e.nombre} (${e.trades}/2)</h3>
+            ${e.trades < 2 ? `<div class="trade-box"><select id="partner_${i}" onchange="loadTradeOptions(${i})"><option value="">-- Socio --</option>${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><div id="trade_ui_${i}" style="display:none;"><label>Das:</label><select id="give_${i}"></select><label>Recibes:</label><select id="take_${i}"></select><button onclick="execTrade(${i})">Intercambiar</button></div></div>` : 'Límite alcanzado'}</div>`).join("")}</div><button onclick="Game.paso=9; render();">Resultados</button></div>`;
     }
     else if (Game.paso === 9) {
         ui.innerHTML = `<div class="card"><h2>Resultados Finales</h2><div class="grid">${Game.equipos.map(e => {
@@ -138,23 +132,37 @@ function render() {
     }
 }
 
-// LOGICA PASO 3: Generar 15 descartes exactos
+// FUNCIONES PASO 2: Registro
+function generateFields(s, i) { 
+    let roles = (s==5) ? ["Ladrón", "Diplomático", "Luchador", "Recolector", "Comerciante"] : (s==4) ? ["Ladrón/Dip", "Luchador", "Recolector", "Comerciante"] : ["Ladrón/Dip", "Luchador/Rec", "Comerciante"];
+    return roles.map((n, idx) => `<span class="role-tag">${n}</span><input type="text" id="r${idx}_${i}" value="Jugador ${idx+1}">`).join(""); 
+}
+function updateFields(i) { document.getElementById(`fields_${i}`).innerHTML = generateFields(document.getElementById(`sz_${i}`).value, i); }
+function saveRoles() { 
+    Game.equipos.forEach((e, i) => {
+        const sz = document.getElementById(`sz_${i}`).value;
+        const v = (id) => document.getElementById(`r${id}_${i}`).value || "Jugador";
+        if(sz==5) e.roles = { ladron:v(0), diplomatico:v(1), luchador:v(2), recolector:v(3), comerciante:v(4) };
+        else if(sz==4) e.roles = { ladron:v(0), diplomatico:v(0), luchador:v(1), recolector:v(2), comerciante:v(3) };
+        else e.roles = { ladron:v(0), diplomatico:v(0), luchador:v(1), recolector:v(1), comerciante:v(2) };
+    });
+    Game.paso = 3; render(); 
+}
+
+// LOGICA PASO 3
 function saveInvPaso3() {
     let bolsaGlobal = [];
     CATALOGO_BASE_UNICO.forEach(obj => { for(let i=0; i<3; i++) bolsaGlobal.push({...obj, instanceId: `${obj.id}_inst_${i}`}); });
-
     for(let i=0; i<3; i++) {
         const sel = Array.from(document.getElementById(`p_${i}`).selectedOptions);
         if(sel.length !== 5) return alert(`${Game.equipos[i].nombre} debe elegir 5.`);
-        
         Game.equipos[i].inventario = [];
         sel.forEach(opt => {
             const idx = bolsaGlobal.findIndex(b => b.id === opt.value);
             if(idx !== -1) Game.equipos[i].inventario.push(bolsaGlobal.splice(idx, 1)[0]);
         });
     }
-    Game.descarte = bolsaGlobal; // Aquí quedan exactamente 15.
-    Game.paso = 3.5; render();
+    Game.descarte = bolsaGlobal; Game.paso = 3.5; render();
 }
 
 function saveRoleInv() {
@@ -170,7 +178,7 @@ function saveRoleInv() {
     Game.paso = 4; render();
 }
 
-// MERCADO, ROBO Y LUCHA
+// RESTO DE LOGICA (Intercambios, Robo, Lucha)
 function loadTradeOptions(i) {
     const pIdx = document.getElementById(`partner_${i}`).value;
     const ui = document.getElementById(`trade_ui_${i}`);
@@ -181,7 +189,7 @@ function loadTradeOptions(i) {
 }
 function execTrade(i) {
     const pIdx = document.getElementById(`partner_${i}`).value;
-    if (Game.equipos[i].trades >= 2 || Game.equipos[pIdx].trades >= 2) return alert("Límite de intercambios alcanzado.");
+    if (Game.equipos[i].trades >= 2 || Game.equipos[pIdx].trades >= 2) return alert("Límite alcanzado.");
     const myItem = Game.equipos[i].inventario.splice(document.getElementById(`give_${i}`).value, 1)[0];
     const pItem = Game.equipos[pIdx].inventario.splice(document.getElementById(`take_${i}`).value, 1)[0];
     Game.equipos[i].inventario.push(pItem); Game.equipos[pIdx].inventario.push(myItem);
@@ -204,7 +212,7 @@ function updatePactoUI() {
     const area = document.getElementById('pacto-area');
     if (sel.length === 2) {
         const exc = [0,1,2].find(i => !sel.includes(i));
-        area.innerHTML = `<div class="card"><h4>Aliados (Ctrl+Clic)</h4>${sel.map(idx => `<label>${Game.equipos[idx].nombre}:</label><select class="p-sel" data-eq="${idx}" multiple style="height:80px;">${PACTO_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select>`).join("")}</div>
+        area.innerHTML = `<div class="card"><h4>Aliados (Pactan)</h4>${sel.map(idx => `<label>${Game.equipos[idx].nombre}:</label><select class="p-sel" data-eq="${idx}" multiple style="height:80px;">${PACTO_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select>`).join("")}</div>
             <div class="card"><h4>Excluido</h4><label>${Game.equipos[exc].nombre}:</label><select class="p-sel" data-eq="${exc}">${PACTO_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`;
     } else area.innerHTML = "";
 }
