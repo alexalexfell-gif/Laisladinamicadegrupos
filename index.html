@@ -44,13 +44,11 @@ margin-top:20px;
 
 <script>
 
-/* =============================
+/* ===============================
 ESTADO GLOBAL
-============================= */
+=============================== */
 
 let paso=0;
-
-let pilaRecoleccion=[];
 
 const recursosBase=[
 {nombre:"Agua",categoria:"Alimentación",puntos:1},
@@ -71,15 +69,18 @@ const recursosEspeciales=[
 
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
-miembros:Array(5).fill().map(()=>({nombre:"",roles:[]})),
+miembros:Array(5).fill().map(()=>({
+nombre:"",
+roles:[]
+})),
 recursos:[]
 }));
 
 let logJuego=[];
 
-/* =============================
+/* ===============================
 UTILIDADES
-============================= */
+=============================== */
 
 function siguiente(){
 paso++;
@@ -91,25 +92,15 @@ document.getElementById("log").innerHTML=
 logJuego.join("<br>");
 }
 
-function actualizarResumen(){
-grupos.forEach(g=>{
-let resumen={};
-g.recursos.forEach(r=>{
-resumen[r]=(resumen[r]||0)+1;
-});
-g.resumen=resumen;
-});
-}
-
-/* =============================
+/* ===============================
 RENDERIZADO
-============================= */
+=============================== */
 
 function mostrar(){
 
 let html="";
 
-/* -------- PASO 0 -------- */
+/* ===== PASO 0 ===== */
 
 if(paso===0){
 
@@ -149,7 +140,7 @@ html+="</div>";
 html+=`<button onclick="guardarJugadores()">Comenzar partida</button>`;
 }
 
-/* -------- PASO 1 ROLES -------- */
+/* ===== PASO 1 ROLES ===== */
 
 if(paso===1){
 
@@ -173,8 +164,14 @@ if(m.nombre==="") return;
 
 let oblig=1;
 
-if(total===3 && (j===0 || j===1)) oblig=2;
-else if(total===4 && j===0) oblig=2;
+if(total===3){
+if(j===0 || j===1) oblig=2;
+}
+else if(total===4){
+if(j===0) oblig=2;
+}
+
+/* selector */
 
 html+=`<div>${m.nombre}</div>`;
 
@@ -196,20 +193,22 @@ html+="</div>";
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-/* -------- PASO 2 PLANEACIÓN -------- */
+/* ===== PASO 2 PLANEACIÓN ===== */
 
 if(paso===2){
 
 html+="<h3>Planeación inicial (5 objetos base)</h3>";
 
 grupos.forEach((g,i)=>{
+
 html+=selectorObjetosBase(i,5);
+
 });
 
 html+=`<button onclick="resolverPlaneacion()">Continuar</button>`;
 }
 
-/* -------- PASO 3 ROBO -------- */
+/* ===== PASO 3 ROBO ===== */
 
 if(paso===3){
 
@@ -241,7 +240,7 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 html+=`<button onclick="resolverRobo()">Continuar</button>`;
 }
 
-/* -------- PASO 4 COMBATE -------- */
+/* ===== PASO 4 COMBATE ===== */
 
 if(paso===4){
 
@@ -274,31 +273,31 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 html+=`<button onclick="resolverCombate()">Continuar</button>`;
 }
 
-/* -------- PASO 5 DIPLOMACIA -------- */
+/* ===== PASO 5 DIPLOMACIA ===== */
 
 if(paso===5){
 
 html+="<h3>Diplomacia (objetos especiales)</h3>";
 
 grupos.forEach((g,i)=>{
+
 html+=selectorObjetosEspeciales(i,2);
+
 });
 
 html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
 }
 
-/* -------- PASO 6 RECOLECCIÓN -------- */
+/* ===== PASO 6 RECOLECCIÓN ===== */
 
 if(paso===6){
 
 html+="<h3>Recolección Global</h3>";
 
-if(pilaRecoleccion.length===0)
-inicializarPila();
-
 grupos.forEach((g,i)=>{
 
 let recolector=g.miembros.find(m=>m.roles.includes("Recolector"));
+
 if(!recolector) return;
 
 html+=`<div class="equipo"><strong>${g.nombre}</strong><br>`;
@@ -307,9 +306,10 @@ let usados=new Set();
 
 for(let x=0;x<2;x++){
 
-let opciones=pilaRecoleccion
-.filter(o=>!usados.has(o))
-.map(r=>`<option>${r}</option>`).join("");
+let opciones=recursosBase
+.filter(r=>!usados.has(r.nombre))
+.map(r=>`<option>${r.nombre}</option>`)
+.join("");
 
 html+=`
 <select id="rec${i}_${x}">
@@ -326,9 +326,10 @@ html+="</div>";
 html+=`<button onclick="resolverRecoleccion()">Continuar</button>`;
 }
 
-/* -------- RESULTADOS -------- */
+/* ===== RESULTADOS ===== */
 
 if(paso===7){
+
 calcularResultados();
 return;
 }
@@ -337,15 +338,15 @@ document.getElementById("contenido").innerHTML=html;
 mostrarLog();
 }
 
-/* =============================
+/* ===============================
 FUNCIONES LOGICAS
-============================= */
+=============================== */
 
 function selectorObjetosBase(i,cantidad){
 
-let usados=new Set();
-
 let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
+
+let usados=new Set();
 
 for(let x=0;x<cantidad;x++){
 
@@ -360,7 +361,8 @@ ${opciones}
 </select><br>
 `;
 
-usados.add(recursosBase[x]?.nombre);
+if(recursosBase[x])
+usados.add(recursosBase[x].nombre);
 
 }
 
@@ -398,9 +400,9 @@ html+="</div>";
 return html;
 }
 
-/* =============================
-LOGICA DEL JUEGO
-============================= */
+/* ===============================
+LOGICA JUEGO
+=============================== */
 
 function guardarJugadores(){
 
@@ -468,7 +470,6 @@ g.recursos.push(sel.value);
 
 });
 
-actualizarResumen();
 siguiente();
 }
 
@@ -490,47 +491,11 @@ g.recursos.push(victima.recursos.pop());
 
 });
 
-actualizarResumen();
 siguiente();
 }
 
 function resolverCombate(){
 
-let reglas={
-"Piedra":"Tijera",
-"Tijera":"Papel",
-"Papel":"Piedra"
-};
-
-grupos.forEach((g,i)=>{
-
-let rivalSel=document.getElementById(`ataque${i}`);
-if(!rivalSel) return;
-
-let rival=grupos[parseInt(rivalSel.value)];
-
-let jugada=document.getElementById(`juego${i}`).value;
-
-while(true){
-
-let jugadaRival=["Piedra","Papel","Tijera"][Math.floor(Math.random()*3)];
-
-if(reglas[jugada]===jugadaRival){
-
-if(rival.recursos.length)
-g.recursos.push(rival.recursos.pop());
-
-break;
-}
-else if(reglas[jugadaRival]===jugada){
-break;
-}
-
-}
-
-});
-
-actualizarResumen();
 siguiente();
 }
 
@@ -544,37 +509,11 @@ g.recursos.push(sel.value);
 
 });
 
-actualizarResumen();
 siguiente();
 }
 
 function resolverRecoleccion(){
 
-grupos.forEach((g,i)=>{
-
-let recolector=g.miembros.find(m=>m.roles.includes("Recolector"));
-if(!recolector) return;
-
-let usados=new Set();
-
-for(let x=0;x<2;x++){
-
-let sel=document.getElementById(`rec${i}_${x}`);
-if(!sel) continue;
-
-if(usados.has(sel.value)){
-alert("No se pueden repetir objetos");
-throw new Error();
-}
-
-usados.add(sel.value);
-g.recursos.push(sel.value);
-
-}
-
-});
-
-actualizarResumen();
 siguiente();
 }
 
@@ -587,10 +526,12 @@ grupos.forEach(g=>{
 let puntos={Alimentación:0,Utilidad:0,Orientación:0};
 
 g.recursos.forEach(nombre=>{
+
 let r=[...recursosBase,...recursosEspeciales]
 .find(x=>x.nombre===nombre);
 
 if(r) puntos[r.categoria]+=r.puntos;
+
 });
 
 if(puntos.Alimentación>=4 &&
@@ -611,25 +552,11 @@ html+=g+" SOBREVIVE<br>";
 document.getElementById("log").innerHTML=html;
 }
 
-function inicializarPila(){
-
-let todos=[...recursosBase,...recursosEspeciales];
-
-pilaRecoleccion=[];
-
-for(let i=0;i<15;i++){
-pilaRecoleccion.push(
-todos[Math.floor(Math.random()*todos.length)].nombre
-);
-}
-
-}
-
 mostrar();
 
 </script>
-
 </body>
 </html>
+
 
 
