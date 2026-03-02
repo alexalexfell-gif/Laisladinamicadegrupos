@@ -99,32 +99,30 @@ function render() {
                     <div>
                         <p><b>Fases de la Dinámica:</b></p>
                         <ol class="phase-list">
-                            <li><b>Registro:</b> Equipos y nombres por rol.</li>
-                            <li><b>Planeación:</b> Compra de 5 objetos iniciales.</li>
-                            <li><b>Roles:</b> Objetos especiales de cada rol.</li>
-                            <li><b>Robo Nocturno:</b> Acción del Ladrón.</li>
-                            <li><b>Pacto:</b> Alianza y objetos de valor 2.</li>
-                            <li><b>Lucha:</b> Los Luchadores compiten por recursos.</li>
-                            <li><b>Recolección:</b> Turnos de obtención.</li>
-                            <li><b>Mercado:</b> Intercambio final.</li>
+                            <li>Registro</li>
+                            <li>Planeación</li>
+                            <li>Robo Nocturno</li>
+                            <li>El Pacto y Lucha</li>
+                            <li>Mercado</li>
                         </ol>
                     </div>
                 </div>
             </div>
 
-            <div style="font-size: 0.8rem; text-align: left; background: #ffffff; padding: 20px; border: 2px solid var(--accent); border-radius: 8px; margin: 20px 0; line-height: 1.5; color: #2c3e50;">
-                <h4 style="margin-top:0; color:var(--accent);">🛡️ POLÍTICA DE PRIVACIDAD Y TRANSPARENCIA</h4>
-                <p>Antes de comenzar, se informa sobre el manejo de la información:</p>
-                <ul style="padding-left: 20px;">
-                    <li><b>Datos Recogidos:</b> Nombres (o seudónimos) y decisiones tomadas en la simulación.</li>
-                    <li><b>Finalidad:</b> Uso exclusivo como apoyo visual para observar la interacción grupal.</li>
-                    <li><b>Almacenamiento:</b> Temporalmente en la memoria del navegador. No se envían datos a servidores.</li>
-                    <li><b>Eliminación:</b> Se borran automáticamente al cerrar o refrescar la pestaña.</li>
-                </ul>
-                <hr style="border: 0; border-top: 1px solid #eee;">
-                <div style="display: flex; align-items: flex-start; gap: 10px; margin-top: 15px;">
+            <div style="font-size: 0.75rem; color: #636e72; text-align: left; background: #f8f9fa; padding: 15px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; line-height: 1.4;">
+                <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y TÉRMINOS DE USO:</strong><br>
+                Esta herramienta, "La Isla", es un <strong>prototipo experimental y educativo</strong> desarrollado por <strong>Alejandro Scuro Rossi</strong>. 
+                <br><br>
+                <strong>Solo Soporte Visual:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas de liderazgo, trabajo en equipo o estrategia. Todas las observaciones deben ser interpretadas por un profesional calificado.
+                <br><br>
+                <strong>Sin Garantía:</strong> El software se proporciona "tal cual", sin garantía de ningún tipo. El autor no garantiza la precisión, fiabilidad o idoneidad de la simulación para procesos de selección profesional.
+                <br><br>
+                <strong>Limitación de Responsabilidad:</strong> En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento o cualquier daño derivado del uso de esta herramienta.
+                <br><br>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
                     <input type="checkbox" id="consent_check" style="width: 20px; height: 20px; cursor: pointer;" onchange="document.getElementById('start_btn').disabled = !this.checked">
-                    <label for="consent_check" style="cursor: pointer; font-weight: bold;">
+                    <label for="consent_check" style="cursor: pointer; font-weight: bold; color: #2c3e50;">
                         Confirmo que los participantes han sido informados y otorgan su consentimiento para el registro temporal de sus datos en esta dinámica.
                     </label>
                 </div>
