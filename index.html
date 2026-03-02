@@ -1,129 +1,109 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>La Isla - Dinámica grupal</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; max-width: 900px; margin: auto; }
-    h1, h2, h3 { text-align: center; margin: 5px 0; }
-    h1 { font-size: 2em; }
-    h2 { font-size: 1.2em; color: #555; }
-    h3 { font-size: 1em; color: #777; margin-bottom: 20px; }
-    hr { margin: 20px 0; }
-    textarea { width: 100%; height: 150px; padding: 10px; margin-bottom: 15px; resize: vertical; }
-    input, button { padding: 10px; margin-top: 10px; font-size: 1em; }
-    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    .grupo { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    ul { padding-left: 20px; }
-    .objetos { margin-top: 10px; font-style: italic; color: #333; }
-    .instrucciones { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .pasos { background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-  </style>
-</head>
-<body>
+<h1>La Isla</h1>
+<h2>Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia</h2>
+<h3>por Alejandro Scuro Rossi</h3>
+<hr>
+<div class="instrucciones">
+  <h2>Instrucciones Generales</h2>
+  <p>Modalidad: Juego estratégico con negociación, intercambio, conflicto y supervivencia.</p>
+  <p>Objetivo: Planificación colectiva, negociación interna y externa, manejo del conflicto y gestión de recursos.</p>
+  <p>Preparación: 3 zonas separadas, hojas grandes, tarjetas de recursos y papel/bolígrafo.</p>
+  <p>Sistema de recursos:</p>
+  <ul>
+    <li>Alimentación (mínimo 4 puntos): Agua(1), Frutas(1), Comida enlatada(1), Caña de pescar(2 – especial)</li>
+    <li>Utilidad (mínimo 3 puntos): Botiquín, Cuerda, Martillo, Lona, Encendedor(1), Mochila(2 – especial)</li>
+    <li>Orientación (mínimo 2 puntos): Mapa(1), Radio(1), Brújula(2 – especial)</li>
+  </ul>
+  <p>Objetos de rol: Machete, Antifaz, Maletín, Alianza militar, Guantes.</p>
+</div>
+<label>Participantes (uno por línea, máximo 15):</label>
+<textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López&#10;Pedro González"></textarea>
+<br>
+<label>Número de grupos:</label>
+<input type="number" id="numGrupos" value="3" min="2" max="3">
+<br><br>
+<button onclick="generarGrupos()">Generar Grupos y Asignar Roles</button>
+<div id="resultado"></div>
+<script>
+const roles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
+const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
 
-  <!-- ENCABEZADO -->
-  <h1>La Isla</h1>
-  <h2>Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia</h2>
-  <h3>por Alejandro Scuro Rossi</h3>
-  <hr>
+function generarGrupos() {
+  const nombres = document.getElementById("participantes")
+    .value.split("\n")
+    .filter(n => n.trim() !== "");
 
-  <!-- INSTRUCCIONES -->
-  <div class="instrucciones">
-    <h2>Instrucciones Generales</h2>
-    <p>Modalidad: Juego estratégico con negociación, intercambio, conflicto y supervivencia.</p>
-    <p>Objetivo: Planificación colectiva, negociación interna y externa, manejo del conflicto y gestión de recursos.</p>
-    <p>Preparación: 3 zonas separadas para cada equipo, hojas grandes, tarjetas de recursos y papel/bolígrafo.</p>
-    <p>Sistema de recursos:</p>
-    <ul>
-      <li>Alimentación (mínimo 4 puntos): Agua(1), Frutas(1), Comida enlatada(1), Caña de pescar(2 – especial)</li>
-      <li>Utilidad (mínimo 3 puntos): Botiquín, Cuerda, Martillo, Lona, Encendedor(1), Mochila(2 – especial)</li>
-      <li>Orientación (mínimo 2 puntos): Mapa(1), Radio(1), Brújula(2 – especial)</li>
-    </ul>
-    <p>Objetos de rol: Machete, Antifaz, Maletín, Alianza militar, Guantes.</p>
+  const numGrupos = parseInt(document.getElementById("numGrupos").value);
+
+  if(nombres.length === 0){
+    alert("Introduce al menos un participante");
+    return;
+  }
+  if(nombres.length > 15){
+    alert("Máximo 15 participantes");
+    return;
+  }
+
+  // Mezclar nombres
+  for (let i = nombres.length -1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
+  }
+
+  let grupos = Array.from({length: numGrupos}, ()=>[]);
+
+  nombres.forEach((nombre,index)=>{
+    grupos[index % numGrupos].push(nombre);
+  });
+
+  // Mostrar resultados
+  let html = "";
+  grupos.forEach((grupo,i)=>{
+    html += `<div class="grupo"><h2>Grupo ${i+1}</h2><ul>`;
+    grupo.forEach((p,j)=>{
+      const rolAsignado = roles[j % roles.length];
+      html += `<li>${p} - <strong>${rolAsignado}</strong></li>`;
+    });
+    html += `</ul>`;
+
+    // Asignar 2 objetos aleatorios
+    const shuffledObjetos = objetosRol.sort(()=>0.5 - Math.random());
+    const objetosAsignados = shuffledObjetos.slice(0,2);
+    html += `<p class="objetos">Objetos asignados: ${objetosAsignados.join(", ")}</p>`;
+    html += `</div>`;
+  });
+
+  document.getElementById("resultado").innerHTML = html;
+}
+</script>
+<div class="pasos">
+  <h2>Desarrollo del juego</h2>
+
+  <div class="paso">
+    <button onclick="togglePaso(this)">Paso 1: Introducción</button>
+    <div class="contenido" style="display:none; padding:10px; background:#f9f9f9; border-radius:5px; margin-top:5px;">
+      3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos...
+    </div>
   </div>
 
-  <!-- GENERADOR DE GRUPOS -->
-  <label>Participantes (uno por línea, máximo 15):</label>
-  <textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López&#10;Pedro González"></textarea>
-  <br>
-  <label>Número de grupos:</label>
-  <input type="number" id="numGrupos" value="3" min="2" max="3">
-  <br><br>
-  <button onclick="generarGrupos()">Generar Grupos y Asignar Roles</button>
-
-  <div id="resultado"></div>
-
-  <!-- DESARROLLO DEL JUEGO -->
-  <div class="pasos">
-    <h2>Desarrollo del juego</h2>
-    <ol>
-      <li>Introducción: Todos los grupos se encuentran en una isla con recursos limitados.</li>
-      <li>Formación de equipos y roles: Comerciante, Diplomático, Luchador, Ladrón, Recolector.</li>
-      <li>Planeación inicial: Elegir 5 recursos base y 2 objetos de rol.</li>
-      <li>Robo nocturno: Los ladrones actúan en secreto.</li>
-      <li>Pacto o soledad: Los diplomáticos negocian recursos especiales.</li>
-      <li>Combate: Piedra, papel o tijera para ataques y defensas.</li>
-      <li>Recolección: Recolectores recuperan hasta 2 objetos descartados.</li>
-      <li>Intercambio: Comerciantes negocian intercambios (máx. 2 objetos).</li>
-      <li>Decisión final: Verificación de mínimos de supervivencia.</li>
-    </ol>
+  <div class="paso">
+    <button onclick="togglePaso(this)">Paso 2: Formación de equipo y roles</button>
+    <div class="contenido" style="display:none; padding:10px; background:#f9f9f9; border-radius:5px; margin-top:5px;">
+      Asignación de roles. Cada jugador obtendrá un rol para participar...
+    </div>
   </div>
 
-  <script>
-    // Roles y objetos disponibles
-    const roles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
-    const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
+  <!-- Repite para los pasos 3 a 9 con tu contenido ampliado -->
+</div>
 
-    function generarGrupos() {
-      const nombres = document.getElementById("participantes")
-        .value.split("\n")
-        .filter(n => n.trim() !== "");
-
-      const numGrupos = parseInt(document.getElementById("numGrupos").value);
-
-      if(nombres.length === 0){
-        alert("Introduce al menos un participante");
-        return;
-      }
-      if(nombres.length > 15){
-        alert("Máximo 15 participantes");
-        return;
-      }
-
-      // Mezclar nombres
-      for (let i = nombres.length -1; i>0; i--){
-        const j = Math.floor(Math.random() * (i+1));
-        [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
-      }
-
-      let grupos = Array.from({length: numGrupos}, ()=>[]);
-
-      nombres.forEach((nombre,index)=>{
-        grupos[index % numGrupos].push(nombre);
-      });
-
-      // Mostrar resultados
-      let html = "";
-      grupos.forEach((grupo,i)=>{
-        html += `<div class="grupo"><h2>Grupo ${i+1}</h2><ul>`;
-        grupo.forEach((p,j)=>{
-          // Asignar rol a cada participante en orden cíclico
-          const rolAsignado = roles[j % roles.length];
-          html += `<li>${p} - <strong>${rolAsignado}</strong></li>`;
-        });
-        html += `</ul>`;
-
-        // Asignar 2 objetos aleatorios al grupo
-        const shuffledObjetos = objetosRol.sort(()=>0.5 - Math.random());
-        const objetosAsignados = shuffledObjetos.slice(0,2);
-        html += `<p class="objetos">Objetos asignados: ${objetosAsignados.join(", ")}</p>`;
-        html += `</div>`;
-      });
-
-      document.getElementById("resultado").innerHTML = html;
-    }
-  </script>
+<script>
+function togglePaso(btn){
+  const contenido = btn.nextElementSibling;
+  contenido.style.display = contenido.style.display === "none" ? "block" : "none";
+}
+</script>
 
 </body>
 </html>
+
