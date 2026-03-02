@@ -17,6 +17,7 @@
         .instruction-highlight { color: #c0392b; font-weight: bold; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px dashed #e74c3c; margin-bottom: 20px; text-align: center; }
         select, input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; }
         .role-label { font-size: 0.85em; color: #7f8c8d; font-weight: bold; display: block; margin-top: 5px; }
+        .venganza-active { border: 2px solid var(--danger); }
     </style>
 </head>
 <body>
@@ -35,15 +36,20 @@ const DB = {
         { id: "cuerda", n: "Cuerda", c: "uti", p: 1 }, { id: "martillo", n: "Martillo", c: "uti", p: 1 },
         { id: "lona", n: "Lona", c: "uti", p: 1 }, { id: "encendedor", n: "Encendedor", c: "uti", p: 1 },
         { id: "mapa", n: "Mapa", c: "ori", p: 1 }, { id: "radio", n: "Radio", c: "ori", p: 1 }
+    ],
+    especiales: [
+        { id: "pesca", n: "Caña de Pescar (2 pts)", c: "ali", p: 2 },
+        { id: "mochila", n: "Mochila (2 pts)", c: "uti", p: 2 },
+        { id: "brujula", n: "Brújula (2 pts)", c: "ori", p: 2 }
     ]
 };
 
 let Game = {
     paso: 1,
     equipos: [
-        { nombre: "Alfa", inventario: [] },
-        { nombre: "Beta", inventario: [] },
-        { nombre: "Omega", inventario: [] }
+        { nombre: "Alfa", inventario: [], venganza: false },
+        { nombre: "Beta", inventario: [], venganza: false },
+        { nombre: "Omega", inventario: [], venganza: false }
     ]
 };
 
@@ -59,8 +65,8 @@ function updateScoreboard() {
     sb.style.display = 'grid';
     sb.innerHTML = Game.equipos.map(e => {
         const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
-        return `<div class="score-card">
-            <small>Equipo ${e.nombre}</small>
+        return `<div class="score-card ${e.venganza ? 'venganza-active' : ''}">
+            <small>Equipo ${e.nombre} ${e.venganza ? '🔥' : ''}</small>
             <div class="points">🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>
         </div>`;
     }).join("");
@@ -71,14 +77,40 @@ function render() {
     updateScoreboard();
 
     if (Game.paso === 1) {
-        ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ La Isla</h1><h3>Dinámica Grupal</h3><div class="author">Autor: Alejandro Scuro Rossi</div><button onclick="Game.paso=2; render();">Siguiente</button></div>`;
+        ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ La Isla</h1><h3>Dinámica Grupal</h3><div class="author">Autor: Alejandro Scuro Rossi</div><button onclick="Game.paso=2; render();">Configurar Jugadores</button></div>`;
     } 
     else if (Game.paso === 2) {
-        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro de Roles</h2><div class="grid">${Game.equipos.map(e => `<div class="card"><h3>Equipo ${e.nombre}</h3><label class="role-label">Ladrón:</label><input type="text"><label class="role-label">Diplomático:</label><input type="text"><label class="role-label">Luchador:</label><input type="text"><label class="role-label">Recolector:</label><input type="text"><label class="role-label">Comerciante:</label><input type="text"></div>`).join("")}</div><button onclick="Game.paso=3; render();">Siguiente: Planeación</button></div>`;
+        ui.innerHTML = `
+            <div class="card">
+                <h2>Paso 2: Registro de Jugadores</h2>
+                <div class="instruction-highlight">
+                    Equipos de 3: Jugadores 1 y 2 tienen 2 roles.<br>
+                    Equipos de 4: Jugador 1 tiene 2 roles.
+                </div>
+                <div class="grid">${Game.equipos.map((e, i) => `
+                    <div class="card">
+                        <h3>Equipo ${e.nombre}</h3>
+                        <label>Nº de Jugadores:</label>
+                        <select id="num_jug_${i}" onchange="cambiarInputsJugadores(${i})">
+                            <option value="5">5 Jugadores</option>
+                            <option value="4">4 Jugadores</option>
+                            <option value="3">3 Jugadores</option>
+                        </select>
+                        <div id="inputs_jug_${i}">
+                            <input type="text" placeholder="Jugador 1 (Ladrón + ...)">
+                            <input type="text" placeholder="Jugador 2">
+                            <input type="text" placeholder="Jugador 3">
+                            <input type="text" placeholder="Jugador 4">
+                            <input type="text" placeholder="Jugador 5">
+                        </div>
+                    </div>
+                `).join("")}</div>
+                <button onclick="Game.paso=3; render();">Siguiente: Planeación</button>
+            </div>`;
     }
     else if (Game.paso === 3) {
         ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación Inicial (5 objetos)</h2><div class="instruction-highlight">🖱️ CTRL + CLIC para elegir 5 objetos.</div><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>Equipo ${e.nombre}</h3><select id="plan_${i}" multiple style="height:150px;">${DB.base.map(o => `<option value="${o.id}">${o.n} (${o.c})</option>`).join("")}</select><div id="count_${i}">Seleccionados: 0</div></div>`).join("")}</div><button onclick="procesarPaso3()">Confirmar Planeación</button></div>`;
-        setTimeout(() => { Game.equipos.forEach((_, i) => { const s = document.getElementById(`plan_${i}`); s.onchange = () => document.getElementById(`count_${i}`).innerText = `Seleccionados: ${Array.from(s.selectedOptions).length}`; }); }, 100);
+        setTimeout(() => { Game.equipos.forEach((_, i) => { const s = document.getElementById(`plan_${i}`); if(s) s.onchange = () => document.getElementById(`count_${i}`).innerText = `Seleccionados: ${Array.from(s.selectedOptions).length}`; }); }, 100);
     }
     else if (Game.paso === 4) {
         ui.innerHTML = `
@@ -105,63 +137,55 @@ function render() {
                 <button onclick="procesarPaso4()">Procesar Noche</button>
             </div>`;
     }
+    else if (Game.paso === 5) {
+        ui.innerHTML = `
+            <div class="card">
+                <h2>Paso 5: Pacto de Diplomáticos</h2>
+                <div class="instruction-highlight">Selecciona los 2 equipos que hacen el pacto. El tercero tendrá Venganza.</div>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Equipos en Pacto</h3>
+                        ${Game.equipos.map((e, i) => `<label><input type="checkbox" class="pacto-check" value="${i}"> ${e.nombre}</label><br>`).join("")}
+                    </div>
+                    <div class="card">
+                        <h3>Entrega de Especiales</h3>
+                        <p>Los equipos del pacto reciben 2 objetos especiales. El de venganza 1.</p>
+                        <button onclick="resolverPacto()">Finalizar Pactos</button>
+                    </div>
+                </div>
+            </div>`;
+    }
 }
 
-/* LÓGICA DE ROBO */
+/* LÓGICA DE JUGADORES */
+function cambiarInputsJugadores(idx) {
+    const num = document.getElementById(`num_jug_${idx}`).value;
+    const cont = document.getElementById(`inputs_jug_${idx}`);
+    let html = "";
+    if(num == "3") {
+        html = `<input type="text" placeholder="Jugador 1 (Ladrón + Diplomático)">
+                <input type="text" placeholder="Jugador 2 (Luchador + Recolector)">
+                <input type="text" placeholder="Jugador 3 (Comerciante)">`;
+    } else if(num == "4") {
+        html = `<input type="text" placeholder="Jugador 1 (Ladrón + Diplomático)">
+                <input type="text" placeholder="Jugador 2">
+                <input type="text" placeholder="Jugador 3">
+                <input type="text" placeholder="Jugador 4">`;
+    } else {
+        html = `<input type="text" placeholder="Jugador 1">
+                <input type="text" placeholder="Jugador 2">
+                <input type="text" placeholder="Jugador 3">
+                <input type="text" placeholder="Jugador 4">
+                <input type="text" placeholder="Jugador 5">`;
+    }
+    cont.innerHTML = html;
+}
+
+/* FUNCIONES DE PASO 4 */
 function toggleRoboUI(i) {
     const act = document.getElementById(`accion_${i}`).value;
     document.getElementById(`robo_ui_${i}`).style.display = (act === 'atk') ? 'block' : 'none';
 }
 
-function cargarItems(i) {
-    const vIdx = document.getElementById(`victima_${i}`).value;
-    const itemSel = document.getElementById(`item_robo_${i}`);
-    if (vIdx === "") { itemSel.innerHTML = '<option value="">-- Elige Objeto --</option>'; return; }
-    
-    itemSel.innerHTML = Game.equipos[vIdx].inventario.map((obj, idx) => 
-        `<option value="${idx}">${obj.n} (${obj.c})</option>`
-    ).join("");
-}
+function cargarItems(i)
 
-function procesarPaso3() {
-    let nuevosInv = [];
-    for(let i=0; i<3; i++) {
-        const sel = Array.from(document.getElementById(`plan_${i}`).selectedOptions);
-        if(sel.length !== 5) { alert("¡Todos deben tener 5 objetos!"); return; }
-        nuevosInv.push(sel.map(o => DB.base.find(item => item.id === o.value)));
-    }
-    Game.equipos.forEach((e, i) => e.inventario = nuevosInv[i]);
-    log("Planeación guardada."); Game.paso = 4; render();
-}
-
-function procesarPaso4() {
-    const defensas = Game.equipos.map((_, i) => document.getElementById(`accion_${i}`).value === 'def');
-    let accionesLog = [];
-
-    Game.equipos.forEach((ladron, i) => {
-        if (document.getElementById(`accion_${i}`).value === 'atk') {
-            const vIdx = document.getElementById(`victima_${i}`).value;
-            const oIdx = document.getElementById(`item_robo_${i}`).value;
-
-            if (vIdx !== "" && oIdx !== "") {
-                if (defensas[vIdx]) {
-                    accionesLog.push(`❌ ${ladron.nombre} falló: ${Game.equipos[vIdx].nombre} se defendió.`);
-                } else {
-                    const robado = Game.equipos[vIdx].inventario.splice(oIdx, 1)[0];
-                    ladron.inventario.push(robado);
-                    accionesLog.push(`✅ ${ladron.nombre} robó ${robado.n} a ${Game.equipos[vIdx].nombre}.`);
-                }
-            }
-        }
-    });
-
-    accionesLog.forEach(m => log(m));
-    alert("Resultados de la noche:\n" + accionesLog.join("\n"));
-    updateScoreboard();
-    // Aquí podrías avanzar al paso 5
-}
-
-render();
-</script>
-</body>
-</html>
