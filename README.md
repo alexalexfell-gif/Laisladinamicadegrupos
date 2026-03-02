@@ -19,6 +19,7 @@ Esta herramienta, **"La Isla"**, es un **prototipo experimental y educativo** de
 3. **Interpretación Profesional:** Esta dinámica está concebida exclusivamente como un apoyo visual. Cualquier conclusión extraída de su uso debe ser interpretada y validada por un profesional cualificado en la materia.
 4. **Naturaleza del Proyecto:** Al utilizar este software, el usuario reconoce su naturaleza experimental y acepta utilizarlo bajo su propia cuenta y riesgo.
 5. El autor no asume responsabilidad por usos del software fuera del contexto educativo o facilitación grupal.
+6. Esta herramienta no está diseñada ni validada para diagnósticos psicológicos, selección de personal o certificación de competencias.
 
 ---
 
