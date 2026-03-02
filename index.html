@@ -38,6 +38,7 @@ ul { padding-left: 20px; }
 </div>
 
 <script>
+// Roles y objetos
 const roles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
 const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
 let pasoActual = 0;
@@ -49,13 +50,26 @@ const objetoAPaso = {
   "Antifaz": 4,
   "Alianza militar": 5,
   "Guantes": 7
-  // Maletín no tiene paso, no se incluye
 };
+
+// Recursos iniciales
+const recursos = [
+  {nombre: "Agua", categoria:"Alimentación", puntos:1},
+  {nombre: "Frutas", categoria:"Alimentación", puntos:1},
+  {nombre: "Comida enlatada", categoria:"Alimentación", puntos:1},
+  {nombre: "Botiquín", categoria:"Utilidad", puntos:1},
+  {nombre: "Cuerda", categoria:"Utilidad", puntos:1},
+  {nombre: "Martillo", categoria:"Utilidad", puntos:1},
+  {nombre: "Lona", categoria:"Utilidad", puntos:1},
+  {nombre: "Encendedor", categoria:"Utilidad", puntos:1},
+  {nombre: "Mapa", categoria:"Orientación", puntos:1},
+  {nombre: "Radio", categoria:"Orientación", puntos:1}
+];
 
 const pasos = [
   {titulo:"Paso 1: Introducción", contenido:"3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.\nObjetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.\nPueden obtenerse objetos repetidos a través del robo, el comercio o la lucha."},
   {titulo:"Paso 2: Formación de equipo y roles", contenido:"Aquí se generarán los grupos y se asignarán roles y objetos de rol."},
-  {titulo:"Paso 3: Planeación inicial", contenido:"Selección de 5 recursos entre los 10 iniciales. Los otros 5 los mantiene el Recolector temporalmente (no cuentan para la puntuación grupal).\nResumen de objetos elegidos por cada grupo."},
+  {titulo:"Paso 3: Planeación inicial", contenido:"Selecciona 5 recursos para cada grupo.\nResumen de objetos y recursos elegidos por cada grupo."},
   {titulo:"Paso 4: Robo nocturno", contenido:"Los Ladrones de cada equipo pueden decidir robar un objeto de otro equipo o proteger los objetos de su equipo evitando robos.\nDos Ladrones pueden robar al mismo equipo."},
   {titulo:"Paso 5: Pacto", contenido:"Los Diplomáticos negocian entre sí. Aquellos dos que logren alcanzar un pacto deben darse la mano.\nObtendrán cada uno 2 recursos especiales a elegir. El Diplomático que no llegue a un pacto solo podrá elegir 1 recurso especial.\nEn caso de no llegarse a un pacto todos los Diplomáticos obtendrán 1 recurso especial.\nSi se forma una Alianza militar, los Luchadores de ambos equipos no podrán atacarse en el siguiente paso."},
   {titulo:"Paso 6: Combate", contenido:"Los Luchadores combaten entre sí. Cada Luchador dispone de un ataque.\nAtaque exitoso: roba un objeto del equipo contrario.\nDefensa exitosa: no se pierden objetos.\nEn caso de empate se repite hasta que atacante o defensor tengan éxito.\nVenganza: El luchador del equipo excluido del pacto del Paso 5 ataca 2 veces."},
@@ -64,7 +78,7 @@ const pasos = [
   {titulo:"Paso 9: Decisión final", contenido:"Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica."}
 ];
 
-// Mostrar paso actual
+// Mostrar paso
 function mostrarPaso(){
   let html = `<strong>${pasos[pasoActual].titulo}</strong>\n\n` + pasos[pasoActual].contenido;
 
@@ -79,9 +93,27 @@ function mostrarPaso(){
     <div id="resultado"></div>`;
   }
 
-  // Pasos posteriores → resumen de grupos y objetos
-  if(pasoActual > 1 && grupos.length > 0){
-    html += "\n\nResumen de grupos y objetos:\n";
+  // Paso 3 → selección de recursos por grupo
+  if(pasoActual === 2 && grupos.length > 0){
+    html += `<br><strong>Selecciona 5 recursos por grupo:</strong>`;
+    grupos.forEach((grupo,i)=>{
+      const g = i+1;
+      html += `<div class="grupo"><h3>Grupo ${g}</h3>`;
+      html += `<ul>${grupo.miembros.map((p,j)=>`<li>${p} - ${grupo.roles[j]}</li>`).join('')}</ul>`;
+      html += `<p>Selecciona 5 recursos:</p>`;
+      for(let r=1;r<=5;r++){
+        html += `<select id="grupo${g}-rec${r}" onchange="actualizarRecursos(${g})"><option value="">--Seleccionar--</option>`;
+        recursos.forEach(res=> html += `<option value="${res.nombre}">${res.nombre} (${res.categoria})</option>`);
+        html += `</select> `;
+      }
+      html += `<br><button onclick="guardarRecursos(${g})">Guardar recursos del Grupo ${g}</button>`;
+      html += `<p id="grupo${g}-recursos-asignados" class="objetos"></p></div>`;
+    });
+  }
+
+  // Pasos posteriores → mostrar resumen de grupos y objetos
+  if(pasoActual > 2 && grupos.length > 0){
+    html += "\n\nResumen de grupos, objetos y recursos:\n";
     grupos.forEach((grupo,i)=>{
       html += `Grupo ${i+1}:\n`;
       grupo.miembros.forEach((p,j)=>{ html += `  ${p} - ${grupo.roles[j]}\n`; });
@@ -90,11 +122,13 @@ function mostrarPaso(){
         let clase = "";
         const pasoObjeto = objetoAPaso[obj];
         if(pasoObjeto !== undefined){
-          if(pasoActual + 1 === pasoObjeto) clase = "relevante"; // rojo si paso actual
-          else if(pasoActual + 1 > pasoObjeto) clase = "usado";  // gris si paso ya pasó
+          if(pasoActual + 1 === pasoObjeto) clase = "relevante";
+          else if(pasoActual + 1 > pasoObjeto) clase = "usado";
         }
         html += `<span class="${clase}">${obj}</span> `;
       });
+      html += "\n  Recursos: ";
+      if(grupo.recursos) grupo.recursos.forEach(r=> html += `${r} `);
       html += "\n";
     });
   }
@@ -104,6 +138,7 @@ function mostrarPaso(){
   document.getElementById("nextBtn").disabled = pasoActual === pasos.length - 1;
 }
 
+// Navegación
 function cambiarPaso(direccion){
   pasoActual += direccion;
   if(pasoActual < 0) pasoActual = 0;
@@ -118,18 +153,20 @@ function generarGrupos(){
   if(nombres.length === 0){ alert("Introduce al menos un participante"); return; }
   if(nombres.length > 15){ alert("Máximo 15 participantes"); return; }
 
+  // Mezclar participantes
   for(let i=nombres.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
   }
 
-  grupos = Array.from({length: numGrupos}, ()=>({miembros:[], roles:[], objetos:[]}));
+  grupos = Array.from({length: numGrupos}, ()=>({miembros:[], roles:[], objetos:[], recursos:[]}));
   nombres.forEach((nombre,index)=>{
     const g = index % numGrupos;
     grupos[g].miembros.push(nombre);
     grupos[g].roles.push(roles[index % roles.length]);
   });
 
+  // Crear HTML para seleccionar objetos
   let html = "";
   grupos.forEach((grupo,i)=>{
     const grupoNum = i+1;
@@ -145,10 +182,10 @@ function generarGrupos(){
     html += ` <button onclick="guardarObjetos(${grupoNum})">Guardar objetos del grupo ${grupoNum}</button>`;
     html += `<p id="grupo${grupoNum}-objetos-asignados" class="objetos"></p></div>`;
   });
-
   document.getElementById("resultado").innerHTML = html;
 }
 
+// Guardar objetos
 function guardarObjetos(numGrupo){
   const obj1 = document.getElementById(`grupo${numGrupo}-obj1`).value;
   const obj2 = document.getElementById(`grupo${numGrupo}-obj2`).value;
@@ -158,13 +195,32 @@ function guardarObjetos(numGrupo){
   document.getElementById(`grupo${numGrupo}-objetos-asignados`).innerText = `Objetos elegidos: ${obj1}, ${obj2}`;
 }
 
-function actualizarOpciones(grupoNum){
-  const obj1 = document.getElementById(`grupo${grupoNum}-obj1`).value;
-  const obj2Select = document.getElementById(`grupo${grupoNum}-obj2`);
-  Array.from(obj2Select.options).forEach(opt => opt.disabled = false);
-  if(obj1 !== ""){
-    const opt = Array.from(obj2Select.options).find(o => o.value === obj1);
-    if(opt) opt.disabled = true;
+// Guardar recursos
+function guardarRecursos(numGrupo){
+  const seleccion = [];
+  for(let r=1;r<=5;r++){
+    const val = document.getElementById(`grupo${numGrupo}-rec${r}`).value;
+    if(val === "") { alert("Selecciona los 5 recursos"); return; }
+    if(seleccion.includes(val)){ alert("No se puede seleccionar el mismo recurso dos veces"); return; }
+    seleccion.push(val);
+  }
+  grupos[numGrupo-1].recursos = seleccion;
+  document.getElementById(`grupo${numGrupo}-recursos-asignados`).innerText = `Recursos elegidos: ${seleccion.join(", ")}`;
+}
+
+// Evitar duplicados en recursos
+function actualizarRecursos(grupoNum){
+  const seleccionados = [];
+  for(let r=1;r<=5;r++){
+    const sel = document.getElementById(`grupo${grupoNum}-rec${r}`);
+    seleccionados.push(sel.value);
+    Array.from(sel.options).forEach(opt => opt.disabled = false);
+    seleccionados.forEach(v=>{
+      if(v!=="" && v!==sel.value){
+        const opt = Array.from(sel.options).find(o=>o.value===v);
+        if(opt) opt.disabled = true;
+      }
+    });
   }
 }
 
@@ -173,4 +229,5 @@ mostrarPaso();
 </script>
 </body>
 </html>
+
 
