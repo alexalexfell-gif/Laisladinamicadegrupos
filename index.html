@@ -8,7 +8,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1100px; margin: auto; }
         
-        /* Marcador de Supervivencia */
         .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; position: sticky; top: 0; z-index: 1000; margin-bottom: 20px; }
         .score-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-bottom: 5px solid transparent; }
         .venganza-active { border-color: var(--danger); animation: glow 2s infinite; }
@@ -27,14 +26,16 @@
         
         select, input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; height: 120px; overflow-y: auto; margin-top: 20px; }
+        .intro-box { text-align: center; padding: 40px; }
+        .min-box { display: flex; justify-content: space-around; background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="scoreboard" class="scoreboard"></div>
+    <div id="scoreboard" class="scoreboard" style="display:none;"></div>
     <div id="game-ui"></div>
-    <div class="log" id="game-log">>> Sistema iniciado. Esperando configuración...</div>
+    <div class="log" id="game-log">>> Sistema iniciado.</div>
 </div>
 
 <script>
@@ -63,9 +64,6 @@ let Game = {
     }))
 };
 
-/* ============================
-   SISTEMA DE UI
-   ============================ */
 function log(msg) {
     const l = document.getElementById('game-log');
     l.innerHTML += `<br>> ${msg}`;
@@ -74,6 +72,8 @@ function log(msg) {
 
 function updateScoreboard() {
     const sb = document.getElementById('scoreboard');
+    if(Game.paso < 3) { sb.style.display = 'none'; return; }
+    sb.style.display = 'grid';
     sb.innerHTML = Game.equipos.map(e => {
         const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
         return `
@@ -84,36 +84,51 @@ function updateScoreboard() {
                     <span class="${p.uti>=3?'status-ok':''}">🛠${p.uti}</span> | 
                     <span class="${p.ori>=2?'status-ok':''}">🧭${p.ori}</span>
                 </div>
-                <div style="font-size:0.7em; opacity:0.7;">Meta: 4 | 3 | 2</div>
             </div>`;
     }).join("");
 }
 
-/* ============================
-   NAVEGACIÓN DE PASOS
-   ============================ */
 function render() {
     const ui = document.getElementById('game-ui');
     updateScoreboard();
 
     switch(Game.paso) {
-        case 1: // Formación
+        case 1: 
+            ui.innerHTML = `
+                <div class="card intro-box">
+                    <h1>🏝️ PASO 1: INTRODUCCIÓN</h1>
+                    <p class="tagline">3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos.</p>
+                    <div class="min-box">
+                        <div><strong>🍎 Alimentación</strong><br>Mínimo 4 pts</div>
+                        <div><strong>🛠️ Utilidad</strong><br>Mínimo 3 pts</div>
+                        <div><strong>🧭 Orientación</strong><br>Mínimo 2 pts</div>
+                    </div>
+                    <p>Objetos: 1 o 2 puntos. Métodos: Robo, comercio o lucha.</p>
+                    <button class="btn-next" onclick="Game.paso=2; render();">Siguiente: Equipos y Roles</button>
+                </div>`;
+            break;
+
+        case 2: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 1 y 2: Equipos y Liderazgo</h2>
-                    <p class="tagline">Define los roles y el tipo de liderazgo de cada equipo.</p>
+                    <h2>Paso 2: Formación de equipo y roles</h2>
+                    <p class="tagline">Asignación de roles y definición de relación con los demás grupos.</p>
                     <div class="grid">${Game.equipos.map(e => `
-                        <div class="card"><h3>${e.nombre}</h3><input type="text" placeholder="Líder/Roles asignados..."></div>
+                        <div class="card">
+                            <h3>Equipo ${e.nombre}</h3>
+                            <input type="text" placeholder="Relación con otros grupos (Cooperación/Competición)">
+                            <p><small>Roles: Ladrón, Diplomático, Luchador, Recolector, Comerciante.</small></p>
+                        </div>
                     `).join("")}</div>
                     <button class="btn-next" onclick="Game.paso=3; render();">Siguiente: Planeación Inicial</button>
                 </div>`;
             break;
 
-        case 3: // Planeación
+        case 3: 
             ui.innerHTML = `
                 <div class="card">
                     <h2>Paso 3: Planeación Inicial</h2>
-                    <p class="tagline">Cada equipo elige 5 objetos base. Los otros 5 quedan para el Recolector.</p>
+                    <p class="tagline">Elige 5 recursos base. Los otros 5 van al Recolector temporalmente.</p>
                     <div class="grid">${Game.equipos.map((e, i) => `
                         <div class="card">
                             <h3>${e.nombre}</h3>
@@ -122,28 +137,27 @@ function render() {
                             </select>
                         </div>
                     `).join("")}</div>
-                    <button class="btn-next" onclick="procesarPaso3()">Confirmar y seguir al Paso 4</button>
+                    <button class="btn-next" onclick="procesarPaso3()">Confirmar Planeación</button>
                 </div>`;
             break;
 
-        case 4: // Robo Nocturno
+        case 4: 
             ui.innerHTML = `
                 <div class="card">
                     <h2>Paso 4: Robo Nocturno</h2>
-                    <p class="tagline">Indica la acción del Ladrón. Si roba, elige a quién y qué objeto.</p>
                     <div class="grid">${Game.equipos.map((e, i) => `
                         <div class="card">
                             <h3>Ladrón ${e.nombre}</h3>
                             <select id="acc_ladron_${i}" onchange="updateUI4(${i})">
-                                <option value="defender">🛡️ Proteger</option>
-                                <option value="robar">👤 Robar</option>
+                                <option value="defender">🛡️ Proteger Campamento</option>
+                                <option value="robar">👤 Robar Objeto</option>
                             </select>
                             <div id="box_robo_${i}" style="display:none">
                                 <select id="vic_ladron_${i}" onchange="loadInvVictima(${i}, 'vic_ladron_${i}', 'obj_ladron_${i}')">
                                     <option value="">¿A quién?</option>
                                     ${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}
                                 </select>
-                                <select id="obj_ladron_${i}"><option>-- Objeto --</option></select>
+                                <select id="obj_ladron_${i}"><option value="">-- Seleccionar objeto --</option></select>
                             </div>
                         </div>
                     `).join("")}</div>
@@ -151,50 +165,48 @@ function render() {
                 </div>`;
             break;
 
-        case 5: // Pacto
+        case 5: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 5: Pacto de Diplomáticos</h2>
-                    <p class="tagline">Marca a los 2 equipos que pactan. El excluido obtiene 1 objeto y Venganza.</p>
+                    <h2>Paso 5: Pacto</h2>
                     <div class="grid">
                         <div class="card">
-                            <h3>Equipos en el Pacto</h3>
+                            <h3>Pacto de Diplomáticos</h3>
                             ${Game.equipos.map((e, i) => `<label><input type="checkbox" class="pacto-check" value="${i}"> ${e.nombre}</label><br>`).join("")}
                         </div>
                         <div class="card">
-                            <h3>Objetos Especiales (2 pts)</h3>
+                            <h3>Recursos Especiales (2 pts)</h3>
                             ${Game.equipos.map((e, i) => `
                                 <div style="margin-bottom:10px">
                                     <strong>${e.nombre}:</strong>
                                     <select class="esp-1-${i}">${DB.especiales.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
-                                    <select class="esp-2-${i}"><option value="">Ninguno</option>${DB.especiales.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
+                                    <select class="esp-2-${i}"><option value="">Ninguno (Excluido)</option>${DB.especiales.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
                                 </div>
                             `).join("")}
                         </div>
                     </div>
-                    <button class="btn-next" onclick="procesarPaso5()">Confirmar Pacto</button>
+                    <button class="btn-next" onclick="procesarPaso5()">Resolver Pacto</button>
                 </div>`;
             break;
 
-        case 6: // Combate
+        case 6: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 6: Combate (Luchadores)</h2>
-                    <p class="tagline">Registra los duelos. Si el atacante vence, el objeto se transfiere automáticamente.</p>
+                    <h2>Paso 6: Combate</h2>
+                    <p class="tagline">Venganza: El excluido ataca 2 veces.</p>
                     <div class="grid">${Game.equipos.map((e, i) => {
                         const n = e.venganza ? 2 : 1;
                         let ataques = "";
                         for(let a=0; a<n; a++) {
                             ataques += `
                             <div style="border-top:1px solid #eee; margin-top:10px; padding-top:10px">
-                                <small>Ataque ${n>1?a+1:''}</small>
                                 <select id="vic_c_${i}_${a}" onchange="loadInvVictima(${i}, 'vic_c_${i}_${a}', 'obj_c_${i}_${a}')">
                                     <option value="">¿Víctima?</option>
                                     ${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}
                                 </select>
-                                <select id="res_c_${i}_${a}"><option value="win">Victoria Atacante</option><option value="lose">Victoria Defensor</option></select>
+                                <select id="res_c_${i}_${a}"><option value="win">Atacante Vence</option><option value="lose">Defensor Vence</option></select>
                                 <select id="obj_c_${i}_${a}"><option value="">-- Objeto --</option></select>
-                                <button class="btn-action" onclick="procesarCombate(${i}, ${a})">Registrar</button>
+                                <button class="btn-action" onclick="procesarCombate(${i}, ${a}, this)">Registrar</button>
                             </div>`;
                         }
                         return `<div class="card"><h3>${e.nombre} ${e.venganza?'🔥':''}</h3>${ataques}</div>`;
@@ -203,14 +215,13 @@ function render() {
                 </div>`;
             break;
 
-        case 7: // Recolección
+        case 7: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 7: Recolección (Recolectores)</h2>
-                    <p class="tagline">Eligen 2 objetos de los descartes iniciales.</p>
+                    <h2>Paso 7: Recolección</h2>
                     <div class="grid">${Game.equipos.map((e, i) => `
                         <div class="card">
-                            <h3>${e.nombre}</h3>
+                            <h3>Recolector ${e.nombre}</h3>
                             <select id="rec1_${i}">${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
                             <select id="rec2_${i}">${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
                         </div>
@@ -219,42 +230,38 @@ function render() {
                 </div>`;
             break;
 
-        case 8: // Intercambio
+        case 8: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 8: Intercambio (Comerciantes)</h2>
+                    <h2>Paso 8: Intercambio</h2>
                     <div class="grid">${Game.equipos.map((e, i) => `
                         <div class="card">
-                            <h3>${e.nombre}</h3>
-                            <select id="int_${i}"><option value="">Añadir por intercambio...</option>${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
-                            <button onclick="manualAdd(${i})">Añadir Objeto</button>
+                            <h3>Intercambio ${e.nombre}</h3>
+                            <select id="int_${i}"><option value="">Objeto recibido...</option>${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
+                            <button class="btn-action" onclick="manualAdd(${i})">Añadir Objeto</button>
                         </div>
                     `).join("")}</div>
-                    <button class="btn-next" onclick="Game.paso=9; render();">Ver Veredicto Final</button>
+                    <button class="btn-next" onclick="Game.paso=9; render();">Veredicto Final</button>
                 </div>`;
             break;
 
-        case 9: // Fin
+        case 9: 
             ui.innerHTML = `
                 <div class="card" style="text-align:center">
                     <h2>Paso 9: Decisión Final</h2>
                     <div class="grid">${Game.equipos.map(e => {
                         const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
                         const v = p.ali>=4 && p.uti>=3 && p.ori>=2;
-                        return `<div class="card" style="border:3px solid ${v? 'green' : 'red'}">
+                        return `<div class="card" style="border:3px solid ${v?'green':'red'}">
                                     <h3>Equipo ${e.nombre}</h3>
                                     <h1 style="color:${v?'green':'red'}">${v?'SOBREVIVEN':'PERECEN'}</h1>
                                 </div>`;
                     }).join("")}</div>
-                    <button onclick="location.reload()">Reiniciar Dinámica</button>
+                    <button onclick="location.reload()">Reiniciar</button>
                 </div>`;
             break;
     }
 }
-
-/* ============================
-   LÓGICA DE PROCESAMIENTO
-   ============================ */
 
 function procesarPaso3() {
     Game.equipos.forEach((e, i) => {
@@ -262,7 +269,6 @@ function procesarPaso3() {
         if(sel.length !== 5) { alert(`Equipo ${e.nombre} debe elegir 5.`); throw "err"; }
         e.inventario = sel.map(id => DB.base.find(o => o.id === id));
     });
-    log("Paso 3 completado: Recursos base asignados.");
     Game.paso = 4; render();
 }
 
@@ -283,11 +289,11 @@ function procesarPaso4() {
         if(document.getElementById(`acc_ladron_${i}`).value === 'robar') {
             const vIdx = document.getElementById(`vic_ladron_${i}`).value;
             const oIdx = document.getElementById(`obj_ladron_${i}`).value;
-            if(defensas[vIdx]) log(`El robo de ${ladron.nombre} falló: Defensa activada.`);
-            else {
+            if(defensas[vIdx]) log(`Robo de ${ladron.nombre} falló: Defensa.`);
+            else if(oIdx !== ""){
                 const item = Game.equipos[vIdx].inventario.splice(oIdx, 1)[0];
                 ladron.inventario.push(item);
-                log(`${ladron.nombre} robó exitosamente ${item.n} de ${Game.equipos[vIdx].nombre}`);
+                log(`${ladron.nombre} robó ${item.n} de ${Game.equipos[vIdx].nombre}`);
             }
         }
     });
@@ -299,29 +305,26 @@ function procesarPaso5() {
     if(checks.length === 2) {
         const excIdx = [0,1,2].find(i => !checks.includes(i));
         Game.equipos[excIdx].venganza = true;
-        log(`Pacto entre dos. ${Game.equipos[excIdx].nombre} obtiene Venganza.`);
     }
     Game.equipos.forEach((e, i) => {
         const limit = (e.venganza) ? 1 : 2;
-        const o1 = document.querySelector(`.esp-1-${i}`).value;
+        e.inventario.push(DB.especiales.find(o => o.id === document.querySelector(`.esp-1-${i}`).value));
         const o2 = document.querySelector(`.esp-2-${i}`).value;
-        e.inventario.push(DB.especiales.find(o => o.id === o1));
         if(limit === 2 && o2) e.inventario.push(DB.especiales.find(o => o.id === o2));
     });
     Game.paso = 6; render();
 }
 
-function procesarCombate(aIdx, aNum) {
+function procesarCombate(aIdx, aNum, btn) {
     const vIdx = document.getElementById(`vic_c_${aIdx}_${aNum}`).value;
     const res = document.getElementById(`res_c_${aIdx}_${aNum}`).value;
     const oIdx = document.getElementById(`obj_c_${aIdx}_${aNum}`).value;
-    if(res === 'win' && oIdx !== "") {
+    if(res === 'win' && vIdx !== "" && oIdx !== "") {
         const item = Game.equipos[vIdx].inventario.splice(oIdx, 1)[0];
         Game.equipos[aIdx].inventario.push(item);
-        log(`Combate: ${Game.equipos[aIdx].nombre} gana objeto de ${Game.equipos[vIdx].nombre}.`);
-    } else {
-        log(`Combate: ${Game.equipos[vIdx].nombre} defendió con éxito.`);
-    }
+        log(`${Game.equipos[aIdx].nombre} gana objeto de ${Game.equipos[vIdx].nombre}.`);
+    } else log("Combate sin robo.");
+    btn.disabled = true;
     updateScoreboard();
 }
 
