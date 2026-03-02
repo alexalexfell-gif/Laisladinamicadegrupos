@@ -2,28 +2,35 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dinámica de Grupos</title>
+  <title>La Isla - Dinámica grupal</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 30px;
       background-color: #f4f6f9;
+      max-width: 800px;
+      margin: auto;
     }
 
-    h1 {
-      text-align: center;
-    }
+    h1, h2, h3 { text-align: center; margin: 5px 0; }
+    h1 { font-size: 2em; }
+    h2 { font-size: 1.2em; color: #555; }
+    h3 { font-size: 1em; color: #777; margin-bottom: 20px; }
+
+    hr { margin: 20px 0; }
 
     textarea {
       width: 100%;
       height: 150px;
       padding: 10px;
       margin-bottom: 15px;
+      resize: vertical;
     }
 
     input, button {
       padding: 10px;
       margin-top: 10px;
+      font-size: 1em;
     }
 
     button {
@@ -40,61 +47,76 @@
       border-radius: 8px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
+    ul { padding-left: 20px; }
   </style>
 </head>
 <body>
 
-<h1>Generador de Grupos</h1>
+  <!-- ENCABEZADO PERSONALIZADO -->
+  <h1>La Isla</h1>
+  <h2>Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia</h2>
+  <h3>por Alejandro Scuro Rossi</h3>
+  <hr>
 
-<label>Participantes (uno por línea):</label>
-<textarea id="participantes"></textarea>
+  <!-- INSTRUCCIONES -->
+  <div style="background:#fff; padding:15px; border-radius:8px; margin-bottom:20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <h2>Instrucciones</h2>
+    <p>Introduce los nombres de los participantes (uno por línea) y elige el número de grupos que quieres formar. Luego presiona "Generar Grupos".</p>
+  </div>
 
-<label>Número de grupos:</label>
-<input type="number" id="numGrupos" value="3" min="2">
+  <!-- GENERADOR DE GRUPOS -->
+  <label>Participantes (uno por línea):</label>
+  <textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López&#10;Pedro González"></textarea>
 
-<br><br>
-<button onclick="generarGrupos()">Generar Grupos</button>
+  <br>
 
-<div id="resultado"></div>
+  <label>Número de grupos:</label>
+  <input type="number" id="numGrupos" value="3" min="2">
 
-<script>
-function generarGrupos() {
-  const nombres = document.getElementById("participantes")
-    .value.split("\n")
-    .filter(n => n.trim() !== "");
+  <br><br>
+  <button onclick="generarGrupos()">Generar Grupos</button>
 
-  const numGrupos = parseInt(document.getElementById("numGrupos").value);
+  <div id="resultado"></div>
 
-  if (nombres.length === 0) {
-    alert("Introduce al menos un participante");
-    return;
-  }
+  <script>
+    function generarGrupos() {
+      const nombres = document.getElementById("participantes")
+        .value.split("\n")
+        .filter(n => n.trim() !== "");
 
-  // Mezclar nombres
-  for (let i = nombres.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
-  }
+      const numGrupos = parseInt(document.getElementById("numGrupos").value);
 
-  let grupos = Array.from({length: numGrupos}, () => []);
+      if (nombres.length === 0) {
+        alert("Introduce al menos un participante");
+        return;
+      }
 
-  nombres.forEach((nombre, index) => {
-    grupos[index % numGrupos].push(nombre);
-  });
+      // Mezclar nombres
+      for (let i = nombres.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
+      }
 
-  let html = "";
-  grupos.forEach((grupo, i) => {
-    html += `<div class="grupo">`;
-    html += `<h2>Grupo ${i + 1}</h2><ul>`;
-    grupo.forEach(p => {
-      html += `<li>${p}</li>`;
-    });
-    html += "</ul></div>";
-  });
+      let grupos = Array.from({length: numGrupos}, () => []);
 
-  document.getElementById("resultado").innerHTML = html;
-}
-</script>
+      nombres.forEach((nombre, index) => {
+        grupos[index % numGrupos].push(nombre);
+      });
+
+      let html = "";
+      grupos.forEach((grupo, i) => {
+        html += `<div class="grupo">`;
+        html += `<h2>Grupo ${i + 1}</h2><ul>`;
+        grupo.forEach(p => {
+          html += `<li>${p}</li>`;
+        });
+        html += "</ul></div>";
+      });
+
+      document.getElementById("resultado").innerHTML = html;
+    }
+  </script>
 
 </body>
 </html>
