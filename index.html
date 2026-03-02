@@ -177,7 +177,7 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 5: El Pacto</h2><p class="instruction">Los diplomáticos negocian. Selecciona participantes y sus objetos (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Diplomático: ${e.rolesNombres['Diplomático'] || 'No asignado'}</span>${renderMaletinUI(i)}<input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa</label><div id="pact_choice_${i}" style="display:none; margin-top:10px;"><b>Elegir:</b><select id="pact_sel_${i}" multiple style="height:80px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Cerrar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
-        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques. El excluido tiene +1 ataque por venganza.</p><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques (Piedra, Papel, Tijera). El excluido tiene +1 ataque por venganza.</p><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             return `<div class="card"><h3>${e.nombre} ${e.venganza?'🔥':''}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Ataque ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿Víctima?</option>${Game.equipos.map((v,vi) => i === vi ? '' : `<option value="${vi}">${v.nombre}</option>`).join("")}</select><div id="atk_ctrls_${i}_${a}" style="display:none;"><button onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button onclick="handleLuchaAtk(${i}, ${a}, false)" style="background:#95a5a6">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Robar</button></div></div>`).join("")}</div></div>`;
         }).join("")}</div><button onclick="Game.paso=7; render()">Siguiente</button></div>`;
@@ -402,6 +402,7 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
 
 
