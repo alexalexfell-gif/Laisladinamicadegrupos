@@ -17,11 +17,12 @@
         .instruction { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffeeba; font-size: 0.95em; text-align: center; }
         .role-tag { font-size: 0.75em; font-weight: bold; color: var(--accent); display: block; margin-top: 8px; text-transform: uppercase; }
         select, input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .trade-slot { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 8px; margin-top: 10px; }
+        .trade-slot { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; }
         .venganza-badge { background: var(--danger); color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.8em; font-weight: bold; }
         .active-turn { border: 2px solid var(--accent) !important; background: #ebf5fb !important; }
         .btn-atk { background: var(--accent); }
         .btn-fail { background: #95a5a6; }
+        .attack-done { background: #e8f6f3; border: 1px solid #d1f2eb; color: #16a085; text-align: center; padding: 10px; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -53,7 +54,6 @@ let Game = {
         { nombre: "Beta", inventario: [], attacks: 1, venganza: false },
         { nombre: "Gamma", inventario: [], attacks: 1, venganza: false }
     ],
-    pactoActivo: [],
     recoleccion: { indexTurno: 0, orden: [0, 1, 2] }
 };
 
@@ -88,14 +88,14 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 5: Pacto</h2><div style="display:flex; justify-content:center; gap:20px;">${Game.equipos.map((e,i)=>`<div><input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> ${e.nombre}</label></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Finalizar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
-        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha (Reconstruido)</h2><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             const isMil = e.inventario.some(it => it.id === 'alianza_mil');
             return `<div class="card"><h3>${e.nombre} ${e.venganza ? '<span class="venganza-badge">VENGANZA</span>' : ''}</h3>
-                <div>${Array.from({length: numAtks}).map((_, a) => `
-                <div class="trade-slot" id="slot_${i}_${a}">
+                <div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `
+                <div class="trade-slot" id="atk_block_${i}_${a}">
                     <b>Ataque ${a+1}:</b>
-                    <select id="vic_${i}_${a}" onchange="showBattleControls(${i}, ${a})">
+                    <select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})">
                         <option value="">¿A quién ataca?</option>
                         ${Game.equipos.map((v,vi) => {
                             const vMil = v.inventario.some(it => it.id === 'alianza_mil');
@@ -103,13 +103,15 @@ function render() {
                             return `<option value="${vi}">${v.nombre}</option>`;
                         }).join("")}
                     </select>
-                    <div id="ctrl_${i}_${a}" style="display:none; margin-top:5px;">
-                        <button class="btn-atk" onclick="resolveAttack(${i}, ${a}, true)">ÉXITO</button>
-                        <button class="btn-fail" onclick="resolveAttack(${i}, ${a}, false)">FALLO</button>
+                    <div id="atk_ctrls_${i}_${a}" style="display:none; margin-top:10px;">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                            <button class="btn-atk" onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button>
+                            <button class="btn-fail" onclick="handleLuchaAtk(${i}, ${a}, false)">FALLO</button>
+                        </div>
                     </div>
-                    <div id="steal_${i}_${a}" style="display:none; margin-top:5px;">
-                        <select id="booty_sel_${i}_${a}"></select>
-                        <button onclick="confirmRob(${i}, ${a})">Confirmar Robo</button>
+                    <div id="rob_area_${i}_${a}" style="display:none; margin-top:10px;">
+                        <select id="item_to_rob_${i}_${a}"></select>
+                        <button onclick="finishLuchaRob(${i}, ${a})">Confirmar Robo</button>
                     </div>
                 </div>`).join("")}</div></div>`;
         }).join("")}</div><button onclick="Game.paso=7; render()">Siguiente: Recolección</button></div>`;
@@ -134,40 +136,47 @@ function render() {
     }
 }
 
-function showBattleControls(l, a) {
-    document.getElementById(`ctrl_${l}_${a}`).style.display = document.getElementById(`vic_${l}_${a}`).value !== "" ? "block" : "none";
+// FUNCIONES PASO 6 (RECONSTRUIDO)
+function toggleAtkControls(eqIdx, atkIdx) {
+    const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
+    document.getElementById(`atk_ctrls_${eqIdx}_${atkIdx}`).style.display = vicIdx !== "" ? "block" : "none";
 }
 
-function resolveAttack(l, a, success) {
-    if(!success) {
-        document.getElementById(`slot_${l}_${a}`).style.background = "#f8d7da";
-        document.getElementById(`slot_${l}_${a}`).innerHTML = "<b>Ataque Fallido</b>";
+function handleLuchaAtk(eqIdx, atkIdx, isSuccess) {
+    if (!isSuccess) {
+        document.getElementById(`atk_block_${eqIdx}_${atkIdx}`).innerHTML = `<div class="attack-done" style="color:var(--danger)">Ataque ${atkIdx+1}: FALLIDO</div>`;
         return;
     }
-    const vIdx = document.getElementById(`vic_${l}_${a}`).value;
-    document.getElementById(`ctrl_${l}_${a}`).style.display = "none";
-    document.getElementById(`steal_${l}_${a}`).style.display = "block";
-    document.getElementById(`booty_sel_${l}_${a}`).innerHTML = Game.equipos[vIdx].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
+    const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
+    document.getElementById(`atk_ctrls_${eqIdx}_${atkIdx}`).style.display = "none";
+    document.getElementById(`rob_area_${eqIdx}_${atkIdx}`).style.display = "block";
+    
+    // Cargar objetos de la víctima
+    const selectRob = document.getElementById(`item_to_rob_${eqIdx}_${atkIdx}`);
+    selectRob.innerHTML = Game.equipos[vicIdx].inventario
+        .map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '')
+        .join("");
 }
 
-function confirmRob(l, a) {
-    const vIdx = document.getElementById(`vic_${l}_${a}`).value;
-    const itIdx = document.getElementById(`booty_sel_${l}_${a}`).value;
-    if(itIdx !== "") {
-        Game.equipos[l].inventario.push(Game.equipos[vIdx].inventario.splice(itIdx, 1)[0]);
-        document.getElementById(`slot_${l}_${a}`).style.background = "#d4edda";
-        document.getElementById(`slot_${l}_${a}`).innerHTML = "<b>Robo Exitoso</b>";
+function finishLuchaRob(eqIdx, atkIdx) {
+    const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
+    const itIdx = document.getElementById(`item_to_rob_${eqIdx}_${atkIdx}`).value;
+    
+    if (itIdx !== "") {
+        const item = Game.equipos[vicIdx].inventario.splice(itIdx, 1)[0];
+        Game.equipos[eqIdx].inventario.push(item);
+        document.getElementById(`atk_block_${eqIdx}_${atkIdx}`).innerHTML = `<div class="attack-done">Ataque ${atkIdx+1}: ÉXITO (Robado)</div>`;
         updateScoreboard();
     }
 }
 
+// RESTO DE FUNCIONES (Mantenidas según requerimiento)
 function updateScoreboard() {
     document.getElementById('scoreboard').innerHTML = Game.equipos.map(e => {
         const p = e.inventario.reduce((acc, i) => { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); return acc; }, { ali:0, uti:0, ori:0 });
         return `<div class="score-card"><b>${e.nombre}</b><br>🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>`;
     }).join("");
 }
-
 function updateNightUI(eq) { document.getElementById(`n_ui_${eq}`).style.display = (document.getElementById(`n_act_${eq}`).value==='atk'?'block':'none'); }
 function loadNightItems(eq) {
     const v = document.getElementById(`n_vic_${eq}`).value;
@@ -250,4 +259,3 @@ window.onload = render;
 </script>
 </body>
 </html>
-
