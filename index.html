@@ -9,30 +9,26 @@
         .container { max-width: 1100px; margin: auto; }
         .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
         .score-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        button { background: var(--success); color: white; border: none; padding: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.2em; transition: 0.3s; margin-top: 10px; }
+        .card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #eef2f3; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        button { background: var(--success); color: white; border: none; padding: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.2em; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 0 #219150; }
         button:hover { background: #2ecc71; transform: translateY(-2px); }
-        .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 100px; overflow-y: auto; margin-top: 20px; }
+        .role-tag { font-size: 0.8em; font-weight: bold; color: var(--accent); display: block; margin-top: 8px; text-transform: uppercase; }
+        .name-highlight { color: var(--danger); font-weight: bold; border-bottom: 2px solid var(--danger); padding: 0 4px; }
         .instruction-highlight { color: #c0392b; font-weight: bold; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px dashed #e74c3c; margin-bottom: 20px; text-align: center; }
         select, input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .log { background: #111; color: #0f0; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; height: 60px; overflow-y: auto; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="scoreboard" class="scoreboard" style="display:none;"></div>
-    <div id="game-ui">
-        <div class="card" style="text-align:center;">
-            <h2>Cargando Interfaz...</h2>
-            <p>Si este mensaje no desaparece, por favor refresca la página (F5).</p>
-        </div>
-    </div>
-    <div class="log" id="game-log">>> Sistema iniciado.</div>
+    <div id="game-ui"></div>
+    <div class="log" id="game-log">>> Sistema Alejandro Scuro Rossi listo.</div>
 </div>
 
 <script>
-/* DATOS DEL SISTEMA */
 const DB = {
     base: [
         { id: "agua", n: "Agua", c: "ali", p: 1 }, { id: "fruta", n: "Frutas", c: "ali", p: 1 },
@@ -46,13 +42,12 @@ const DB = {
 let Game = {
     paso: 1,
     equipos: [
-        { nombre: "Alfa", inventario: [], venganza: false },
-        { nombre: "Beta", inventario: [], venganza: false },
-        { nombre: "Omega", inventario: [], venganza: false }
+        { nombre: "Alfa", inventario: [], roles: {} },
+        { nombre: "Beta", inventario: [], roles: {} },
+        { nombre: "Omega", inventario: [], roles: {} }
     ]
 };
 
-/* MOTOR DE RENDERIZADO */
 function render() {
     const ui = document.getElementById('game-ui');
     const sb = document.getElementById('scoreboard');
@@ -62,166 +57,111 @@ function render() {
         sb.style.display = 'grid';
         sb.innerHTML = Game.equipos.map(e => {
             const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
-            return `<div class="score-card">
-                <small>Equipo ${e.nombre}</small>
-                <div style="font-size:1.1em; font-weight:bold;">🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>
-            </div>`;
+            return `<div class="score-card"><small>Equipo ${e.nombre}</small><div style="font-weight:bold;">🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div></div>`;
         }).join("");
     }
 
-    // Pantallas por Paso
     if (Game.paso === 1) {
-        ui.innerHTML = `
-            <div class="card" style="text-align:center">
-                <h1>🏝️ La Isla</h1>
-                <h3>Dinámica Grupal de Supervivencia</h3>
-                <p>Gestión de recursos, roles y estrategia por equipos.</p>
-                <div class="author" style="margin-top:20px; border-top:1px solid #eee; padding-top:10px;">Autor: Alejandro Scuro Rossi</div>
-                <button onclick="Game.paso=2; render();">Configurar Jugadores</button>
-            </div>`;
+        ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ La Isla</h1><p>Autor: Alejandro Scuro Rossi</p><button onclick="Game.paso=2; render();">Iniciar Configuración</button></div>`;
     } 
     else if (Game.paso === 2) {
-        ui.innerHTML = `
-            <div class="card">
-                <h2>Paso 2: Registro de Jugadores</h2>
-                <div class="instruction-highlight">
-                    Equipos de 3: Jugadores 1 y 2 asumen 2 roles.<br>
-                    Equipos de 4: Jugador 1 asume 2 roles.
-                </div>
-                <div class="grid">${Game.equipos.map((e, i) => `
-                    <div class="card">
-                        <h3>Equipo ${e.nombre}</h3>
-                        <label>Integrantes:</label>
-                        <select id="num_jug_${i}" onchange="actualizarCampos(${i})">
-                            <option value="5">5 Jugadores</option>
-                            <option value="4">4 Jugadores</option>
-                            <option value="3">3 Jugadores</option>
-                        </select>
-                        <div id="campos_jug_${i}">
-                            <input type="text" placeholder="Jugador 1">
-                            <input type="text" placeholder="Jugador 2">
-                            <input type="text" placeholder="Jugador 3">
-                            <input type="text" placeholder="Jugador 4">
-                            <input type="text" placeholder="Jugador 5">
-                        </div>
-                    </div>
-                `).join("")}</div>
-                <button onclick="Game.paso=3; render();">Ir a Planeación</button>
-            </div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro de Jugadores y Roles</h2><div class="grid">${Game.equipos.map((e, i) => `
+            <div class="card"><h3>Equipo ${e.nombre}</h3>
+            <label>Nº Jugadores:</label><select id="sz_${i}" onchange="updateFields(${i})"><option value="5">5 Integrantes</option><option value="4">4 Integrantes</option><option value="3">3 Integrantes</option></select>
+            <div id="fields_${i}">${generateFields(5, i)}</div></div>`).join("")}</div>
+            <button onclick="saveRoles()">Confirmar Roles y Pasar a Planeación</button></div>`;
     }
     else if (Game.paso === 3) {
-        ui.innerHTML = `
-            <div class="card">
-                <h2>Paso 3: Planeación Inicial</h2>
-                <div class="instruction-highlight">🖱️ Mantén presionado CTRL + CLIC para elegir 5 objetos.</div>
-                <div class="grid">${Game.equipos.map((e, i) => `
-                    <div class="card">
-                        <h3>Equipo ${e.nombre}</h3>
-                        <select id="plan_${i}" multiple style="height:150px;">
-                            ${DB.base.map(o => `<option value="${o.id}">${o.n} (${o.c})</option>`).join("")}
-                        </select>
-                        <div id="cnt_${i}" style="margin-top:5px; font-weight:bold;">Seleccionados: 0</div>
-                    </div>
-                `).join("")}</div>
-                <button onclick="confirmarPlaneacion()">Confirmar Planeación</button>
-            </div>`;
-        
-        // Listener para contadores
-        setTimeout(() => {
-            Game.equipos.forEach((_, i) => {
-                const s = document.getElementById(`plan_${i}`);
-                if(s) s.onchange = () => document.getElementById(`cnt_${i}`).innerText = `Seleccionados: ${Array.from(s.selectedOptions).length}`;
-            });
-        }, 100);
+        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación Inicial (Objetos)</h2>
+            <div class="instruction-highlight">Recolectores al mando: <span class="name-highlight">${Game.equipos[0].roles.recolector}</span>, <span class="name-highlight">${Game.equipos[1].roles.recolector}</span> y <span class="name-highlight">${Game.equipos[2].roles.recolector}</span>.</div>
+            <div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${DB.base.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select><div id="c_${i}">Sel: 0/5</div></div>`).join("")}</div>
+            <button onclick="saveInv()">Confirmar Planeación</button></div>`;
+        setTimeout(() => Game.equipos.forEach((_,i) => { const s = document.getElementById(`p_${i}`); s.onchange = () => document.getElementById(`c_${i}`).innerText = `Sel: ${Array.from(s.selectedOptions).length}/5`; }), 100);
     }
     else if (Game.paso === 4) {
-        ui.innerHTML = `
-            <div class="card">
-                <h2>Paso 4: Robo Nocturno</h2>
-                <div class="grid">${Game.equipos.map((e, i) => `
-                    <div class="card">
-                        <h3>Ladrón de ${e.nombre}</h3>
-                        <select id="acc_${i}" onchange="showRoboUI(${i})">
-                            <option value="def">🛡️ Defender</option>
-                            <option value="atk">👤 Robar</option>
-                        </select>
-                        <div id="ui_robo_${i}" style="display:none; margin-top:10px;">
-                            <select id="vic_${i}" onchange="fillItems(${i})">
-                                <option value="">¿A quién?</option>
-                                ${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}
-                            </select>
-                            <select id="itm_${i}" style="margin-top:5px;"><option value="">-- Qué objeto --</option></select>
-                        </div>
-                    </div>
-                `).join("")}</div>
-                <button onclick="procesarNoche()">Procesar Noche y Seguir</button>
-            </div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2>
+            <div class="instruction-highlight">Fase Secreta de los Ladrones: <span class="name-highlight">${Game.equipos[0].roles.ladron}</span>, <span class="name-highlight">${Game.equipos[1].roles.ladron}</span> y <span class="name-highlight">${Game.equipos[2].roles.ladron}</span>.</div>
+            <div class="grid">${Game.equipos.map((e, i) => `
+            <div class="card"><h3>${e.nombre}</h3><span class="role-tag">Ladrón: ${e.roles.ladron}</span>
+            <select id="a_${i}" onchange="toggleRoboUI(${i})"><option value="def">🛡️ Defender</option><option value="atk">👤 Robar</option></select>
+            <div id="u_${i}" style="display:none;margin-top:10px;">
+                <select id="v_${i}" onchange="loadVictimInv(${i})"><option value="">¿A quién?</option>${Game.equipos.map((v, vi) => i!==vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select>
+                <select id="it_${i}" style="margin-top:5px;"><option value="">-- Objeto --</option></select>
+            </div></div>`).join("")}</div><button onclick="processNight()">Resolver Noche</button></div>`;
     }
     else if (Game.paso === 5) {
-        ui.innerHTML = `
-            <div class="card" style="text-align:center;">
-                <h2>Paso 5: Pactos y Fase Final</h2>
-                <p>La noche ha terminado. Los diplomáticos ahora deben negociar.</p>
-                <button onclick="location.reload()">Reiniciar Sistema</button>
-            </div>`;
+        ui.innerHTML = `<div class="card" style="text-align:center"><h2>Paso 5: Pacto de Diplomáticos</h2>
+            <div class="instruction-highlight">Diplomáticos en negociación: <span class="name-highlight">${Game.equipos[0].roles.diplomante}</span>, <span class="name-highlight">${Game.equipos[1].roles.diplomante}</span> y <span class="name-highlight">${Game.equipos[2].roles.diplomante}</span>.</div>
+            <p>Los Comerciantes (<span class="name-highlight">${Game.equipos[0].roles.comerciante}</span>, <span class="name-highlight">${Game.equipos[1].roles.comerciante}</span>, <span class="name-highlight">${Game.equipos[2].roles.comerciante}</span>) validan los pactos.</p>
+            <button onclick="location.reload()">Terminar Dinámica</button></div>`;
     }
 }
 
-/* FUNCIONES AUXILIARES */
-function actualizarCampos(idx) {
-    const n = document.getElementById(`num_jug_${idx}`).value;
-    const div = document.getElementById(`campos_jug_${idx}`);
-    let h = "";
-    if(n == "3") h = `<input type="text" placeholder="J1 (Ladrón + Diplomático)"><input type="text" placeholder="J2 (Luchador + Recolector)"><input type="text" placeholder="J3 (Comerciante)">`;
-    else if(n == "4") h = `<input type="text" placeholder="J1 (Ladrón + Diplomático)"><input type="text" placeholder="J2"><input type="text" placeholder="J3"><input type="text" placeholder="J4">`;
-    else h = `<input type="text" placeholder="J1"><input type="text" placeholder="J2"><input type="text" placeholder="J3"><input type="text" placeholder="J4"><input type="text" placeholder="J5">`;
-    div.innerHTML = h;
+function generateFields(size, eqIdx) {
+    let html = "";
+    if(size == 5) {
+        html += `<span class="role-tag">Ladrón</span><input type="text" id="r0_${eqIdx}">
+                <span class="role-tag">Diplomante</span><input type="text" id="r1_${eqIdx}">
+                <span class="role-tag">Luchador</span><input type="text" id="r2_${eqIdx}">
+                <span class="role-tag">Recolector</span><input type="text" id="r3_${eqIdx}">
+                <span class="role-tag">Comerciante</span><input type="text" id="r4_${eqIdx}">`;
+    } else if(size == 4) {
+        html += `<span class="role-tag">Ladrón + Diplomante</span><input type="text" id="r0_${eqIdx}">
+                <span class="role-tag">Luchador</span><input type="text" id="r1_${eqIdx}">
+                <span class="role-tag">Recolector</span><input type="text" id="r2_${eqIdx}">
+                <span class="role-tag">Comerciante</span><input type="text" id="r3_${eqIdx}">`;
+    } else {
+        html += `<span class="role-tag">Ladrón + Diplomante</span><input type="text" id="r0_${eqIdx}">
+                <span class="role-tag">Luchador + Recolector</span><input type="text" id="r1_${eqIdx}">
+                <span class="role-tag">Comerciante</span><input type="text" id="r2_${eqIdx}">`;
+    }
+    return html;
 }
 
-function confirmarPlaneacion() {
-    let ok = true;
+function updateFields(i) { document.getElementById(`fields_${i}`).innerHTML = generateFields(document.getElementById(`sz_${i}`).value, i); }
+
+function saveRoles() {
     Game.equipos.forEach((e, i) => {
-        const sel = Array.from(document.getElementById(`plan_${i}`).selectedOptions);
-        if(sel.length !== 5) ok = false;
-        else e.inventario = sel.map(o => DB.base.find(it => it.id === o.value));
+        const sz = document.getElementById(`sz_${i}`).value;
+        const v = (id) => document.getElementById(`r${id}_${i}`).value || "Sin Nombre";
+        if(sz == 5) e.roles = { ladron: v(0), diplomante: v(1), luchador: v(2), recolector: v(3), comerciante: v(4) };
+        if(sz == 4) e.roles = { ladron: v(0), diplomante: v(0), luchador: v(1), recolector: v(2), comerciante: v(3) };
+        if(sz == 3) e.roles = { ladron: v(0), diplomante: v(0), luchador: v(1), recolector: v(1), comerciante: v(2) };
     });
-    if(!ok) { alert("¡Cada equipo debe elegir exactamente 5!"); return; }
-    document.getElementById('game-log').innerHTML += "<br>> Planeación completa.";
+    Game.paso = 3; render();
+}
+
+function saveInv() {
+    for(let i=0; i<3; i++){
+        const sel = Array.from(document.getElementById(`p_${i}`).selectedOptions);
+        if(sel.length !== 5) { alert("¡Cada equipo debe seleccionar 5 objetos!"); return; }
+        Game.equipos[i].inventario = sel.map(o => DB.base.find(it => it.id === o.value));
+    }
     Game.paso = 4; render();
 }
 
-function showRoboUI(i) {
-    document.getElementById(`ui_robo_${i}`).style.display = document.getElementById(`acc_${i}`).value === 'atk' ? 'block' : 'none';
+function toggleRoboUI(i) { document.getElementById(`u_${i}`).style.display = document.getElementById(`a_${i}`).value === 'atk' ? 'block' : 'none'; }
+function loadVictimInv(i) {
+    const v = document.getElementById(`v_${i}`).value;
+    if(v==="") return;
+    document.getElementById(`it_${i}`).innerHTML = Game.equipos[v].inventario.map((obj, idx) => `<option value="${idx}">${obj.n}</option>`).join("");
 }
 
-function fillItems(i) {
-    const v = document.getElementById(`vic_${i}`).value;
-    const s = document.getElementById(`itm_${i}`);
-    if(v === "") return;
-    s.innerHTML = Game.equipos[v].inventario.map((obj, idx) => `<option value="${idx}">${obj.n}</option>`).join("");
-}
-
-function procesarNoche() {
-    const defs = Game.equipos.map((_, i) => document.getElementById(`acc_${i}`).value === 'def');
+function processNight() {
+    const defs = Game.equipos.map((_, i) => document.getElementById(`a_${i}`).value === 'def');
     Game.equipos.forEach((l, i) => {
-        if(document.getElementById(`acc_${i}`).value === 'atk') {
-            const v = document.getElementById(`vic_${i}`).value;
-            const it = document.getElementById(`itm_${i}`).value;
-            if(v !== "" && it !== "" && !defs[v]) {
-                const robado = Game.equipos[v].inventario.splice(it, 1)[0];
-                l.inventario.push(robado);
-            }
+        const vIdx = document.getElementById(`v_${i}`).value;
+        const itIdx = document.getElementById(`it_${i}`).value;
+        if(document.getElementById(`a_${i}`).value === 'atk' && vIdx !== "" && !defs[vIdx]) {
+            const robado = Game.equipos[vIdx].inventario.splice(itIdx, 1)[0];
+            l.inventario.push(robado);
         }
     });
-    alert("Noche procesada. Revisa los inventarios actualizados.");
     Game.paso = 5; render();
 }
 
-/* INICIO SEGURO */
-document.addEventListener('DOMContentLoaded', () => {
-    render();
-    console.log("Sistema Alejandro Scuro Rossi listo.");
-});
+document.addEventListener('DOMContentLoaded', render);
 </script>
 </body>
 </html>
+
