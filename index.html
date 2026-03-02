@@ -44,6 +44,40 @@
 </div>
 
 <script>
+/** 🛡️ NÚCLEO DE SEGURIDAD Y PRIVACIDAD (Privacy Kernel) **/
+const PrivacyKernel = {
+    consentGiven: false,
+    
+    grantConsent() {
+        this.consentGiven = true;
+        Game.paso = 2;
+        render();
+    },
+
+    wipeSessionData() {
+        // Limpieza profunda de los datos de los equipos en RAM
+        if (typeof Game !== 'undefined' && Game.equipos) {
+            Game.equipos.forEach(e => {
+                e.rolesNombres = {};
+                e.inventario = [];
+                e.maletin = [];
+            });
+        }
+        console.log("Sesión finalizada: Datos de participantes eliminados de la memoria.");
+    },
+
+    requireConsent(action) {
+        if (!this.consentGiven) {
+            alert("Error de Seguridad: No se puede proceder sin consentimiento explícito.");
+            return false;
+        }
+        return action();
+    }
+};
+
+// Limpieza automática al cerrar o recargar la pestaña
+window.addEventListener('beforeunload', () => PrivacyKernel.wipeSessionData());
+
 let CATALOGO_BASE = [
     { id: "agua", n: "Agua", c: "ali", p: 1 }, { id: "fruta", n: "Frutas", c: "ali", p: 1 }, { id: "latas", n: "Enlatados", c: "ali", p: 1 },
     { id: "botiquin", n: "Botiquín", c: "uti", p: 1 }, { id: "cuerda", n: "Cuerda", c: "uti", p: 1 }, { id: "martillo", n: "Martillo", c: "uti", p: 1 },
@@ -119,22 +153,12 @@ function render() {
             <div style="font-size: 0.75rem; color: #636e72; text-align: left; background: #f8f9fa; padding: 20px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; line-height: 1.5; max-height: 400px; overflow-y: auto;">
                 <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y TÉRMINOS DE USO DE "LA ISLA" ⚠️</strong><br><br>
                 Esta herramienta, "La Isla", es un prototipo experimental y educativo desarrollado por Alejandro Scuro Rossi.<br><br>
-                <strong>1. Soporte Visual y No Evaluativo:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas de liderazgo, trabajo en equipo o estrategia. Todas las observaciones deben ser interpretadas por un profesional calificado.<br><br>
-                <strong>2. Sin Garantía:</strong> El software se proporciona "tal cual", sin garantía de ningún tipo. El autor no garantiza la precisión, fiabilidad o idoneidad de la simulación para procesos de selección profesional.<br><br>
-                <strong>3. Limitación de Responsabilidad:</strong> En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento o cualquier daño derivado del uso de esta herramienta.<br><br>
-                <strong>4. PROTECCIÓN DE DATOS Y RESPONSABILIDADES DEL FACILITADOR (RGPD):</strong><br>
-                "La Isla" procesa temporalmente los siguientes datos de los participantes:
-                <ul>
-                    <li>Nombre del participante.</li>
-                    <li>Decisiones tomadas durante la dinámica (en el rol asignado).</li>
-                </ul>
-                Estos datos se almacenan exclusivamente en el navegador web de cada participante y se borran automáticamente al cerrar la pestaña o el navegador. "La Isla" no guarda ni transmite estos datos a ningún servidor externo ni los conserva de forma permanente.<br><br>
-                Como facilitador, es tu responsabilidad EXCLUSIVA y OBLIGATORIA:
-                <ul>
-                    <li>Informar claramente a todos los participantes, antes de iniciar la dinámica, sobre: qué datos se recogen temporalmente (su nombre y las decisiones que tomen en el juego), dónde se almacenan (solo en su navegador), cuándo se borran (automáticamente al cerrar la sesión) y la finalidad de esta recogida temporal (observación de la interacción grupal por parte del facilitador).</li>
-                    <li>Obtener el consentimiento explícito de cada participante para este tratamiento temporal de sus datos. Esto puede ser mediante una declaración verbal registrada, un formulario o un checkbox.</li>
-                    <li>Asegurarte de que cualquier observación, registro o análisis posterior que realices a partir de la dinámica (por ejemplo, tomando notas sobre el comportamiento de los participantes) cumpla con la normativa de protección de datos aplicable (RGPD). Eres el único responsable de dicho tratamiento adicional.</li>
-                </ul>
+                <strong>1. Soporte Visual y No Evaluativo:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas. Todas las observaciones deben ser interpretadas por un profesional calificado.<br><br>
+                <strong>2. PROTECCIÓN DE DATOS Y RESPONSABILIDADES (RGPD):</strong><br>
+                Los datos (nombres y decisiones) se almacenan exclusivamente en la memoria RAM del navegador y se borran automáticamente al cerrar la pestaña. No hay transmisión externa.<br><br>
+                Como facilitador, es su responsabilidad:<br>
+                - Informar a los participantes sobre el uso temporal de sus nombres.<br>
+                - Obtener el consentimiento para la dinámica.<br>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
                 <div style="display: flex; align-items: flex-start; gap: 10px;">
                     <input type="checkbox" id="consent_check" style="width: 24px; height: 24px; cursor: pointer;" onchange="document.getElementById('start_btn').disabled = !this.checked">
@@ -144,7 +168,7 @@ function render() {
                 </div>
             </div>
 
-            <button id="start_btn" disabled onclick="Game.paso=2; render();">Iniciar Dinámica</button>
+            <button id="start_btn" disabled onclick="PrivacyKernel.grantConsent()">Iniciar Dinámica</button>
         </div>`;
     }
     else if (Game.paso === 2) {
@@ -176,19 +200,14 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 5: El Pacto</h2><p class="instruction">Los diplomáticos negocian. Selecciona participantes y sus objetos (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Diplomático: ${e.rolesNombres['Diplomático'] || 'No asignado'}</span>${renderMaletinUI(i)}<input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa</label><div id="pact_choice_${i}" style="display:none; margin-top:10px;"><b>Elegir:</b><select id="pact_sel_${i}" multiple style="height:80px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Cerrar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
-        // Identificar quiénes están en el pacto actual
         let pactTeams = Array.from(document.querySelectorAll('.p-check:checked')).map(c => parseInt(c.value));
-        
-        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques. Equipos con Alianza Militar (Pacto) no pueden atacarse entre sí.</p><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Resuelve ataques. Equipos en Alianza Militar no pueden atacarse entre sí.</p><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
-            
-            // Filtrar víctimas: No puede ser él mismo, y si están en el pacto, no pueden atacarse entre ellos
             const victimasValidas = Game.equipos.map((v, vi) => {
                 if (i === vi) return null; 
-                if (pactTeams.includes(i) && pactTeams.includes(vi)) return null; // Bloqueo por Pacto/Alianza Militar
+                if (pactTeams.includes(i) && pactTeams.includes(vi)) return null; 
                 return `<option value="${vi}">${v.nombre}</option>`;
             }).filter(opt => opt !== null).join("");
-
             return `<div class="card"><h3>${e.nombre} ${e.venganza?'🔥':''}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => {
                 return `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Ataque ${a+1}:</b>
                     <select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})">
@@ -245,20 +264,23 @@ function updateFieldsUI(i) {
 }
 
 function saveRegistration() {
-    for(let i=0; i<3; i++) {
-        Game.equipos[i].rolesNombres = {};
-        const inputs = document.querySelectorAll(`#fields_${i} .player-input`);
-        inputs.forEach(input => {
-            const name = input.value.trim() || "Anónimo";
-            const r = input.getAttribute("data-role").toLowerCase();
-            if(r.includes("ladrón")) Game.equipos[i].rolesNombres['Ladrón'] = name;
-            if(r.includes("diplomático")) Game.equipos[i].rolesNombres['Diplomático'] = name;
-            if(r.includes("luchador")) Game.equipos[i].rolesNombres['Luchador'] = name;
-            if(r.includes("recolector")) Game.equipos[i].rolesNombres['Recolector'] = name;
-            if(r.includes("comerciante")) Game.equipos[i].rolesNombres['Comerciante'] = name;
-        });
-    }
-    Game.paso = 3; render();
+    // Aplicamos el Kernel de Privacidad: si no hay consentimiento, no guardamos nada.
+    PrivacyKernel.requireConsent(() => {
+        for(let i=0; i<3; i++) {
+            Game.equipos[i].rolesNombres = {};
+            const inputs = document.querySelectorAll(`#fields_${i} .player-input`);
+            inputs.forEach(input => {
+                const name = input.value.trim() || "Anónimo";
+                const r = input.getAttribute("data-role").toLowerCase();
+                if(r.includes("ladrón")) Game.equipos[i].rolesNombres['Ladrón'] = name;
+                if(r.includes("diplomático")) Game.equipos[i].rolesNombres['Diplomático'] = name;
+                if(r.includes("luchador")) Game.equipos[i].rolesNombres['Luchador'] = name;
+                if(r.includes("recolector")) Game.equipos[i].rolesNombres['Recolector'] = name;
+                if(r.includes("comerciante")) Game.equipos[i].rolesNombres['Comerciante'] = name;
+            });
+        }
+        Game.paso = 3; render();
+    });
 }
 
 function updatePactUI() {
@@ -337,14 +359,10 @@ function processNightRobbery() {
             const vSelect = document.getElementById(`n_vic_${i}`);
             if(!vSelect.value) return;
             const v = parseInt(vSelect.value);
-            const opts = Array.from(document.getElementById(`n_obj_${i}`).selectedOptions)
-                .map(o => parseInt(o.value))
-                .sort((a,b)=>b-a);
+            const opts = Array.from(document.getElementById(`n_obj_${i}`).selectedOptions).map(o => parseInt(o.value)).sort((a,b)=>b-a);
             if (document.getElementById(`n_act_${v}`).value !== 'def') {
                 opts.forEach(idx => {
-                    if(Game.equipos[v].inventario[idx]) {
-                        Game.equipos[i].inventario.push(Game.equipos[v].inventario.splice(idx, 1)[0]);
-                    }
+                    if(Game.equipos[v].inventario[idx]) Game.equipos[i].inventario.push(Game.equipos[v].inventario.splice(idx, 1)[0]);
                 });
             }
         }
@@ -361,16 +379,13 @@ function handleLuchaAtk(eq, atk, win) {
     document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "none";
     document.getElementById(`rob_area_${eq}_${atk}`).style.display = "block";
     document.getElementById(`item_to_rob_${eq}_${atk}`).innerHTML = Game.equipos[vic].inventario
-        .map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '')
-        .join("");
+        .map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
 }
 
 function finishLuchaRob(eq, atk) {
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     const idx = document.getElementById(`item_to_rob_${eq}_${atk}`).value;
-    if(idx !== "") {
-        Game.equipos[eq].inventario.push(Game.equipos[vic].inventario.splice(idx, 1)[0]);
-    }
+    if(idx !== "") Game.equipos[eq].inventario.push(Game.equipos[vic].inventario.splice(idx, 1)[0]);
     document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "ÉXITO";
     updateScoreboard();
 }
@@ -398,8 +413,7 @@ function updateTradeProposalUI(eqIdx) {
 }
 
 function ejecutarIntercambioDirecto(eqIdx) {
-    const pIdxSelect = document.getElementById(`m_partner_${eqIdx}`);
-    const pIdx = pIdxSelect.value;
+    const pIdx = document.getElementById(`m_partner_${eqIdx}`).value;
     const gIdx = document.getElementById(`m_give_${eqIdx}`).value;
     const pgIdx = document.getElementById(`m_partner_give_${eqIdx}`).value;
     if(gIdx === "" || pgIdx === "") return;
