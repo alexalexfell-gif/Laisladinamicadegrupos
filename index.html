@@ -245,19 +245,19 @@ let jugadores=g.miembros.filter(m=>m.nombre!=="");
 
 let total=jugadores.length;
 
+/* Control de repetición de roles */
 let rolesUsados=new Set();
 
-/* Reglas de distribución */
+/* Distribución exacta */
 
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
 
-let sel=document.getElementById(`rol${i}_${j}`);
+let select=document.getElementById(`rol${i}_${j}`);
+if(!select) return;
 
-if(!sel) return;
-
-let rol=sel.value;
+let rol=select.value;
 
 /* No repetir roles dentro del equipo */
 
@@ -268,23 +268,26 @@ throw new Error();
 
 rolesUsados.add(rol);
 
-/* Cantidad de roles según regla */
+/* ===== REGLA DE DISTRIBUCIÓN ===== */
 
 let cantidad=1;
 
+/* 3 jugadores → jugador 1 y 2 tienen 2 roles */
 if(total===3 && (j===0 || j===1)){
 cantidad=2;
 }
 
+/* 4 jugadores → jugador 1 tiene 2 roles */
 else if(total===4 && j===0){
 cantidad=2;
 }
 
+/* 5 jugadores → todos 1 rol */
 else if(total===5){
 cantidad=1;
 }
 
-/* Guardar roles correctamente */
+/* Guardar roles */
 
 m.roles=Array(cantidad).fill(rol);
 
@@ -310,6 +313,7 @@ mostrar();
 
 </body>
 </html>
+
 
 
 
