@@ -46,15 +46,14 @@ margin-top:20px;
 
 <body>
 
-
 <div id="contenido"></div>
 <div class="log" id="log"></div>
 
 <script>
 
-/* =========================
-CONFIGURACIÓN
-========================= */
+/* =============================
+CONFIGURACIÓN GLOBAL
+============================= */
 
 let paso=0;
 
@@ -79,15 +78,14 @@ const recursosEspeciales=[
 
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
-miembros:Array(5).fill().map(()=>({nombre:"",roles:[]})),
-recursos:[]
+miembros:Array(5).fill().map(()=>({nombre:"",roles:[]}))
 }));
 
 let logJuego=[];
 
-/* =========================
+/* =============================
 UTILIDADES
-========================= */
+============================= */
 
 function siguiente(){
 paso++;
@@ -110,7 +108,7 @@ function actualizarResumen(){
 grupos.forEach(g=>{
 let resumen={};
 
-g.recursos.forEach(r=>{
+g.recursos?.forEach(r=>{
 resumen[r]=(resumen[r]||0)+1;
 });
 
@@ -118,9 +116,9 @@ g.resumen=resumen;
 });
 }
 
-/* =========================
+/* =============================
 RENDERIZADO
-========================= */
+============================= */
 
 function mostrar(){
 
@@ -131,7 +129,7 @@ let html="";
 if(paso===0){
 
 html+=`
-<h2>🏝 La Isla - Dinámica Estratégica</h2>
+<h2>La isla - Dinámica grupal</h2>
 
 <p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
 
@@ -176,9 +174,29 @@ grupos.forEach((g,i)=>{
 
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
+let total=g.miembros.filter(m=>m.nombre!=="").length;
+
 g.miembros.forEach((m,j)=>{
 
-if(m.nombre!==""){
+if(m.nombre==="") return;
+
+let oblig=1;
+
+/* Reglas de roles */
+
+if(total===3){
+if(j===0 || j===1) oblig=2;
+}
+
+else if(total===4){
+if(j===0) oblig=2;
+}
+
+else if(total===5){
+oblig=1;
+}
+
+/* Selector */
 
 html+=`
 <div>${m.nombre}</div>
@@ -191,8 +209,6 @@ html+=`
 <option>Recolector</option>
 </select><br>
 `;
-
-}
 
 });
 
@@ -256,12 +272,9 @@ html+="<h3>Combate</h3>";
 
 grupos.forEach((g,i)=>{
 
-let luchador=buscarRol(g,"Luchador");
-
-if(luchador){
-
 html+=`
 <div class="equipo">
+
 <strong>${g.nombre}</strong>
 
 <select id="ataque${i}">
@@ -275,10 +288,9 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 <option>Papel</option>
 <option>Tijera</option>
 </select>
+
 </div>
 `;
-
-}
 
 });
 
@@ -292,9 +304,7 @@ if(paso===5){
 html+="<h3>Diplomacia (objetos especiales)</h3>";
 
 grupos.forEach((g,i)=>{
-
 html+=selectorObjetosEspeciales(i,2);
-
 });
 
 html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
@@ -345,9 +355,9 @@ document.getElementById("contenido").innerHTML=html;
 mostrarLog();
 }
 
-/* =========================
+/* =============================
 FUNCIONES LOGICAS
-========================= */
+============================= */
 
 function selectorObjetosBase(i,cantidad){
 
@@ -592,7 +602,6 @@ todos[Math.floor(Math.random()*todos.length)].nombre
 mostrar();
 
 </script>
-
 </body>
 </html>
 
