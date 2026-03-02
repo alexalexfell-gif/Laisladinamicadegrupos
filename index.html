@@ -17,11 +17,12 @@ border:1px solid #ccc;
 padding:10px;
 margin:10px 0;
 background:white;
+padding:15px;
 }
 
 button{
 margin-top:15px;
-padding:8px 15px;
+padding:10px;
 }
 
 .log{
@@ -30,7 +31,6 @@ color:#0f0;
 padding:10px;
 height:220px;
 overflow:auto;
-font-size:13px;
 margin-top:20px;
 }
 
@@ -39,30 +39,28 @@ margin-top:20px;
 
 <body>
 
-<div id="contenido"></div>
+<div id="app"></div>
 <div class="log" id="log"></div>
 
 <script>
 
 /* ===============================
-ESTADO GLOBAL
+GAME STATE (MODELO CENTRAL)
 =============================== */
 
-let paso=0;
+const GameState = {
 
-/* Roles */
+fase:0,
 
-const rolesDisponibles=[
+rolesDisponibles:[
 "Ladrón",
 "Luchador",
 "Diplomático",
 "Comerciante",
 "Recolector"
-];
+],
 
-/* Grupos */
-
-let grupos=["Alfa","Beta","Omega"].map(nombre=>({
+grupos:["Alfa","Beta","Omega"].map(nombre=>({
 
 nombre,
 
@@ -73,147 +71,35 @@ roles:[]
 
 recursos:[]
 
-}));
+}))
+
+};
 
 /* ===============================
-FLUJO
+ENGINE
 =============================== */
 
-function siguiente(){
-paso++;
-mostrar();
+const GameEngine = {
+
+validarJugadores(){
+
+for(let g of GameState.grupos){
+
+let activos=g.miembros.filter(m=>m.nombre!=="").length;
+
+if(activos<3){
+alert("Cada equipo necesita mínimo 3 jugadores");
+return false;
 }
-
-/* ===============================
-RENDER
-=============================== */
-
-function mostrar(){
-
-let html="";
-
-/* ===== INTRODUCCIÓN ===== */
-
-if(paso===0){
-
-html+=`
-<h2>La isla - Dinámica grupal</h2>
-
-<p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
-
-<p>
-Dinámica grupal para la evaluación del liderazgo,
-trabajo en equipo y estrategia.
-</p>
-
-<hr>
-
-<h3>Introducción</h3>
-
-<p>
-Tras un naufragio, tres equipos han llegado a una isla desconocida.
-Deberán organizarse, conseguir recursos, negociar, robar, luchar
-y sobrevivir.
-</p>
-
-<h4>Objetivos de supervivencia</h4>
-
-<ul>
-<li>4 puntos en Alimentación</li>
-<li>3 puntos en Utilidad</li>
-<li>2 puntos en Orientación</li>
-</ul>
-
-<hr>
-
-<h4>Reglas</h4>
-
-<ul>
-<li>Mínimo 2 equipos</li>
-<li>Mínimo 3 jugadores por equipo</li>
-</ul>
-
-<hr>
-
-<h4>Configuración de equipos</h4>
-`;
-
-grupos.forEach((g,i)=>{
-
-html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
-
-for(let j=0;j<5;j++){
-html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
-}
-
-html+="</div>";
-
-});
-
-html+=`<button onclick="guardarJugadores()">Comenzar</button>`;
-}
-
-/* ===== ROLES ===== */
-
-if(paso===1){
-
-html+=`<h3>Asignación de Roles</h3>`;
-
-const rolesDisponiblesLocal=[
-"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
-];
-
-grupos.forEach((g,i)=>{
-
-html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
-
-let jugadores=g.miembros.filter(m=>m.nombre!=="");
-
-let total=jugadores.length;
-
-g.miembros.forEach((m,j)=>{
-
-if(m.nombre==="") return;
-
-html+=`<div>${m.nombre}</div>`;
-
-html+=`<select id="rol${i}_${j}">`;
-
-rolesDisponiblesLocal.forEach(r=>{
-html+=`<option>${r}</option>`;
-});
-
-html+=`</select><br>`;
-
-});
-
-html+="</div>";
-
-});
-
-html+=`<button onclick="guardarRoles()">Continuar</button>`;
-}
-
-/* RESULTADOS */
-
-if(paso===2){
-calcularResultados();
-return;
-}
-
-document.getElementById("contenido").innerHTML=html;
 
 }
 
-/* ===============================
-LOGICA
-=============================== */
+return true;
+},
 
-function guardarJugadores(){
+guardarJugadores(){
 
-grupos.forEach((g,i)=>{
-
-let activos=0;
+GameState.grupos.forEach((g,i)=>{
 
 g.miembros.forEach((m,j)=>{
 
@@ -221,34 +107,28 @@ let val=document.getElementById(`jug${i}_${j}`).value.trim();
 
 m.nombre=val;
 
-if(val!=="") activos++;
+});
 
 });
 
-if(activos<3){
-alert("Cada equipo necesita mínimo 3 jugadores");
-throw new Error();
-}
+if(!this.validarJugadores()) return;
 
-});
+GameState.fase=1;
+Renderer.render();
 
-siguiente();
-}
+},
 
-/* ----------------------------- */
+guardarRoles(){
 
-function guardarRoles(){
-
-grupos.forEach((g,i)=>{
+GameState.grupos.forEach((g,i)=>{
 
 let jugadores=g.miembros.filter(m=>m.nombre!=="");
 
 let total=jugadores.length;
 
-/* Control de repetición de roles */
 let rolesUsados=new Set();
 
-/* Distribución exacta */
+/* Distribución matemática exacta */
 
 g.miembros.forEach((m,j)=>{
 
@@ -259,7 +139,7 @@ if(!select) return;
 
 let rol=select.value;
 
-/* No repetir roles dentro del equipo */
+/* No repetir roles */
 
 if(rolesUsados.has(rol)){
 alert("No se pueden repetir roles dentro del equipo");
@@ -268,26 +148,21 @@ throw new Error();
 
 rolesUsados.add(rol);
 
-/* ===== REGLA DE DISTRIBUCIÓN ===== */
+/* Cantidad de roles según regla */
 
 let cantidad=1;
 
-/* 3 jugadores → jugador 1 y 2 tienen 2 roles */
 if(total===3 && (j===0 || j===1)){
 cantidad=2;
 }
 
-/* 4 jugadores → jugador 1 tiene 2 roles */
 else if(total===4 && j===0){
 cantidad=2;
 }
 
-/* 5 jugadores → todos 1 rol */
 else if(total===5){
 cantidad=1;
 }
-
-/* Guardar roles */
 
 m.roles=Array(cantidad).fill(rol);
 
@@ -295,25 +170,127 @@ m.roles=Array(cantidad).fill(rol);
 
 });
 
-siguiente();
-}
-
-/* ----------------------------- */
-
-function calcularResultados(){
-
-document.getElementById("log").innerHTML=
-"=== RESULTADOS FINALES ===";
+GameState.fase=2;
+Renderer.render();
 
 }
 
-mostrar();
+};
+
+/* ===============================
+RENDERER
+=============================== */
+
+const Renderer={
+
+render(){
+
+let html="";
+
+/* INTRO */
+
+if(GameState.fase===0){
+
+html+=`
+<h2>La isla - Dinámica grupal</h2>
+
+<p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
+
+<p>
+Dinámica grupal para liderazgo, trabajo en equipo y estrategia.
+</p>
+
+<hr>
+
+<h3>Configuración de equipos</h3>
+`;
+
+GameState.grupos.forEach((g,i)=>{
+
+html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
+
+for(let j=0;j<5;j++){
+html+=`
+Jugador ${j+1}:
+<input id="jug${i}_${j}">
+<br>
+`;
+}
+
+html+=`</div>`;
+
+});
+
+html+=`
+<button onclick="GameEngine.guardarJugadores()">
+Comenzar
+</button>
+`;
+
+}
+
+/* ROLES */
+
+if(GameState.fase===1){
+
+html+=`<h3>Asignación de Roles</h3>`;
+
+GameState.grupos.forEach((g,i)=>{
+
+html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
+
+g.miembros.forEach((m,j)=>{
+
+if(m.nombre==="") return;
+
+html+=`
+<div>${m.nombre}</div>
+
+<select id="rol${i}_${j}">
+${GameState.rolesDisponibles.map(r=>
+`<option>${r}</option>`).join("")}
+</select>
+<br>
+`;
+
+});
+
+html+="</div>";
+
+});
+
+html+=`
+<button onclick="GameEngine.guardarRoles()">
+Continuar
+</button>
+`;
+
+}
+
+/* FINAL */
+
+if(GameState.fase===2){
+
+html+=`<h3>Dinámica lista</h3>`;
+html+=`<p>Fase de juego completada.</p>`;
+
+}
+
+document.getElementById("app").innerHTML=html;
+
+}
+
+};
+
+/* ===============================
+INICIALIZAR
+=============================== */
+
+Renderer.render();
 
 </script>
 
 </body>
 </html>
-
-
 
 
