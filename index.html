@@ -5,7 +5,6 @@
 <title>La isla - Dinámica grupal</title>
 
 <style>
-
 body{
 font-family: Arial;
 padding:20px;
@@ -33,7 +32,6 @@ overflow:auto;
 font-size:13px;
 margin-top:20px;
 }
-
 </style>
 </head>
 
@@ -45,26 +43,21 @@ margin-top:20px;
 <script>
 
 /* ===============================
-ESTADO GLOBAL
+CONFIGURACIÓN
 =============================== */
 
 let paso=0;
 
 const recursosBase=[
-{nombre:"Agua",categoria:"Alimentación",puntos:1},
-{nombre:"Fruta",categoria:"Alimentación",puntos:1},
-{nombre:"Comida enlatada",categoria:"Alimentación",puntos:1},
-{nombre:"Botiquín",categoria:"Utilidad",puntos:1},
-{nombre:"Cuerda",categoria:"Utilidad",puntos:1},
-{nombre:"Martillo",categoria:"Utilidad",puntos:1},
-{nombre:"Mapa",categoria:"Orientación",puntos:1},
-{nombre:"Radio",categoria:"Orientación",puntos:1}
+"Agua","Fruta","Comida enlatada",
+"Botiquín","Cuerda","Martillo",
+"Mapa","Radio"
 ];
 
 const recursosEspeciales=[
-{nombre:"Caña de pescar",categoria:"Alimentación",puntos:2},
-{nombre:"Mochila",categoria:"Utilidad",puntos:2},
-{nombre:"Encendedor",categoria:"Utilidad",puntos:2}
+"Caña de pescar",
+"Mochila",
+"Encendedor"
 ];
 
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
@@ -76,20 +69,13 @@ roles:[]
 recursos:[]
 }));
 
-let logJuego=[];
-
 /* ===============================
-UTILIDADES
+CONTROL DE FLUJO
 =============================== */
 
 function siguiente(){
 paso++;
 mostrar();
-}
-
-function mostrarLog(){
-document.getElementById("log").innerHTML=
-logJuego.join("<br>");
 }
 
 /* ===============================
@@ -113,15 +99,6 @@ html+=`
 
 <hr>
 
-<h4>📌 Reglas</h4>
-
-<ul>
-<li>Mínimo 2 equipos</li>
-<li>Mínimo 3 jugadores por equipo</li>
-</ul>
-
-<hr>
-
 <h4>Configuración de equipos</h4>
 `;
 
@@ -134,10 +111,9 @@ html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
 }
 
 html+="</div>";
-
 });
 
-html+=`<button onclick="guardarJugadores()">Comenzar partida</button>`;
+html+=`<button onclick="guardarJugadores()">Comenzar</button>`;
 }
 
 /* ===== PASO 1 ROLES ===== */
@@ -146,262 +122,64 @@ if(paso===1){
 
 html+="<h3>Asignación de Roles</h3>";
 
+const rolesDisponibles=[
+"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
+];
+
 grupos.forEach((g,i)=>{
 
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 let total=g.miembros.filter(m=>m.nombre!=="").length;
 
-let rolesDisponibles=[
-"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
-];
-
-let rolesUsados=new Set();
-
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
+
+/* ===========================
+REGLA DE ROLES CORRECTA
+=========================== */
 
 let oblig=1;
 
 if(total===3){
 if(j===0 || j===1) oblig=2;
 }
+
 else if(total===4){
 if(j===0) oblig=2;
 }
 
-/* selector */
-
 html+=`<div>${m.nombre}</div>`;
 
-html+=`<select id="rol${i}_${j}">`+
-rolesDisponibles
-.filter(r=>!rolesUsados.has(r))
-.map(r=>`<option>${r}</option>`)
-.join("")+
-`</select><br>`;
+html+=`<select id="rol${i}_${j}">`;
 
-rolesUsados.add(rolesDisponibles[0]);
+rolesDisponibles.forEach(r=>{
+html+=`<option>${r}</option>`;
+});
+
+html+=`</select><br>`;
 
 });
 
 html+="</div>";
-
 });
 
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-/* ===== PASO 2 PLANEACIÓN ===== */
-
-if(paso===2){
-
-html+="<h3>Planeación inicial (5 objetos base)</h3>";
-
-grupos.forEach((g,i)=>{
-
-html+=selectorObjetosBase(i,5);
-
-});
-
-html+=`<button onclick="resolverPlaneacion()">Continuar</button>`;
-}
-
-/* ===== PASO 3 ROBO ===== */
-
-if(paso===3){
-
-html+="<h3>Robo Nocturno</h3>";
-
-grupos.forEach((g,i)=>{
-
-html+=`
-<div class="equipo">
-
-<strong>${g.nombre}</strong>
-
-<select id="accion${i}">
-<option value="robar">Robar</option>
-<option value="proteger">Proteger</option>
-</select>
-
-<select id="objetivo${i}">
-${grupos.map((x,j)=>
-j!==i?`<option value="${j}">${x.nombre}</option>`:""
-).join("")}
-</select>
-
-</div>
-`;
-
-});
-
-html+=`<button onclick="resolverRobo()">Continuar</button>`;
-}
-
-/* ===== PASO 4 COMBATE ===== */
-
-if(paso===4){
-
-html+="<h3>Combate</h3>";
-
-grupos.forEach((g,i)=>{
-
-html+=`
-<div class="equipo">
-
-<strong>${g.nombre}</strong>
-
-<select id="ataque${i}">
-${grupos.map((x,j)=>
-j!==i?`<option value="${j}">${x.nombre}</option>`:""
-).join("")}
-</select>
-
-<select id="juego${i}">
-<option>Piedra</option>
-<option>Papel</option>
-<option>Tijera</option>
-</select>
-
-</div>
-`;
-
-});
-
-html+=`<button onclick="resolverCombate()">Continuar</button>`;
-}
-
-/* ===== PASO 5 DIPLOMACIA ===== */
-
-if(paso===5){
-
-html+="<h3>Diplomacia (objetos especiales)</h3>";
-
-grupos.forEach((g,i)=>{
-
-html+=selectorObjetosEspeciales(i,2);
-
-});
-
-html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
-}
-
-/* ===== PASO 6 RECOLECCIÓN ===== */
-
-if(paso===6){
-
-html+="<h3>Recolección Global</h3>";
-
-grupos.forEach((g,i)=>{
-
-let recolector=g.miembros.find(m=>m.roles.includes("Recolector"));
-
-if(!recolector) return;
-
-html+=`<div class="equipo"><strong>${g.nombre}</strong><br>`;
-
-let usados=new Set();
-
-for(let x=0;x<2;x++){
-
-let opciones=recursosBase
-.filter(r=>!usados.has(r.nombre))
-.map(r=>`<option>${r.nombre}</option>`)
-.join("");
-
-html+=`
-<select id="rec${i}_${x}">
-${opciones}
-</select><br>
-`;
-
-}
-
-html+="</div>";
-
-});
-
-html+=`<button onclick="resolverRecoleccion()">Continuar</button>`;
-}
-
 /* ===== RESULTADOS ===== */
 
-if(paso===7){
-
+if(paso===2){
 calcularResultados();
 return;
 }
 
 document.getElementById("contenido").innerHTML=html;
-mostrarLog();
 }
 
 /* ===============================
-FUNCIONES LOGICAS
-=============================== */
-
-function selectorObjetosBase(i,cantidad){
-
-let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
-
-let usados=new Set();
-
-for(let x=0;x<cantidad;x++){
-
-let opciones=recursosBase
-.filter(r=>!usados.has(r.nombre))
-.map(r=>`<option>${r.nombre}</option>`)
-.join("");
-
-html+=`
-<select id="esp${i}_${x}">
-${opciones}
-</select><br>
-`;
-
-if(recursosBase[x])
-usados.add(recursosBase[x].nombre);
-
-}
-
-html+="</div>";
-
-return html;
-}
-
-function selectorObjetosEspeciales(i,cantidad){
-
-let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
-
-let usados=new Set();
-
-for(let x=0;x<cantidad;x++){
-
-let opciones=recursosEspeciales
-.filter(r=>!usados.has(r.nombre))
-.map(r=>`<option>${r.nombre}</option>`)
-.join("");
-
-html+=`
-<select id="dip${i}_${x}">
-${opciones}
-</select><br>
-`;
-
-if(recursosEspeciales[x])
-usados.add(recursosEspeciales[x].nombre);
-
-}
-
-html+="</div>";
-
-return html;
-}
-
-/* ===============================
-LOGICA JUEGO
+LOGICA
 =============================== */
 
 function guardarJugadores(){
@@ -430,26 +208,51 @@ throw new Error();
 siguiente();
 }
 
+/* ------------------------------- */
+
 function guardarRoles(){
 
-grupos.forEach(g=>{
+grupos.forEach((g,i)=>{
+
+let total=g.miembros.filter(m=>m.nombre!=="").length;
 
 let rolesUsados=new Set();
 
 g.miembros.forEach((m,j)=>{
 
-let sel=document.getElementById(`rol0_${j}`);
+if(m.nombre==="") return;
+
+let oblig=1;
+
+/* ===== REGLAS EXACTAS ===== */
+
+if(total===3 && (j===0 || j===1)){
+oblig=2;
+}
+
+else if(total===4 && j===0){
+oblig=2;
+}
+
+/* ===== LECTURA SELECT ===== */
+
+let sel=document.getElementById(`rol${i}_${j}`);
 if(!sel) return;
 
 let rol=sel.value;
 
+/* No repetir roles */
+
 if(rolesUsados.has(rol)){
-alert("No se pueden repetir roles");
+alert("No se pueden repetir roles dentro del equipo");
 throw new Error();
 }
 
 rolesUsados.add(rol);
-m.roles=[rol];
+
+/* Guardar roles */
+
+m.roles=Array(oblig).fill(rol);
 
 });
 
@@ -458,105 +261,28 @@ m.roles=[rol];
 siguiente();
 }
 
-function resolverPlaneacion(){
-
-grupos.forEach((g,i)=>{
-
-g.recursos=[];
-
-document.querySelectorAll(`[id^="esp${i}_"]`).forEach(sel=>{
-g.recursos.push(sel.value);
-});
-
-});
-
-siguiente();
-}
-
-function resolverRobo(){
-
-grupos.forEach((g,i)=>{
-
-let accion=document.getElementById(`accion${i}`).value;
-let obj=parseInt(document.getElementById(`objetivo${i}`).value);
-
-if(accion==="robar"){
-
-let victima=grupos[obj];
-
-if(victima.recursos.length)
-g.recursos.push(victima.recursos.pop());
-
-}
-
-});
-
-siguiente();
-}
-
-function resolverCombate(){
-
-siguiente();
-}
-
-function resolverDiplomacia(){
-
-grupos.forEach((g,i)=>{
-
-document.querySelectorAll(`[id^="dip${i}_"]`).forEach(sel=>{
-g.recursos.push(sel.value);
-});
-
-});
-
-siguiente();
-}
-
-function resolverRecoleccion(){
-
-siguiente();
-}
+/* ------------------------------- */
 
 function calcularResultados(){
 
-let ganadores=[];
-
-grupos.forEach(g=>{
-
-let puntos={Alimentación:0,Utilidad:0,Orientación:0};
-
-g.recursos.forEach(nombre=>{
-
-let r=[...recursosBase,...recursosEspeciales]
-.find(x=>x.nombre===nombre);
-
-if(r) puntos[r.categoria]+=r.puntos;
-
-});
-
-if(puntos.Alimentación>=4 &&
-puntos.Utilidad>=3 &&
-puntos.Orientación>=2){
-
-ganadores.push(g.nombre);
-}
-
-});
-
 let html="=== RESULTADOS FINALES ===<br>";
 
-ganadores.forEach(g=>{
-html+=g+" SOBREVIVE<br>";
+grupos.forEach(g=>{
+html+=g.nombre+"<br>";
 });
 
 document.getElementById("log").innerHTML=html;
 }
 
+/* =============================== */
+
 mostrar();
 
 </script>
+
 </body>
 </html>
+
 
 
 
