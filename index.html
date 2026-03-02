@@ -26,7 +26,6 @@
         .active-turn { border: 2px solid var(--accent) !important; background: #ebf5fb !important; }
         .maletin-box { background: #eef2f3; border: 2px dashed var(--primary); padding: 10px; border-radius: 8px; margin-top: 10px; }
         
-        /* Estilos del Manual Inicial */
         .manual-container { text-align: left; background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid var(--info); margin: 25px 0; }
         .manual-container h3 { margin-top: 0; color: var(--info); border-bottom: 1px solid #ddd; padding-bottom: 10px; }
         .manual-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; font-size: 0.9em; line-height: 1.6; }
@@ -155,7 +154,7 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona 2 objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona los objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
     }
     else if (Game.paso === 4) {
         ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><p class="instruction">El ladrón decide su acción. (Ctrl+Click para víctimas/objetos).</p><div class="grid">${Game.equipos.map((e, i) => {
@@ -197,10 +196,25 @@ function render() {
 }
 
 function generateFieldsHTML(n) {
-    let roles = (n==5)?["Ladrón","Diplomático","Luchador","Recolector","Comerciante"]:(n==4)?["Ladrón/Diplomático","Luchador","Recolector","Comerciante"]:["Ladrón/Diplomático","Luchador/Recolector","Comerciante"];
+    let roles;
+    if (n == 5) {
+        roles = ["Ladrón", "Diplomático", "Luchador", "Recolector", "Comerciante"];
+    } else if (n == 4) {
+        // El primero tendrá 2 roles
+        roles = ["Ladrón/Diplomático", "Luchador", "Recolector", "Comerciante"];
+    } else if (n == 3) {
+        // Los dos primeros tendrán 2 roles
+        roles = ["Ladrón/Diplomático", "Luchador/Recolector", "Comerciante"];
+    }
     return roles.map(r => `<span class="role-tag">${r}</span><input type="text" class="player-input" data-role="${r}" placeholder="Nombre...">`).join("");
 }
-function updateFieldsUI(i) { document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(parseInt(document.getElementById(`sz_${i}`).value)); }
+
+function updateFieldsUI(i) { 
+    const n = parseInt(document.getElementById(`sz_${i}`).value);
+    Game.equipos[i].numJugadores = n;
+    document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(n); 
+}
+
 function saveRegistration() {
     for(let i=0; i<3; i++) {
         Game.equipos[i].rolesNombres = {};
@@ -217,6 +231,7 @@ function saveRegistration() {
     }
     Game.paso = 3; render();
 }
+
 function updatePactUI() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
     Game.equipos.forEach((_, i) => {
@@ -346,8 +361,6 @@ window.onload = render;
 </script>
 </body>
 </html>
-
-
 
 
 
