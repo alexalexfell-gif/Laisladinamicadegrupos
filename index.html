@@ -81,6 +81,25 @@ function render() {
         ui.innerHTML = `
         <div class="card" style="text-align:center">
             <h1>🏝️ LA ISLA</h1>
+            <p><strong>Por Alejandro Scuro Rossi</strong></p>
+            <p>Herramienta de Evaluación de Liderazgo y Estrategia de Equipo</p>
+
+            <div style="font-size: 0.75rem; color: #636e72; text-align: left; background: #f8f9fa; padding: 15px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; line-height: 1.4;">
+                <strong>⚠️ AVISO LEGAL Y TÉRMINOS DE USO:</strong><br>
+                Esta herramienta, "La Isla", es un <strong>prototipo experimental y educativo</strong> desarrollado por <strong>Alejandro Scuro Rossi</strong>. 
+                <br><br>
+                <strong>Sin Garantía:</strong> El software se entrega "tal cual" (as is), sin garantías de ningún tipo. El autor no garantiza la exactitud, fiabilidad o idoneidad de la simulación para procesos profesionales de selección o evaluación psicológica.
+                <br><br>
+                <strong>Limitación de Responsabilidad:</strong> En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento o cualquier daño derivado del uso de esta herramienta. Esta dinámica es un apoyo visual y debe ser interpretada por un profesional cualificado. 
+                <br><br>
+                Al hacer clic en <strong>"Iniciar Sesión"</strong>, usted reconoce la naturaleza experimental de este proyecto y acepta utilizarlo bajo su propia responsabilidad.
+            </div>
+
+            <button onclick="Game.paso=2; render();">Iniciar Sesión</button>
+        </div>`;
+    }
+        <div class="card" style="text-align:center">
+            <h1>🏝️ LA ISLA</h1>
             <p style="font-weight:bold; color:var(--primary); margin-bottom:0;">Autor: Alejandro Scuro Rossi</p>
             <p style="font-size: 0.9em; color: #666;">Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia.</p>
             
@@ -334,4 +353,5 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
