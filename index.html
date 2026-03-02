@@ -12,18 +12,11 @@ padding:20px;
 background:#eef2f3;
 }
 
-h3{margin-top:30px}
-
 .equipo{
 border:1px solid #ccc;
 padding:10px;
 margin:10px 0;
 background:white;
-}
-
-.destacado{
-color:#b30000;
-font-weight:bold;
 }
 
 button{
@@ -52,7 +45,7 @@ margin-top:20px;
 <script>
 
 /* =============================
-CONFIGURACIÓN GLOBAL
+ESTADO GLOBAL
 ============================= */
 
 let paso=0;
@@ -78,7 +71,8 @@ const recursosEspeciales=[
 
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
-miembros:Array(5).fill().map(()=>({nombre:"",roles:[]}))
+miembros:Array(5).fill().map(()=>({nombre:"",roles:[]})),
+recursos:[]
 }));
 
 let logJuego=[];
@@ -97,21 +91,12 @@ document.getElementById("log").innerHTML=
 logJuego.join("<br>");
 }
 
-function buscarRol(grupo,rol){
-for(let m of grupo.miembros){
-if(m.roles.includes(rol)) return m;
-}
-return null;
-}
-
 function actualizarResumen(){
 grupos.forEach(g=>{
 let resumen={};
-
-g.recursos?.forEach(r=>{
+g.recursos.forEach(r=>{
 resumen[r]=(resumen[r]||0)+1;
 });
-
 g.resumen=resumen;
 });
 }
@@ -176,39 +161,31 @@ html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 let total=g.miembros.filter(m=>m.nombre!=="").length;
 
+let rolesDisponibles=[
+"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
+];
+
+let rolesUsados=new Set();
+
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
 
 let oblig=1;
 
-/* Reglas de roles */
+if(total===3 && (j===0 || j===1)) oblig=2;
+else if(total===4 && j===0) oblig=2;
 
-if(total===3){
-if(j===0 || j===1) oblig=2;
-}
+html+=`<div>${m.nombre}</div>`;
 
-else if(total===4){
-if(j===0) oblig=2;
-}
+html+=`<select id="rol${i}_${j}">`+
+rolesDisponibles
+.filter(r=>!rolesUsados.has(r))
+.map(r=>`<option>${r}</option>`)
+.join("")+
+`</select><br>`;
 
-else if(total===5){
-oblig=1;
-}
-
-/* Selector */
-
-html+=`
-<div>${m.nombre}</div>
-
-<select id="rol${i}_${j}">
-<option>Ladrón</option>
-<option>Luchador</option>
-<option>Diplomático</option>
-<option>Comerciante</option>
-<option>Recolector</option>
-</select><br>
-`;
+rolesUsados.add(rolesDisponibles[0]);
 
 });
 
@@ -321,16 +298,22 @@ inicializarPila();
 
 grupos.forEach((g,i)=>{
 
-let recolector=buscarRol(g,"Recolector");
+let recolector=g.miembros.find(m=>m.roles.includes("Recolector"));
 if(!recolector) return;
 
 html+=`<div class="equipo"><strong>${g.nombre}</strong><br>`;
 
+let usados=new Set();
+
 for(let x=0;x<2;x++){
+
+let opciones=pilaRecoleccion
+.filter(o=>!usados.has(o))
+.map(r=>`<option>${r}</option>`).join("");
 
 html+=`
 <select id="rec${i}_${x}">
-${pilaRecoleccion.map(r=>`<option>${r}</option>`).join("")}
+${opciones}
 </select><br>
 `;
 
@@ -346,7 +329,6 @@ html+=`<button onclick="resolverRecoleccion()">Continuar</button>`;
 /* -------- RESULTADOS -------- */
 
 if(paso===7){
-
 calcularResultados();
 return;
 }
@@ -361,15 +343,24 @@ FUNCIONES LOGICAS
 
 function selectorObjetosBase(i,cantidad){
 
+let usados=new Set();
+
 let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
 
 for(let x=0;x<cantidad;x++){
 
+let opciones=recursosBase
+.filter(r=>!usados.has(r.nombre))
+.map(r=>`<option>${r.nombre}</option>`)
+.join("");
+
 html+=`
 <select id="esp${i}_${x}">
-${recursosBase.map(r=>`<option>${r.nombre}</option>`).join("")}
+${opciones}
 </select><br>
 `;
+
+usados.add(recursosBase[x]?.nombre);
 
 }
 
@@ -382,13 +373,23 @@ function selectorObjetosEspeciales(i,cantidad){
 
 let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
 
+let usados=new Set();
+
 for(let x=0;x<cantidad;x++){
+
+let opciones=recursosEspeciales
+.filter(r=>!usados.has(r.nombre))
+.map(r=>`<option>${r.nombre}</option>`)
+.join("");
 
 html+=`
 <select id="dip${i}_${x}">
-${recursosEspeciales.map(r=>`<option>${r.nombre}</option>`).join("")}
+${opciones}
 </select><br>
 `;
+
+if(recursosEspeciales[x])
+usados.add(recursosEspeciales[x].nombre);
 
 }
 
@@ -396,6 +397,10 @@ html+="</div>";
 
 return html;
 }
+
+/* =============================
+LOGICA DEL JUEGO
+============================= */
 
 function guardarJugadores(){
 
@@ -426,13 +431,26 @@ siguiente();
 function guardarRoles(){
 
 grupos.forEach(g=>{
+
+let rolesUsados=new Set();
+
 g.miembros.forEach((m,j)=>{
 
 let sel=document.getElementById(`rol0_${j}`);
+if(!sel) return;
 
-if(sel) m.roles=[sel.value];
+let rol=sel.value;
+
+if(rolesUsados.has(rol)){
+alert("No se pueden repetir roles");
+throw new Error();
+}
+
+rolesUsados.add(rol);
+m.roles=[rol];
 
 });
+
 });
 
 siguiente();
@@ -534,14 +552,23 @@ function resolverRecoleccion(){
 
 grupos.forEach((g,i)=>{
 
-let recolector=buscarRol(g,"Recolector");
-
+let recolector=g.miembros.find(m=>m.roles.includes("Recolector"));
 if(!recolector) return;
+
+let usados=new Set();
 
 for(let x=0;x<2;x++){
 
 let sel=document.getElementById(`rec${i}_${x}`);
-if(sel) g.recursos.push(sel.value);
+if(!sel) continue;
+
+if(usados.has(sel.value)){
+alert("No se pueden repetir objetos");
+throw new Error();
+}
+
+usados.add(sel.value);
+g.recursos.push(sel.value);
 
 }
 
@@ -554,8 +581,6 @@ siguiente();
 function calcularResultados(){
 
 let ganadores=[];
-
-logJuego.push("=== RESULTADOS FINALES ===");
 
 grupos.forEach(g=>{
 
@@ -573,16 +598,17 @@ puntos.Utilidad>=3 &&
 puntos.Orientación>=2){
 
 ganadores.push(g.nombre);
-logJuego.push(g.nombre+" SOBREVIVE");
 }
-else logJuego.push(g.nombre+" NO sobrevive");
 
 });
 
-if(ganadores.length)
-logJuego.push("🏝 Sobrevivientes: "+ganadores.join(","));
+let html="=== RESULTADOS FINALES ===<br>";
 
-mostrarLog();
+ganadores.forEach(g=>{
+html+=g+" SOBREVIVE<br>";
+});
+
+document.getElementById("log").innerHTML=html;
 }
 
 function inicializarPila(){
@@ -602,6 +628,8 @@ todos[Math.floor(Math.random()*todos.length)].nombre
 mostrar();
 
 </script>
+
 </body>
 </html>
+
 
