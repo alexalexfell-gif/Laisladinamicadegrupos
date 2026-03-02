@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Isla - Alejandro Scuro Rossi</title>
+    
+    <title>La Isla - Alejandro Scuro Rossi | Dinámica de Liderazgo y Trabajo en Equipo</title>
+    <meta name="description" content="La Isla: Una dinámica grupal creada por Alejandro Scuro Rossi para la evaluación de liderazgo, trabajo en equipo, estrategia y toma de decisiones en Recursos Humanos.">
+    <meta name="keywords" content="Alejandro Scuro Rossi, trabajo en equipo, recursos humanos, dinámica grupal, liderazgo, roleplay, simulación de supervivencia, evaluación de competencias">
+    <meta name="author" content="Alejandro Scuro Rossi">
+    
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #ecf0f1; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #ecf0f1; --info: #2980b9; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1100px; margin: auto; }
         .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
@@ -20,6 +25,14 @@
         .trade-slot { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 10px; }
         .active-turn { border: 2px solid var(--accent) !important; background: #ebf5fb !important; }
         .maletin-box { background: #eef2f3; border: 2px dashed var(--primary); padding: 10px; border-radius: 8px; margin-top: 10px; }
+        
+        /* Estilos del Manual Inicial */
+        .manual-container { text-align: left; background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid var(--info); margin: 25px 0; }
+        .manual-container h3 { margin-top: 0; color: var(--info); border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .manual-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; font-size: 0.9em; line-height: 1.6; }
+        .req-list { list-style: none; padding: 0; font-weight: bold; }
+        .phase-list { padding-left: 18px; }
+        .phase-list li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
@@ -64,7 +77,41 @@ function render() {
     if (Game.paso >= 3 && Game.paso < 9) { sb.style.display = 'grid'; updateScoreboard(); } else { sb.style.display = 'none'; }
 
     if (Game.paso === 1) {
-        ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ LA ISLA</h1><p>Autor: Alejandro Scuro Rossi</p><button onclick="Game.paso=2; render();">Iniciar</button></div>`;
+        ui.innerHTML = `
+        <div class="card" style="text-align:center">
+            <h1>🏝️ LA ISLA</h1>
+            <p style="font-weight:bold; color:var(--primary); margin-bottom:0;">Autor: Alejandro Scuro Rossi</p>
+            <p style="font-size: 0.9em; color: #666;">Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia.</p>
+            
+            <div class="manual-container">
+                <h3>📜 Guía de Supervivencia</h3>
+                <div class="manual-grid">
+                    <div>
+                        <p><b>Meta:</b> Reunir los recursos antes de finalizar el Paso 8.</p>
+                        <p><b>Mínimos para Sobrevivir:</b></p>
+                        <ul class="req-list">
+                            <li style="color:var(--danger)">🍎 4 Alimentos (Ali)</li>
+                            <li style="color:var(--primary)">🛠️ 3 Utilidades (Uti)</li>
+                            <li style="color:var(--info)">🧭 2 Orientación (Ori)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p><b>Fases de la Dinámica:</b></p>
+                        <ol class="phase-list">
+                            <li><b>Registro:</b> Equipos y nombres por rol.</li>
+                            <li><b>Planeación:</b> Compra de 5 objetos iniciales.</li>
+                            <li><b>Roles:</b> Objetos especiales de cada rol.</li>
+                            <li><b>Robo Nocturno:</b> Acción del Ladrón.</li>
+                            <li><b>Pacto:</b> Alianza y objetos de valor 2.</li>
+                            <li><b>Lucha:</b> Los Luchadores compiten por recursos.</li>
+                            <li><b>Recolección:</b> Turnos de obtención de recursos.</li>
+                            <li><b>Mercado:</b> Intercambio final (máx. 2 acciones).</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <button onclick="Game.paso=2; render();">Iniciar Dinámica</button>
+        </div>`;
     }
     else if (Game.paso === 2) {
         ui.innerHTML = `<div class="card"><h2>Paso 2: Registro de Jugadores</h2><div class="grid">${Game.equipos.map((e, i) => `
@@ -83,7 +130,7 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona 2 objetos de rol(Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona los roles (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
     }
     else if (Game.paso === 4) {
         ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><p class="instruction">El ladrón decide su acción. (Ctrl+Click para víctimas/objetos).</p><div class="grid">${Game.equipos.map((e, i) => {
@@ -124,7 +171,6 @@ function render() {
     }
 }
 
-// CAPTURA DE NOMBRES
 function generateFieldsHTML(n) {
     let roles = (n==5)?["Ladrón","Diplomático","Luchador","Recolector","Comerciante"]:(n==4)?["Ladrón/Diplomático","Luchador","Recolector","Comerciante"]:["Ladrón/Diplomático","Luchador/Recolector","Comerciante"];
     return roles.map(r => `<span class="role-tag">${r}</span><input type="text" class="player-input" data-role="${r}" placeholder="Nombre...">`).join("");
@@ -146,52 +192,35 @@ function saveRegistration() {
     }
     Game.paso = 3; render();
 }
-
-// LÓGICA DE PACTO CORREGIDA
 function updatePactUI() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
     Game.equipos.forEach((_, i) => {
         document.getElementById(`pact_choice_${i}`).style.display = "block";
         const sel = document.getElementById(`pact_sel_${i}`);
-        sel.multiple = ps.includes(i); // Los que pactan eligen múltiples, el excluido solo 1
+        sel.multiple = ps.includes(i);
     });
-
     if(ps.length === 2) {
         let ex = [0,1,2].find(i=>!ps.includes(i));
-        document.getElementById('pacto-area').innerHTML = `
-            <p><b>Pactan:</b> ${Game.equipos[ps[0]].nombre} y ${Game.equipos[ps[1]].nombre} (Elegid 2 objetos cada uno).</p>
-            <p style="color:var(--danger)"><b>Excluido:</b> ${Game.equipos[ex].nombre} (Elige 1 objeto y recibe Venganza).</p>`;
-    } else {
-        document.getElementById('pacto-area').innerHTML = "";
+        document.getElementById('pacto-area').innerHTML = `<p><b>Pactan:</b> ${Game.equipos[ps[0]].nombre} y ${Game.equipos[ps[1]].nombre} (2 obj c/u). <br><span style="color:var(--danger)">Excluido: ${Game.equipos[ex].nombre} (1 obj + Venganza).</span></p>`;
     }
 }
-
 function processPact() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
-    if(ps.length !== 2) return alert("Selecciona 2 equipos participantes.");
-    
+    if(ps.length !== 2) return alert("Selecciona exactamente 2 equipos.");
     let error = false;
     Game.equipos.forEach((_, i) => {
         const s = Array.from(document.getElementById(`pact_sel_${i}`).selectedOptions);
         const target = ps.includes(i) ? 2 : 1;
-        if(s.length !== target) {
-            alert(`El equipo ${Game.equipos[i].nombre} debe elegir exactamente ${target} objeto(s).`);
-            error = true;
-        }
+        if(s.length !== target) { alert(`Equipo ${Game.equipos[i].nombre} debe elegir ${target} objeto(s).`); error = true; }
     });
-
     if(error) return;
-
     Game.equipos.forEach((_, i) => {
         const s = Array.from(document.getElementById(`pact_sel_${i}`).selectedOptions);
         s.forEach(opt => Game.equipos[i].inventario.push({...PACTO_OBJ.find(p => p.id === opt.value)}));
         if(!ps.includes(i)) Game.equipos[i].venganza = true;
     });
-
     Game.paso = 6; render();
 }
-
-// RESTO DE FUNCIONES
 function updateScoreboard() {
     document.getElementById('scoreboard').innerHTML = Game.equipos.map(e => {
         const inv = [...e.inventario, ...e.maletin];
@@ -202,7 +231,7 @@ function updateScoreboard() {
 function saveInv3() {
     for(let i=0; i<3; i++) {
         const s = Array.from(document.getElementById(`p_${i}`).selectedOptions);
-        if(s.length!==5) return alert(`Elige 5 para ${Game.equipos[i].nombre}`);
+        if(s.length!==5) return alert(`Elige 5`);
         Game.equipos[i].inventario = s.map(o => ({...CATALOGO_BASE.find(b => b.id === o.value)}));
     }
     Game.paso = 3.5; render();
