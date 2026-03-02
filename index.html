@@ -2,232 +2,333 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>La Isla - Dinámica grupal</title>
+<title>La Isla - Dinámica Grupal</title>
 <style>
-body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; max-width: 900px; margin: auto; }
-h1, h2, h3 { text-align: center; margin: 5px 0; }
-h1 { font-size: 2em; }
-h2 { font-size: 1.2em; color: #555; }
-h3 { font-size: 1em; color: #777; margin-bottom: 20px; }
-hr { margin: 20px 0; }
-textarea { width: 100%; height: 150px; padding: 10px; margin-bottom: 15px; resize: vertical; }
-input, button, select { padding: 10px; margin-top: 10px; font-size: 1em; }
-button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-button:disabled { background-color: #aaa; cursor: default; }
-.grupo { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-ul { padding-left: 20px; }
-.objetos { margin-top: 10px; font-style: italic; color: #333; }
-.paso-contenido { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px; min-height: 150px; white-space: pre-wrap; }
-.nav-btns { text-align: center; margin-top: 10px; }
-.relevante { color: red; font-weight: bold; }
-.usado { color: gray; font-style: italic; }
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  .resaltar { color: red; font-weight: bold; }
+  .pasado { color: gray; }
+  select, input, button { margin: 3px; }
 </style>
 </head>
 <body>
 
-<h1>La Isla</h1>
-<h2>Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia</h2>
-<h3>por Alejandro Scuro Rossi</h3>
-<hr>
+<h1>La Isla - Dinámica grupal</h1>
+<h2>Facilitador: Alejandro Scuro Rossi</h2>
 
-<div class="paso-contenido" id="pasoContenido"></div>
-
-<div class="nav-btns">
-<button id="prevBtn" onclick="cambiarPaso(-1)" disabled>Anterior</button>
-<button id="nextBtn" onclick="cambiarPaso(1)">Siguiente</button>
-</div>
+<div id="contenido"></div>
+<button onclick="siguientePaso()">Siguiente Paso</button>
 
 <script>
-// Roles y objetos
-const roles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
-const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
 let pasoActual = 0;
-let grupos = [];
 
-// Mapear solo los objetos que tienen un paso relevante
-const objetoAPaso = {
-  "Machete": 6,
-  "Antifaz": 4,
-  "Alianza militar": 5,
-  "Guantes": 7
-};
+const nombresGrupos = ["Alfa","Beta","Omega"];
 
 // Recursos iniciales
 const recursos = [
-  {nombre: "Agua", categoria:"Alimentación", puntos:1},
-  {nombre: "Frutas", categoria:"Alimentación", puntos:1},
-  {nombre: "Comida enlatada", categoria:"Alimentación", puntos:1},
-  {nombre: "Botiquín", categoria:"Utilidad", puntos:1},
-  {nombre: "Cuerda", categoria:"Utilidad", puntos:1},
-  {nombre: "Martillo", categoria:"Utilidad", puntos:1},
-  {nombre: "Lona", categoria:"Utilidad", puntos:1},
-  {nombre: "Encendedor", categoria:"Utilidad", puntos:1},
-  {nombre: "Mapa", categoria:"Orientación", puntos:1},
-  {nombre: "Radio", categoria:"Orientación", puntos:1}
+  {nombre:"Agua", categoria:"Alimentación", puntos:1},
+  {nombre:"Frutas", categoria:"Alimentación", puntos:1},
+  {nombre:"Comida enlatada", categoria:"Alimentación", puntos:1},
+  {nombre:"Botiquín", categoria:"Utilidad", puntos:1},
+  {nombre:"Cuerda", categoria:"Utilidad", puntos:1},
+  {nombre:"Martillo", categoria:"Utilidad", puntos:1},
+  {nombre:"Lona", categoria:"Utilidad", puntos:1},
+  {nombre:"Encendedor", categoria:"Utilidad", puntos:1},
+  {nombre:"Mapa", categoria:"Orientación", puntos:1},
+  {nombre:"Radio", categoria:"Orientación", puntos:1}
 ];
 
-const pasos = [
-  {titulo:"Paso 1: Introducción", contenido:"3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.\nObjetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.\nPueden obtenerse objetos repetidos a través del robo, el comercio o la lucha."},
-  {titulo:"Paso 2: Formación de equipo y roles", contenido:"Aquí se generarán los grupos y se asignarán roles y objetos de rol."},
-  {titulo:"Paso 3: Planeación inicial", contenido:"Selecciona 5 recursos para cada grupo.\nResumen de objetos y recursos elegidos por cada grupo."},
-  {titulo:"Paso 4: Robo nocturno", contenido:"Los Ladrones de cada equipo pueden decidir robar un objeto de otro equipo o proteger los objetos de su equipo evitando robos.\nDos Ladrones pueden robar al mismo equipo."},
-  {titulo:"Paso 5: Pacto", contenido:"Los Diplomáticos negocian entre sí. Aquellos dos que logren alcanzar un pacto deben darse la mano.\nObtendrán cada uno 2 recursos especiales a elegir. El Diplomático que no llegue a un pacto solo podrá elegir 1 recurso especial.\nEn caso de no llegarse a un pacto todos los Diplomáticos obtendrán 1 recurso especial.\nSi se forma una Alianza militar, los Luchadores de ambos equipos no podrán atacarse en el siguiente paso."},
-  {titulo:"Paso 6: Combate", contenido:"Los Luchadores combaten entre sí. Cada Luchador dispone de un ataque.\nAtaque exitoso: roba un objeto del equipo contrario.\nDefensa exitosa: no se pierden objetos.\nEn caso de empate se repite hasta que atacante o defensor tengan éxito.\nVenganza: El luchador del equipo excluido del pacto del Paso 5 ataca 2 veces."},
-  {titulo:"Paso 7: Recolección", contenido:"Los Recolectores de todos los equipos se reunirán llevando consigo los 5 objetos descartados inicialmente.\nDe esta pila de 15 objetos, cada uno podrá elegir 2 objetos."},
-  {titulo:"Paso 8: Intercambio", contenido:"Los Comerciantes elegirán dos objetos para intercambiar con los demás equipos."},
-  {titulo:"Paso 9: Decisión final", contenido:"Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica."}
+// Objetos de rol
+const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
+
+// Recursos especiales Paso 5
+const recursosEspeciales = [
+  {nombre:"Caña de pescar", categoria:"Alimentación", puntos:2},
+  {nombre:"Mochila", categoria:"Utilidad", puntos:2},
+  {nombre:"Brújula", categoria:"Orientación", puntos:2}
 ];
 
-// Mostrar paso
+// Grupos
+let grupos = [
+  {nombre:"Alfa", miembros:["Jugador1","Jugador2","Jugador3","Jugador4","Jugador5"], roles:[], objetos:[], protegido:false, noPacto:false},
+  {nombre:"Beta", miembros:["Jugador6","Jugador7","Jugador8","Jugador9","Jugador10"], roles:[], objetos:[], protegido:false, noPacto:false},
+  {nombre:"Omega", miembros:["Jugador11","Jugador12","Jugador13","Jugador14","Jugador15"], roles:[], objetos:[], protegido:false, noPacto:false}
+];
+
+// Paso 4
+let objetosDescartados = [];
+
+// Paso 5
+let pactos = [];
+
+// Función principal para mostrar cada paso
 function mostrarPaso(){
-  let html = `<strong>${pasos[pasoActual].titulo}</strong>\n\n` + pasos[pasoActual].contenido;
-
-  // Paso 2 → generador de grupos y selección de objetos
-  if(pasoActual === 1){
-    html += `<br><br>Introduce los participantes y genera los grupos y objetos de rol.`;
-    html += `<br><label>Participantes (uno por línea, máximo 15):</label>
-    <textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López"></textarea><br>
-    <label>Número de grupos:</label>
-    <input type="number" id="numGrupos" value="3" min="2" max="3"><br><br>
-    <button onclick="generarGrupos()">Generar Grupos y Asignar Roles</button>
-    <div id="resultado"></div>`;
-  }
-
-  // Paso 3 → selección de recursos por grupo
-  if(pasoActual === 2 && grupos.length > 0){
-    html += `<br><strong>Selecciona 5 recursos por grupo:</strong>`;
-    grupos.forEach((grupo,i)=>{
-      const g = i+1;
-      html += `<div class="grupo"><h3>Grupo ${g}</h3>`;
-      html += `<ul>${grupo.miembros.map((p,j)=>`<li>${p} - ${grupo.roles[j]}</li>`).join('')}</ul>`;
-      html += `<p>Selecciona 5 recursos:</p>`;
-      for(let r=1;r<=5;r++){
-        html += `<select id="grupo${g}-rec${r}" onchange="actualizarRecursos(${g})"><option value="">--Seleccionar--</option>`;
-        recursos.forEach(res=> html += `<option value="${res.nombre}">${res.nombre} (${res.categoria})</option>`);
-        html += `</select> `;
-      }
-      html += `<br><button onclick="guardarRecursos(${g})">Guardar recursos del Grupo ${g}</button>`;
-      html += `<p id="grupo${g}-recursos-asignados" class="objetos"></p></div>`;
-    });
-  }
-
-  // Pasos posteriores → mostrar resumen de grupos y objetos
-  if(pasoActual > 2 && grupos.length > 0){
-    html += "\n\nResumen de grupos, objetos y recursos:\n";
-    grupos.forEach((grupo,i)=>{
-      html += `Grupo ${i+1}:\n`;
-      grupo.miembros.forEach((p,j)=>{ html += `  ${p} - ${grupo.roles[j]}\n`; });
-      html += "  Objetos: ";
-      grupo.objetos.forEach(obj=>{
-        let clase = "";
-        const pasoObjeto = objetoAPaso[obj];
-        if(pasoObjeto !== undefined){
-          if(pasoActual + 1 === pasoObjeto) clase = "relevante";
-          else if(pasoActual + 1 > pasoObjeto) clase = "usado";
-        }
-        html += `<span class="${clase}">${obj}</span> `;
-      });
-      html += "\n  Recursos: ";
-      if(grupo.recursos) grupo.recursos.forEach(r=> html += `${r} `);
-      html += "\n";
-    });
-  }
-
-  document.getElementById("pasoContenido").innerHTML = html;
-  document.getElementById("prevBtn").disabled = pasoActual === 0;
-  document.getElementById("nextBtn").disabled = pasoActual === pasos.length - 1;
-}
-
-// Navegación
-function cambiarPaso(direccion){
-  pasoActual += direccion;
-  if(pasoActual < 0) pasoActual = 0;
-  if(pasoActual >= pasos.length) pasoActual = pasos.length - 1;
-  mostrarPaso();
-}
-
-// Generar grupos y asignar roles
-function generarGrupos(){
-  const nombres = document.getElementById("participantes").value.split("\n").filter(n => n.trim() !== "");
-  const numGrupos = parseInt(document.getElementById("numGrupos").value);
-  if(nombres.length === 0){ alert("Introduce al menos un participante"); return; }
-  if(nombres.length > 15){ alert("Máximo 15 participantes"); return; }
-
-  // Mezclar participantes
-  for(let i=nombres.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
-  }
-
-  grupos = Array.from({length: numGrupos}, ()=>({miembros:[], roles:[], objetos:[], recursos:[]}));
-  nombres.forEach((nombre,index)=>{
-    const g = index % numGrupos;
-    grupos[g].miembros.push(nombre);
-    grupos[g].roles.push(roles[index % roles.length]);
-  });
-
-  // Crear HTML para seleccionar objetos
   let html = "";
-  grupos.forEach((grupo,i)=>{
-    const grupoNum = i+1;
-    html += `<div class="grupo"><h3>Grupo ${grupoNum}</h3><ul>`;
-    grupo.miembros.forEach((p,j)=>{ html += `<li>${p} - ${grupo.roles[j]}</li>`; });
-    html += `</ul><p>Elegir 2 objetos de rol:</p>`;
-    html += `<select id="grupo${grupoNum}-obj1" onchange="actualizarOpciones(${grupoNum})"><option value="">--Seleccionar--</option>`;
-    objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
-    html += `</select>`;
-    html += `<select id="grupo${grupoNum}-obj2"><option value="">--Seleccionar--</option>`;
-    objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
-    html += `</select>`;
-    html += ` <button onclick="guardarObjetos(${grupoNum})">Guardar objetos del grupo ${grupoNum}</button>`;
-    html += `<p id="grupo${grupoNum}-objetos-asignados" class="objetos"></p></div>`;
-  });
-  document.getElementById("resultado").innerHTML = html;
-}
+  switch(pasoActual){
+    case 0:
+      html += "<h3>Paso 1: Introducción</h3>";
+      html += "<p>3 equipos en una isla. Sobrevivir requiere acumular objetos:</p>";
+      html += "<ul><li>Alimentación: mínimo 4 puntos</li><li>Utilidad: mínimo 3 puntos</li><li>Orientación: mínimo 2 puntos</li></ul>";
+      break;
+      
+    case 1:
+      html += "<h3>Paso 2: Selección de roles y objetos de rol</h3>";
+      grupos.forEach((g,i)=>{
+        html += `<p><strong>Equipo ${g.nombre}</strong></p>`;
+        g.miembros.forEach((m,j)=>{
+          html += `${m} - Rol: <select id="rol${i}${j}">`;
+          ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"].forEach(r=>{
+            html += `<option value="${r}">${r}</option>`;
+          });
+          html += "</select> ";
+          html += `Objeto de rol: <select id="objRol${i}${j}">`;
+          objetosRol.forEach(o=> html += `<option value="${o}">${o}</option>`);
+          html += "</select><br>";
+        });
+      });
+      html += `<button onclick="guardarPaso2()">Guardar roles y objetos</button>`;
+      break;
+      
+    case 2:
+      html += "<h3>Paso 3: Selección de 5 recursos por equipo</h3>";
+      grupos.forEach((g,i)=>{
+        html += `<p><strong>Equipo ${g.nombre}</strong></p>`;
+        for(let r=0;r<5;r++){
+          html += `Recurso ${r+1}: <select id="rec${i}${r}">`;
+          recursos.forEach(obj=> html += `<option value="${obj.nombre}">${obj.nombre}</option>`);
+          html += `</select><br>`;
+        }
+      });
+      html += `<button onclick="guardarPaso3()">Guardar recursos</button>`;
+      break;
 
-// Guardar objetos
-function guardarObjetos(numGrupo){
-  const obj1 = document.getElementById(`grupo${numGrupo}-obj1`).value;
-  const obj2 = document.getElementById(`grupo${numGrupo}-obj2`).value;
-  if(obj1 === "" || obj2 === ""){ alert("Selecciona ambos objetos de rol"); return; }
-  if(obj1 === obj2){ alert("No se puede seleccionar el mismo objeto dos veces"); return; }
-  grupos[numGrupo-1].objetos = [obj1, obj2];
-  document.getElementById(`grupo${numGrupo}-objetos-asignados`).innerText = `Objetos elegidos: ${obj1}, ${obj2}`;
-}
+    case 3:
+      html += "<h3>Paso 4: Robo nocturno</h3>";
+      grupos.forEach((g,i)=>{
+        g.roles.forEach((rol,j)=>{
+          if(rol==="Ladrón"){
+            const ladr = g.miembros[j];
+            html += `<p>${ladr} (${g.nombre}): 
+              <select id="accion${i}${j}">
+                <option value="">--Seleccionar acción--</option>
+                <option value="proteger">Proteger</option>`;
+            grupos.forEach((otro,k)=>{
+              if(k!==i) html += `<option value="robar-${k}">Robar a ${nombresGrupos[k]}</option>`;
+            });
+            html += `</select> Objeto a robar (si aplica): <input type="text" id="objetoRobo${i}${j}"></p>`;
+          }
+        });
+      });
+      html += `<button onclick="resolverRobo()">Registrar acciones de robo</button>`;
+      break;
+      
+    case 4:
+      html += "<h3>Paso 5: Pacto entre diplomáticos</h3>";
+      grupos.forEach((g,i)=>{
+        g.roles.forEach((rol,j)=>{
+          if(rol==="Diplomático"){
+            const participante = g.miembros[j];
+            html += `<button onclick="hacerPacto(${i},'${participante}')">Pacto: ${participante}</button> `;
+          }
+        });
+      });
+      html += `<p id="pactosActuales"></p>`;
+      break;
+      
+    case 5:
+      html += "<h3>Paso 6: Combate</h3>";
+      grupos.forEach((g,i)=>{
+        g.roles.forEach((rol,j)=>{
+          if(rol==="Luchador"){
+            const luch = g.miembros[j];
+            html += `<p>${luch} (${g.nombre}):
+              <select id="ataca${i}${j}"><option value="">--Atacar a--</option>`;
+            grupos.forEach((otro,k)=>{
+              if(k!==i && !(g.objetos.includes("Alianza militar") && grupos[k].objetos.includes("Alianza militar"))) html += `<option value="${k}">${nombresGrupos[k]}</option>`;
+            });
+            html += `</select>
+            <select id="resultado${i}${j}"><option value="">--Resultado--</option>
+              <option value="atacante">Victoria atacante</option>
+              <option value="defensa">Victoria defensa</option>
+            </select>
+            Objeto a robar: <input type="text" id="objetoCombate${i}${j}"></p>`;
+          }
+        });
+      });
+      html += `<button onclick="resolverCombate()">Registrar Combates</button>`;
+      break;
 
-// Guardar recursos
-function guardarRecursos(numGrupo){
-  const seleccion = [];
-  for(let r=1;r<=5;r++){
-    const val = document.getElementById(`grupo${numGrupo}-rec${r}`).value;
-    if(val === "") { alert("Selecciona los 5 recursos"); return; }
-    if(seleccion.includes(val)){ alert("No se puede seleccionar el mismo recurso dos veces"); return; }
-    seleccion.push(val);
+    case 6:
+      html += "<h3>Paso 7: Recolección</h3>";
+      const orden = ["Alfa","Beta","Omega","Beta","Alfa"];
+      orden.forEach((nombre, idx)=>{
+        const g = grupos[nombresGrupos.indexOf(nombre)];
+        html += `<p>${nombre} elige objeto ${idx+1}: <select id="recolecta${idx}">`;
+        objetosDescartados.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
+        html += `</select></p>`;
+      });
+      html += `<button onclick="resolverRecoleccion()">Registrar Recolección</button>`;
+      break;
+      
+    case 7:
+      html += "<h3>Paso 8: Intercambio</h3>";
+      grupos.forEach((g,i)=>{
+        html += `<p>${g.nombre}</p>`;
+        for(let n=1;n<=2;n++){
+          html += `Intercambio ${n}: <select id="intercambioPropio${i}${n}">`;
+          g.objetos.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
+          html += `</select> con <select id="intercambioOtro${i}${n}">`;
+          grupos.forEach((otro,k)=>{
+            if(k!==i) otro.objetos.forEach(obj => html += `<option value="${k}|${obj}">${nombresGrupos[k]} - ${obj}</option>`);
+          });
+          html += `</select><br>`;
+        }
+      });
+      html += `<button onclick="resolverIntercambios()">Registrar intercambios</button>`;
+      break;
+
+    case 8:
+      html += "<h3>Paso 9: Resultados finales</h3>";
+      grupos.forEach((g,i)=>{
+        const puntajes = {Alimentación:0, Utilidad:0, Orientación:0};
+        g.objetos.forEach(obj=>{
+          let r = recursos.find(r=>r.nombre===obj);
+          if(!r) r = recursosEspeciales.find(r=>r.nombre===obj);
+          if(r) puntajes[r.categoria] += r.puntos;
+        });
+        let mensaje = (puntajes.Alimentación>=4 && puntajes.Utilidad>=3 && puntajes.Orientación>=2) ? "¡Victoria!" : "Derrota!";
+        html += `<p>${g.nombre}: Alimentación ${puntajes.Alimentación}, Utilidad ${puntajes.Utilidad}, Orientación ${puntajes.Orientación} → <strong>${mensaje}</strong></p>`;
+      });
+      break;
   }
-  grupos[numGrupo-1].recursos = seleccion;
-  document.getElementById(`grupo${numGrupo}-recursos-asignados`).innerText = `Recursos elegidos: ${seleccion.join(", ")}`;
+  document.getElementById("contenido").innerHTML = html;
 }
 
-// Evitar duplicados en recursos
-function actualizarRecursos(grupoNum){
-  const seleccionados = [];
-  for(let r=1;r<=5;r++){
-    const sel = document.getElementById(`grupo${grupoNum}-rec${r}`);
-    seleccionados.push(sel.value);
-    Array.from(sel.options).forEach(opt => opt.disabled = false);
-    seleccionados.forEach(v=>{
-      if(v!=="" && v!==sel.value){
-        const opt = Array.from(sel.options).find(o=>o.value===v);
-        if(opt) opt.disabled = true;
+// Funciones auxiliares (Paso 2 a 8)
+function guardarPaso2(){
+  grupos.forEach((g,i)=>{
+    g.roles = [];
+    g.miembros.forEach((m,j)=>{
+      g.roles[j] = document.getElementById(`rol${i}${j}`).value;
+      g.objetos[j] = document.getElementById(`objRol${i}${j}`).value;
+    });
+  });
+  alert("Roles y objetos de rol guardados");
+}
+
+function guardarPaso3(){
+  grupos.forEach((g,i)=>{
+    for(let r=0;r<5;r++){
+      const obj = document.getElementById(`rec${i}${r}`).value;
+      g.objetos.push(obj);
+      objetosDescartados.push(obj);
+    }
+  });
+  alert("Recursos guardados");
+}
+
+function resolverRobo(){
+  grupos.forEach((g,i)=>{
+    g.roles.forEach((rol,j)=>{
+      if(rol==="Ladrón"){
+        const accion = document.getElementById(`accion${i}${j}`).value;
+        if(accion.startsWith("robar")){
+          const k = parseInt(accion.split("-")[1]);
+          const objetivo = grupos[k];
+          const objetoARobar = document.getElementById(`objetoRobo${i}${j}`).value;
+          if(objetivo.protegido){
+            alert(`Robo fallido de ${g.miembros[j]} a ${objetivo.nombre}`);
+          } else {
+            if(objetivo.objetos.includes(objetoARobar)){
+              objetivo.objetos = objetivo.objetos.filter(o=>o!==objetoARobar);
+              g.objetos.push(objetoARobar);
+            } else alert(`Objeto ${objetoARobar} no existe en ${objetivo.nombre}`);
+          }
+        } else if(accion==="proteger") g.protegido = true;
       }
     });
-  }
+  });
+  alert("Acciones de robo registradas");
 }
 
-// Mostrar primer paso al cargar
+function hacerPacto(i, diplom){
+  const otro = prompt(`Selecciona el nombre del otro Diplomático para pactar con ${diplom}:`);
+  if(!otro) return alert("Debe seleccionar un diplomático para pactar.");
+  if(pactos.some(p=> (p[0]===diplom && p[1]===otro) || (p[0]===otro && p[1]===diplom))) return alert("Este pacto ya existe.");
+  pactos.push([diplom, otro]);
+  // Asignar recurso especial a ambos
+  const g1 = grupos[i]; g1.objetos.push(recursosEspeciales[0].nombre);
+  grupos.forEach(gr=>{
+    gr.miembros.forEach(m=>{
+      if(m===otro) gr.objetos.push(recursosEspeciales[1].nombre);
+    });
+  });
+  // Los que no pacten tendrán Venganza
+  grupos.forEach(g=>{
+    if(!g.roles.includes("Diplomático") || !pactos.flat().includes(g.miembros[0])) g.noPacto = true;
+  });
+  document.getElementById("pactosActuales").innerText = "Pactos: " + pactos.map(p=>`${p[0]} ↔ ${p[1]}`).join(", ");
+  alert("Pacto registrado");
+}
+
+function resolverCombate(){
+  grupos.forEach((g,i)=>{
+    g.roles.forEach((rol,j)=>{
+      if(rol==="Luchador"){
+        const objetivoIdx = document.getElementById(`ataca${i}${j}`).value;
+        const resultado = document.getElementById(`resultado${i}${j}`).value;
+        const objetoARobar = document.getElementById(`objetoCombate${i}${j}`).value;
+        if(objetivoIdx!==""){
+          const objetivo = grupos[parseInt(objetivoIdx)];
+          if(resultado==="atacante" && objetivo.objetos.includes(objetoARobar)){
+            objetivo.objetos = objetivo.objetos.filter(o=>o!==objetoARobar);
+            g.objetos.push(objetoARobar);
+          }
+        }
+      }
+    });
+  });
+  alert("Combates registrados");
+}
+
+function resolverRecoleccion(){
+  const orden = ["Alfa","Beta","Omega","Beta","Alfa"];
+  orden.forEach((nombre, idx)=>{
+    const g = grupos[nombresGrupos.indexOf(nombre)];
+    const objeto = document.getElementById(`recolecta${idx}`).value;
+    if(objeto && objetosDescartados.includes(objeto)){
+      g.objetos.push(objeto);
+      objetosDescartados = objetosDescartados.filter(o=>o!==objeto);
+    }
+  });
+  alert("Recolección registrada");
+}
+
+function resolverIntercambios(){
+  grupos.forEach((g,i)=>{
+    for(let n=1;n<=2;n++){
+      const propio = document.getElementById(`intercambioPropio${i}${n}`).value;
+      const otroInfo = document.getElementById(`intercambioOtro${i}${n}`).value;
+      if(propio && otroInfo){
+        const [k,objOtro] = otroInfo.split("|");
+        const otro = grupos[parseInt(k)];
+        if(g.objetos.includes(propio) && otro.objetos.includes(objOtro)){
+          g.objetos = g.objetos.filter(o=>o!==propio); g.objetos.push(objOtro);
+          otro.objetos = otro.objetos.filter(o=>o!==objOtro); otro.objetos.push(propio);
+        }
+      }
+    }
+  });
+  alert("Intercambios registrados");
+}
+
+function siguientePaso(){
+  mostrarPaso();
+  pasoActual++;
+}
+
+// Inicializar
 mostrarPaso();
 </script>
+
 </body>
 </html>
-
-
