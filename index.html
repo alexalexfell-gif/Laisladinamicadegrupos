@@ -24,13 +24,11 @@
 </head>
 <body>
 
-<!-- ENCABEZADO -->
 <h1>La Isla</h1>
 <h2>Dinámica grupal para evaluación de liderazgo, trabajo en equipo y estrategia</h2>
 <h3>por Alejandro Scuro Rossi</h3>
 <hr>
 
-<!-- INSTRUCCIONES GENERALES -->
 <div class="instrucciones">
   <h2>Instrucciones Generales</h2>
   <p>Modalidad: Juego estratégico con negociación, intercambio, conflicto y supervivencia.</p>
@@ -46,7 +44,6 @@
   <p>Roles del equipo: Comerciante, Diplomático, Luchador, Ladrón, Recolector.</p>
 </div>
 
-<!-- GENERADOR DE GRUPOS -->
 <label>Participantes (uno por línea, máximo 15):</label>
 <textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López&#10;Pedro González"></textarea>
 <br>
@@ -54,88 +51,87 @@
 <input type="number" id="numGrupos" value="3" min="2" max="3">
 <br><br>
 <button onclick="generarGrupos()">Generar Grupos y Asignar Roles</button>
-
 <div id="resultado"></div>
 
-<!-- DESARROLLO DEL JUEGO -->
 <div class="pasos">
   <h2>Desarrollo del juego</h2>
 
-  <!-- Paso 1 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 1: Introducción</button>
     <div class="contenido">
-      3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.
-      Objetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.
+      3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.<br>
+      Objetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.<br>
       Pueden obtenerse objetos repetidos a través del robo, el comercio o la lucha.
     </div>
   </div>
 
-  <!-- Paso 2 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 2: Formación de equipo y roles</button>
     <div class="contenido">
-      Asignación de roles. Cada jugador obtendrá un rol con el que participará en cada paso de la dinámica.
+      Asignación de roles. Cada jugador obtendrá un rol con el que participará en cada paso de la dinámica.<br>
       Definición del liderazgo del grupo (autoritario vs democrático) y la relación con los demás grupos (cooperación vs competición).
     </div>
   </div>
 
-  <!-- Paso 3 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 3: Planeación inicial</button>
     <div class="contenido">
-      Selección de 5 recursos entre los 10 iniciales. Los otros 5 los mantiene el Recolector temporalmente.
-      Selección de 2 objetos de rol.
+      Selección de 5 recursos entre los 10 iniciales. Los otros 5 los mantiene el Recolector temporalmente (no cuentan para la puntuación grupal).<br>
+      Selección de 2 objetos de rol por cada grupo.
     </div>
   </div>
 
-  <!-- Paso 4 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 4: Robo nocturno</button>
     <div class="contenido">
-      Los Ladrones de cada equipo pueden robar un objeto de otro equipo o proteger sus objetos. Dos Ladrones pueden atacar el mismo equipo.
+      Los Ladrones de cada equipo pueden decidir robar un objeto de otro equipo o proteger los objetos de su equipo evitando robos.<br>
+      Dos Ladrones pueden robar al mismo equipo.
     </div>
   </div>
 
-  <!-- Paso 5 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 5: Pacto</button>
     <div class="contenido">
-      Los Diplomáticos negocian entre sí. Un pacto exitoso: 2 recursos especiales. Diplomático sin pacto: 1 recurso. Alianza militar evita ataques entre dos equipos en el siguiente paso.
+      Los Diplomáticos negocian entre sí. Aquellos dos que logren alcanzar un pacto deben darse la mano.<br>
+      Obtendrán cada uno 2 recursos especiales a elegir. El Diplomático que no llegue a un pacto solo podrá elegir 1 recurso especial.<br>
+      En caso de no llegarse a un pacto todos los Diplomáticos obtendrán 1 recurso especial.<br>
+      En caso de que se forme una Alianza militar entre dos equipos, los Luchadores de ambos no podrán atacarse entre sí en el siguiente paso.
     </div>
   </div>
 
-  <!-- Paso 6 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 6: Combate</button>
     <div class="contenido">
-      Los Luchadores combaten. Ataque exitoso: roba un objeto. Defensa exitosa: no se pierde objeto. Empate: repetir. Venganza: luchador del equipo excluido ataca 2 veces.
+      Los Luchadores combaten entre sí. Cada Luchador dispone de un ataque.<br>
+      Ataque exitoso: roba un objeto del equipo contrario.<br>
+      Defensa exitosa: no se pierden objetos.<br>
+      En caso de empate se repite hasta que atacante o defensor tengan éxito.<br>
+      Venganza: El luchador del equipo excluido del pacto del Paso 5 ataca 2 veces.
     </div>
   </div>
 
-  <!-- Paso 7 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 7: Recolección</button>
     <div class="contenido">
-      Recolectores recuperan hasta 2 objetos de una pila de 15 descartados inicialmente por todos los grupos.
+      Los Recolectores de todos los equipos se reunirán llevando consigo los 5 objetos descartados inicialmente.<br>
+      De esta pila de 15 objetos, cada uno podrá elegir 2 objetos.
     </div>
   </div>
 
-  <!-- Paso 8 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 8: Intercambio</button>
     <div class="contenido">
-      Comerciantes pueden intercambiar hasta 2 objetos con otros equipos.
+      Los Comerciantes elegirán dos objetos para intercambiar con los demás equipos.
     </div>
   </div>
 
-  <!-- Paso 9 -->
   <div class="paso">
     <button onclick="togglePaso(this)">Paso 9: Decisión final</button>
     <div class="contenido">
-      Se suman las puntuaciones obtenidas en cada categoría. El equipo que cumpla los mínimos de todas las categorías gana la dinámica.
+      Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica.
     </div>
   </div>
+
 </div>
 
 <script>
@@ -224,8 +220,4 @@ function togglePaso(btn){
 
 </body>
 </html>
-
-</body>
-</html>
-
 
