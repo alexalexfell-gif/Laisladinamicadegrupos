@@ -23,6 +23,7 @@ Interpretación Profesional: Esta dinámica está destinada exclusivamente como 
 Naturaleza del Proyecto: Al utilizar este software, el usuario reconoce su naturaleza experimental y acepta usarlo bajo su propio riesgo.
 
 El autor no asume ninguna responsabilidad por usos del software fuera del contexto educativo o de facilitación grupal.
+El autor no garantiza la integridad del software después de su modificación o redistribución por terceros.
 
 Esta herramienta no está diseñada ni validada para diagnóstico psicológico, selección de personal o certificación de competencias.
 La herramienta no reclama validez predictiva, diagnóstica o evaluativa.
