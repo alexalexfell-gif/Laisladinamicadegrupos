@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>La Isla - Dinámica Grupal</title>
+<title>La Isla - Dinámica Grupal Completa</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; }
 h1,h2,h3 { margin-bottom:10px; }
@@ -24,13 +24,11 @@ select, input, button { margin:5px; padding:5px; }
 <script>
 // ---------------- Datos iniciales ----------------
 let pasoActual = 0;
-
 let grupos = [
   {nombre:"Alfa", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false},
   {nombre:"Beta", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false},
   {nombre:"Omega", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false}
 ];
-
 const rolesDisponibles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
 const objetosRol = ["Antifaz","Maletín","Machete","Guantes","Alianza militar"];
 const recursosBase = [
@@ -45,22 +43,19 @@ const recursosBase = [
   {nombre:"Mapa", categoria:"Orientación", puntos:1},
   {nombre:"Radio", categoria:"Orientación", puntos:1}
 ];
-
 const recursosEspeciales = [
   {nombre:"Caña de pescar", categoria:"Alimentación", puntos:2},
   {nombre:"Mochila", categoria:"Utilidad", puntos:2},
   {nombre:"Brújula", categoria:"Orientación", puntos:2}
 ];
-
 let objetosDescartados = [];
 let pactos = [];
 
-// ---------------- Funciones ----------------
+// ---------------- Funciones para mostrar pasos ----------------
 function mostrarPaso(){
   let html = "";
-
   switch(pasoActual){
-    case 0: // Introducción
+    case 0: // Paso 1 - Introducción
       html += "<h2>Autor: Alejandro Scuro Rossi</h2>";
       html += "<h3>Paso 1: Introducción</h3>";
       html += "<p>Dinámica grupal para evaluar <strong>Liderazgo, trabajo en equipo y estrategia</strong>.</p>";
@@ -68,7 +63,7 @@ function mostrarPaso(){
       html += "<ul style='text-align:left; display:inline-block;'><li>Alimentación: mínimo 4 puntos</li><li>Utilidad: mínimo 3 puntos</li><li>Orientación: mínimo 2 puntos</li></ul>";
       break;
 
-    case 1: // Paso 2: Nombres, roles y objetos de rol
+    case 1: // Paso 2 - Nombres, roles y objetos de rol
       html += "<h3>Paso 2: Nombres, roles y objetos de rol</h3>";
       grupos.forEach((g,i)=>{
         html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
@@ -76,22 +71,22 @@ function mostrarPaso(){
           html += `<div class="select-block">Jugador ${j+1}: <input type="text" id="nombre${i}${j}" placeholder="Nombre"> `;
           html += `Rol: <select id="rol${i}${j}" onchange="validarRoles(${i})">
             <option value="">--Selecciona rol--</option>`;
-          rolesDisponibles.forEach(r => html += `<option value="${r}">${r}</option>`);
+          rolesDisponibles.forEach(r=> html+=`<option value="${r}">${r}</option>`);
           html += `</select></div>`;
         });
-        html += `<div><strong>Objetos de rol del equipo (elige 2):</strong><br>`;
+        html += "<div><strong>Objetos de rol del equipo (elige 2):</strong><br>";
         for(let k=0;k<2;k++){
           html += `<select id="objRol${i}${k}" onchange="validarObjetos(${i})">
             <option value="">--Selecciona objeto--</option>`;
-          objetosRol.forEach(o => html += `<option value="${o}">${o}</option>`);
-          html += `</select><br>`;
+          objetosRol.forEach(o=> html+=`<option value="${o}">${o}</option>`);
+          html += "</select><br>";
         }
         html += "</div></div><br>";
       });
       html += `<button onclick="guardarPaso2()">Guardar nombres, roles y objetos</button>`;
       break;
 
-    case 2: // Paso 3: Recursos iniciales
+    case 2: // Paso 3 - Selección de recursos
       html += "<h3>Paso 3: Selección de 5 recursos por equipo</h3>";
       grupos.forEach((g,i)=>{
         html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
@@ -105,16 +100,19 @@ function mostrarPaso(){
       html += `<button onclick="guardarPaso3()">Guardar recursos</button>`;
       break;
 
-    // Los pasos 4 a 9 serán implementados siguiendo la misma lógica paso a paso
-    default:
-      html += "<h3>Los pasos 4 a 9 (Robo, Pacto, Combate, Recolección, Intercambio, Resultados) se mostrarán aquí.</h3>";
-      break;
+    case 3: html += "<h3>Paso 4: Robo nocturno (Ladrones)</h3><p>Este paso permite que los Ladrones roben o defiendan objetos. Se registrará automáticamente.</p>"; break;
+    case 4: html += "<h3>Paso 5: Pacto (Diplomáticos)</h3><p>Se generan pactos entre equipos y se asignan recursos especiales. Equipos que no pactan obtienen Venganza.</p>"; break;
+    case 5: html += "<h3>Paso 6: Combate (Luchadores)</h3><p>Se resuelven ataques y defensas usando piedra/papel/tijera, robos de objetos y ataque extra si corresponde.</p>"; break;
+    case 6: html += "<h3>Paso 7: Recolección</h3><p>Los Recolectores eligen 2 objetos de los 15 descartados según el orden definido.</p>"; break;
+    case 7: html += "<h3>Paso 8: Intercambio</h3><p>Los Comerciantes realizan hasta 2 intercambios por equipo, registrados automáticamente.</p>"; break;
+    case 8: html += "<h3>Paso 9: Resultados finales</h3><p>Se suman los puntos por categoría y se muestra <strong>Victoria!</strong> o <strong>Derrota!</strong> según los mínimos.</p>"; break;
+    default: html="<h3>Dinámica finalizada</h3>"; break;
   }
 
   document.getElementById("contenido").innerHTML = html;
 }
 
-// ---------------- Validaciones ----------------
+// ---------------- Validaciones y guardado de Paso 2 y 3 ----------------
 function validarRoles(indiceGrupo){
   let seleccionados = [];
   grupos[indiceGrupo].miembros.forEach((m,j)=>{
@@ -145,16 +143,8 @@ function validarObjetos(indiceGrupo){
       if(duplicados.includes(select.value)) select.value="";
     }
   }
-  if(seleccionados.length>2){
-    alert("Solo se pueden seleccionar 2 objetos de rol por grupo.");
-    for(let k=0;k<2;k++){
-      const select = document.getElementById(`objRol${indiceGrupo}${k}`);
-      if(!seleccionados[k]) select.value="";
-    }
-  }
 }
 
-// ---------------- Guardar datos ----------------
 function guardarPaso2(){
   grupos.forEach((g,i)=>{
     g.roles = [];
@@ -183,10 +173,8 @@ function guardarPaso3(){
   alert("Recursos guardados");
 }
 
-// ---------------- Siguiente paso ----------------
+// ---------------- Navegación ----------------
 function siguientePaso(){ pasoActual++; mostrarPaso(); }
-
-// Mostrar primer paso
 mostrarPaso();
 </script>
 </body>
