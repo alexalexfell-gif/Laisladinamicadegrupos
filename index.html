@@ -2,29 +2,35 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>La Isla - Versión Online</title>
+<title>La Isla - Dinámica Online</title>
 
 <style>
+
 body{
     font-family: Arial;
     padding:20px;
     background:#eef2f3;
 }
+
 h3{margin-top:30px}
+
 .equipo{
     border:1px solid #ccc;
     padding:10px;
     margin:10px 0;
     background:white;
 }
+
 .destacado{
     color:#b30000;
     font-weight:bold;
 }
+
 button{
     margin-top:15px;
     padding:8px 15px;
 }
+
 .log{
     background:#111;
     color:#0f0;
@@ -34,97 +40,121 @@ button{
     font-size:13px;
     margin-top:20px;
 }
-.resumen{
-    font-size:13px;
-    margin-top:5px;
-    color:#333;
-}
+
 </style>
+
 </head>
+
 <body>
 
-<h2>🏝 La Isla - Juego Estratégico</h2>
+<h2>🏝 La Isla - Dinámica Estratégica</h2>
 
 <div id="contenido"></div>
 <div class="log" id="log"></div>
 
 <script>
 
-let paso = 0;
+/* ===============================
+   ESTADO GLOBAL
+================================*/
 
-const rolesDisponibles = [
-"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
+let paso=0;
+
+let pilaRecoleccion=[];
+
+const rolesDisponibles=[
+"Ladrón",
+"Luchador",
+"Diplomático",
+"Comerciante",
+"Recolector"
 ];
 
-const recursosBase = [
+const recursosBase=[
 {nombre:"Agua",categoria:"Alimentación",puntos:1},
 {nombre:"Fruta",categoria:"Alimentación",puntos:1},
-{nombre:"Madera",categoria:"Utilidad",puntos:1},
+{nombre:"Comida enlatada",categoria:"Alimentación",puntos:1},
+{nombre:"Botiquín",categoria:"Utilidad",puntos:1},
 {nombre:"Cuerda",categoria:"Utilidad",puntos:1},
+{nombre:"Martillo",categoria:"Utilidad",puntos:1},
 {nombre:"Mapa",categoria:"Orientación",puntos:1},
-{nombre:"Brújula básica",categoria:"Orientación",puntos:1}
-];
-
-const recursosEspeciales = [
-{nombre:"Caña de pescar",categoria:"Alimentación",puntos:2},
-{nombre:"Mochila",categoria:"Utilidad",puntos:2},
+{nombre:"Radio",categoria:"Orientación",puntos:1},
 {nombre:"Brújula",categoria:"Orientación",puntos:2}
 ];
 
-let grupos = ["Alfa","Beta","Omega"].map(nombre=>({
-    nombre,
-    miembros:[
-        {nombre:"",roles:[]},
-        {nombre:"",roles:[]},
-        {nombre:"",roles:[]},
-        {nombre:"",roles:[]},
-        {nombre:"",roles:[]}
-    ],
-    totalJugadores:0,
-    recursos:[],
-    protegido:false,
-    venganza:false,
-    ataquesExtra:0,
-    noAtacarA:[]
+const recursosEspeciales=[
+{nombre:"Caña de pescar",categoria:"Alimentación",puntos:2},
+{nombre:"Mochila",categoria:"Utilidad",puntos:2},
+{nombre:"Encendedor",categoria:"Utilidad",puntos:1}
+];
+
+let grupos=["Alfa","Beta","Omega"].map(nombre=>({
+nombre,
+miembros:Array(5).fill().map(()=>({nombre:"",roles:[]}))
 }));
 
 let logJuego=[];
 
-function siguiente(){ paso++; mostrar(); }
-function mostrarLog(){
-    document.getElementById("log").innerHTML=logJuego.join("<br>");
+/* ===============================
+   UTILIDADES
+================================*/
+
+function siguiente(){
+paso++;
+mostrar();
 }
 
-function rolesObligatorios(total,indice){
-    if(total===3 && (indice===0||indice===1)) return 2;
-    if(total===4 && indice===0) return 2;
-    return 1;
+function mostrarLog(){
+document.getElementById("log").innerHTML=
+logJuego.join("<br>");
 }
 
 function buscarRol(grupo,rol){
-    for(let m of grupo.miembros){
-        if(m.roles.includes(rol)) return m;
-    }
-    return null;
+for(let m of grupo.miembros){
+if(m.roles.includes(rol)) return m;
+}
+return null;
 }
 
 function actualizarResumen(){
-    grupos.forEach(g=>{
-        let resumen={};
-        g.recursos.forEach(r=>{
-            resumen[r]=(resumen[r]||0)+1;
-        });
-        g.resumen=resumen;
-    });
+grupos.forEach(g=>{
+let resumen={};
+
+g.recursos?.forEach(r=>{
+resumen[r]=(resumen[r]||0)+1;
+});
+
+g.resumen=resumen;
+});
 }
+
+/* ===============================
+   GENERADOR DE PILA
+================================*/
+
+function inicializarPila(){
+
+let todos=[...recursosBase,...recursosEspeciales];
+
+pilaRecoleccion=[];
+
+for(let i=0;i<15;i++){
+pilaRecoleccion.push(
+todos[Math.floor(Math.random()*todos.length)].nombre
+);
+}
+
+}
+
+/* ===============================
+   RENDERIZADO
+================================*/
 
 function mostrar(){
 
 let html="";
 
-//////////////////////////////////////////////////////////////
-// PASO 0 – INTRODUCCIÓN + CONFIGURACIÓN
-//////////////////////////////////////////////////////////////
+/* ---------- PASO 0 INTRO ---------- */
 
 if(paso===0){
 
@@ -132,39 +162,17 @@ html+=`
 <h3>Introducción</h3>
 
 <p>
-Tras un naufragio, tres equipos han llegado a una isla desconocida.
-Deberán organizarse, conseguir recursos, negociar, robar, luchar
-y sobrevivir.
+3 equipos en una isla. Solo podrán sobrevivir acumulando objetos.
+Cada objeto tiene 1 o 2 puntos en una categoría.
 </p>
 
 <p>
-Para ganar deberán alcanzar:
-</p>
-
+Objetivos:
 <ul>
-<li><strong>Alimentación:</strong> mínimo 4 puntos</li>
-<li><strong>Utilidad:</strong> mínimo 3 puntos</li>
-<li><strong>Orientación:</strong> mínimo 2 puntos</li>
+<li>4 puntos en Alimentación</li>
+<li>3 puntos en Utilidad</li>
+<li>2 puntos en Orientación</li>
 </ul>
-
-<p>
-Habrá fases de:
-<br>• Robo nocturno
-<br>• Diplomacia
-<br>• Combate
-<br>• Venganza estratégica
-</p>
-
-<hr>
-
-<h4>Reglas de equipos</h4>
-
-<p><strong>Mínimo 3 jugadores por equipo.</strong></p>
-
-<p>
-3 jugadores → los dos primeros eligen 2 roles.<br>
-4 jugadores → el primero elige 2 roles.<br>
-5 jugadores → todos eligen 1 rol.
 </p>
 
 <hr>
@@ -173,102 +181,169 @@ Habrá fases de:
 `;
 
 grupos.forEach((g,i)=>{
-html+=`<div class="equipo"><h4>Equipo ${g.nombre}</h4>`;
+html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
+
 for(let j=0;j<5;j++){
 html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
 }
+
 html+="</div>";
 });
 
 html+=`<button onclick="guardarJugadores()">Comenzar partida</button>`;
 }
 
-//////////////////////////////////////////////////////////////
-// PASO 1 – ROLES
-//////////////////////////////////////////////////////////////
+/* ---------- PASO 1 ROLES ---------- */
 
 if(paso===1){
 
 html+="<h3>Asignación de Roles</h3>";
 
 grupos.forEach((g,i)=>{
+
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 g.miembros.forEach((m,j)=>{
+
 if(m.nombre!==""){
 
-let oblig=rolesObligatorios(g.totalJugadores,j);
+let oblig=1;
 
-html+=`<div><strong>${m.nombre}</strong> debe elegir ${oblig} rol(es)</div>`;
+html+=`<div>${m.nombre} elige ${oblig} rol</div>`;
 
-for(let r=0;r<oblig;r++){
-html+=`<select id="rol${i}_${j}_${r}">
-${rolesDisponibles.map(rol=>`<option>${rol}</option>`).join("")}
+html+=`<select id="rol${i}_${j}">
+${rolesDisponibles.map(r=>`<option>${r}</option>`).join("")}
 </select><br>`;
+
 }
-}
+
 });
 
 html+="</div>";
+
 });
 
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-//////////////////////////////////////////////////////////////
-// PASO 2 – ROBO NOCTURNO
-//////////////////////////////////////////////////////////////
+/* ---------- PASO 2 PLANEACION ---------- */
 
 if(paso===2){
+
+html+="<h3>Planeación inicial</h3>";
+
+grupos.forEach((g,i)=>{
+html+=selectorObjetos(i,5);
+html+=selectorObjetos(i,2);
+});
+
+html+=`<button onclick="resolverPlaneacion()">Continuar</button>`;
+}
+
+/* ---------- PASO 3 ROBO ---------- */
+
+if(paso===3){
 
 html+="<h3>Robo Nocturno</h3>";
 
 grupos.forEach((g,i)=>{
-let ladron=buscarRol(g,"Ladrón");
-if(ladron){
-html+=`<div class="equipo">
-<div class="destacado">${ladron.nombre} (Ladrón)</div>
+
+html+=`
+<div class="equipo">
+<strong>${g.nombre}</strong>
 
 <select id="accion${i}">
 <option value="robar">Robar</option>
-<option value="proteger">Defender</option>
+<option value="proteger">Proteger</option>
 </select>
 
 <select id="objetivo${i}">
-${grupos.map((x,j)=> j!==i?`<option value="${j}">${x.nombre}</option>`:"").join("")}
+${grupos.map((x,j)=>
+j!==i?`<option value="${j}">${x.nombre}</option>`:""
+).join("")}
 </select>
 
-<div class="resumen">Recursos actuales: ${JSON.stringify(g.resumen||{})}</div>
-</div>`;
-}
+</div>
+`;
+
 });
 
 html+=`<button onclick="resolverRobo()">Continuar</button>`;
 }
 
-//////////////////////////////////////////////////////////////
-// PASO 3 – DIPLOMACIA
-//////////////////////////////////////////////////////////////
+/* ---------- PASO 4 COMBATE ---------- */
 
-if(paso===3){
+if(paso===4){
 
-html+="<h3>Diplomacia</h3>";
+html+="<h3>Combate</h3>";
 
 grupos.forEach((g,i)=>{
-let dip=buscarRol(g,"Diplomático");
-if(dip){
-html+=`<input type="checkbox" id="pacto${i}"> ${g.nombre} - <span class="destacado">${dip.nombre} (Diplomático)</span><br>`;
+
+let luchador=buscarRol(g,"Luchador");
+
+if(luchador){
+
+html+=`
+<div class="equipo">
+<strong>${g.nombre}</strong> (${luchador.nombre})
+
+<select id="ataque${i}">
+${grupos.map((x,j)=>
+j!==i?`<option value="${j}">${x.nombre}</option>`:""
+).join("")}
+</select>
+
+<select id="juego${i}">
+<option>Piedra</option>
+<option>Papel</option>
+<option>Tijera</option>
+</select>
+
+</div>
+`;
+
 }
+
 });
 
-html+=`<button onclick="configurarDiplomacia()">Confirmar pacto</button>`;
+html+=`<button onclick="resolverCombate()">Continuar</button>`;
 }
 
-//////////////////////////////////////////////////////////////
-// PASO 5 – RESULTADOS
-//////////////////////////////////////////////////////////////
+/* ---------- PASO 5 RECOLECCION ---------- */
 
 if(paso===5){
+
+html+="<h3>Recolección</h3>";
+
+if(pilaRecoleccion.length===0)
+inicializarPila();
+
+grupos.forEach((g,i)=>{
+
+let recolector=buscarRol(g,"Recolector");
+if(!recolector) return;
+
+html+=`<div class="equipo"><strong>${g.nombre}</strong><br>`;
+
+for(let x=0;x<2;x++){
+
+html+=`<select id="rec${i}_${x}">
+${pilaRecoleccion.map(r=>`<option>${r}</option>`).join("")}
+</select><br>`;
+
+}
+
+html+="</div>";
+
+});
+
+html+=`<button onclick="resolverRecoleccion()">Continuar</button>`;
+}
+
+/* ---------- PASO 6 RESULTADOS ---------- */
+
+if(paso===6){
+
 calcularResultados();
 return;
 }
@@ -277,141 +352,194 @@ document.getElementById("contenido").innerHTML=html;
 mostrarLog();
 }
 
-//////////////////////////////////////////////////////////////
-// FUNCIONES
-//////////////////////////////////////////////////////////////
+/* ===============================
+   LOGICA
+================================*/
 
 function guardarJugadores(){
+
 grupos.forEach((g,i)=>{
+
 let activos=0;
+
 g.miembros.forEach((m,j)=>{
+
 let val=document.getElementById(`jug${i}_${j}`).value.trim();
+
 m.nombre=val;
+
 if(val!=="") activos++;
+
 });
-if(activos<3){alert("Mínimo 3 jugadores por equipo");return;}
-g.totalJugadores=activos;
+
+if(activos<3){
+alert("Cada equipo necesita mínimo 3 jugadores");
+return;
+}
+
 });
+
 siguiente();
 }
 
 function guardarRoles(){
-let global=[];
+
 grupos.forEach((g,i)=>{
+
 g.miembros.forEach((m,j)=>{
-if(m.nombre!==""){
-let oblig=rolesObligatorios(g.totalJugadores,j);
-m.roles=[];
-for(let r=0;r<oblig;r++){
-let val=document.getElementById(`rol${i}_${j}_${r}`).value;
-if(global.includes(val)){alert("Rol repetido");return;}
-global.push(val);
-m.roles.push(val);
+
+let sel=document.getElementById(`rol${i}_${j}`);
+
+if(sel){
+m.roles=[sel.value];
 }
+
+});
+
+});
+
+siguiente();
 }
+
+function selectorObjetos(i,cantidad){
+
+let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
+
+for(let x=0;x<cantidad;x++){
+
+html+=`
+<select id="esp${i}_${x}">
+${[...recursosBase,...recursosEspeciales]
+.map(r=>`<option>${r.nombre}</option>`).join("")}
+</select><br>
+`;
+
+}
+
+html+="</div>";
+
+return html;
+}
+
+function resolverPlaneacion(){
+
+grupos.forEach((g,i)=>{
+
+g.recursos=[];
+
+let selects=document.querySelectorAll(`[id^="esp${i}_"]`);
+
+selects.forEach((sel,j)=>{
+
+if(j<5)
+g.recursos.push(sel.value);
+
 });
+
 });
+
+actualizarResumen();
 siguiente();
 }
 
 function resolverRobo(){
 
 logJuego.push("=== ROBO NOCTURNO ===");
-grupos.forEach(g=>g.protegido=false);
 
 grupos.forEach((g,i)=>{
-let accion=document.getElementById(`accion${i}`).value;
-let obj=document.getElementById(`objetivo${i}`).value;
 
-if(accion==="proteger"){
-g.protegido=true;
-logJuego.push(`${g.nombre} defiende`);
+let accion=document.getElementById(`accion${i}`).value;
+let obj=parseInt(document.getElementById(`objetivo${i}`).value);
+
+if(accion==="robar"){
+
+let victima=grupos[obj];
+
+if(victima.recursos.length>0){
+
+g.recursos.push(victima.recursos.pop());
+
+}
+
 }else{
-let defensor=grupos[obj];
-if(defensor.protegido){
-logJuego.push(`Robo fallido contra ${defensor.nombre}`);
-}else{
-if(defensor.recursos.length>0){
-let robado=defensor.recursos.pop();
-g.recursos.push(robado);
-logJuego.push(`${g.nombre} robó ${robado}`);
+logJuego.push(`${g.nombre} protege el campamento`);
 }
-}
-}
+
 });
 
 actualizarResumen();
 siguiente();
 }
 
-function configurarDiplomacia(){
+function resolverCombate(){
 
-let pactantes=[];
-
-grupos.forEach((g,i)=>{
-if(document.getElementById(`pacto${i}`).checked) pactantes.push(i);
-g.venganza=false;
-g.ataquesExtra=0;
-});
-
-let html="<h3>Elección de objetos de 2 puntos</h3>";
-
-if(pactantes.length===2){
-
-pactantes.forEach(i=>{
-html+=selectorObjetos(i,2);
-});
+let reglas={
+"Piedra":"Tijera",
+"Tijera":"Papel",
+"Papel":"Piedra"
+};
 
 grupos.forEach((g,i)=>{
-if(!pactantes.includes(i)){
-g.venganza=true;
-g.ataquesExtra=1;
-html+=selectorObjetos(i,1);
+
+let rivalSel=document.getElementById(`ataque${i}`);
+if(!rivalSel) return;
+
+let rival=grupos[parseInt(rivalSel.value)];
+
+let jugada=document.getElementById(`juego${i}`).value;
+
+let victoria=false;
+
+while(!victoria){
+
+let jugadaRival=["Piedra","Papel","Tijera"][Math.floor(Math.random()*3)];
+
+if(reglas[jugada]===jugadaRival){
+
+if(rival.recursos.length>0)
+g.recursos.push(rival.recursos.pop());
+
+victoria=true;
+
+}else if(reglas[jugadaRival]===jugada){
+victoria=true;
 }
+
+}
+
 });
 
-}else{
+actualizarResumen();
+siguiente();
+}
+
+function resolverRecoleccion(){
 
 grupos.forEach((g,i)=>{
-html+=selectorObjetos(i,1);
-});
 
-}
+let recolector=buscarRol(g,"Recolector");
 
-html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
-document.getElementById("contenido").innerHTML=html;
-}
+if(!recolector) return;
 
-function selectorObjetos(i,cantidad){
+for(let x=0;x<2;x++){
 
-let dip=buscarRol(grupos[i],"Diplomático");
+let sel=document.getElementById(`rec${i}_${x}`);
 
-let html=`<div class="equipo">
-<div class="destacado">${grupos[i].nombre} (${dip?dip.nombre:""})</div>`;
-
-for(let x=0;x<cantidad;x++){
-html+=`<select id="esp${i}_${x}">
-${recursosEspeciales.map(r=>`<option>${r.nombre}</option>`).join("")}
-</select><br>`;
-}
-
-html+="</div>";
-return html;
-}
-
-function resolverDiplomacia(){
-grupos.forEach((g,i)=>{
-let selects=document.querySelectorAll(`[id^="esp${i}_"]`);
-selects.forEach(sel=>{
+if(sel){
 g.recursos.push(sel.value);
-logJuego.push(`${g.nombre} obtiene ${sel.value}`);
+}
+
+}
+
 });
-});
+
 actualizarResumen();
 siguiente();
 }
 
 function calcularResultados(){
+
+let ganadores=[];
 
 logJuego.push("=== RESULTADOS FINALES ===");
 
@@ -420,19 +548,27 @@ grupos.forEach(g=>{
 let puntos={Alimentación:0,Utilidad:0,Orientación:0};
 
 g.recursos.forEach(nombre=>{
-let r=[...recursosBase,...recursosEspeciales].find(x=>x.nombre===nombre);
+let r=[...recursosBase,...recursosEspeciales]
+.find(x=>x.nombre===nombre);
+
 if(r) puntos[r.categoria]+=r.puntos;
 });
 
 if(puntos.Alimentación>=4 &&
 puntos.Utilidad>=3 &&
 puntos.Orientación>=2){
-logJuego.push(`${g.nombre}: VICTORIA!`);
+
+ganadores.push(g.nombre);
+logJuego.push(g.nombre+" SOBREVIVE");
+
 }else{
-logJuego.push(`${g.nombre}: DERROTA!`);
+logJuego.push(g.nombre+" NO sobrevive");
 }
 
 });
+
+if(ganadores.length)
+logJuego.push("🏝 Sobrevivientes: "+ganadores.join(","));
 
 mostrarLog();
 }
@@ -440,5 +576,6 @@ mostrarLog();
 mostrar();
 
 </script>
+
 </body>
 </html>
