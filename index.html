@@ -2,47 +2,46 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>La Isla - Dinámica Online</title>
+<title>La Isla - Dinámica Estratégica</title>
 
 <style>
 
 body{
-    font-family: Arial;
-    padding:20px;
-    background:#eef2f3;
+font-family: Arial;
+padding:20px;
+background:#eef2f3;
 }
 
 h3{margin-top:30px}
 
 .equipo{
-    border:1px solid #ccc;
-    padding:10px;
-    margin:10px 0;
-    background:white;
+border:1px solid #ccc;
+padding:10px;
+margin:10px 0;
+background:white;
 }
 
 .destacado{
-    color:#b30000;
-    font-weight:bold;
+color:#b30000;
+font-weight:bold;
 }
 
 button{
-    margin-top:15px;
-    padding:8px 15px;
+margin-top:15px;
+padding:8px 15px;
 }
 
 .log{
-    background:#111;
-    color:#0f0;
-    padding:10px;
-    height:220px;
-    overflow:auto;
-    font-size:13px;
-    margin-top:20px;
+background:#111;
+color:#0f0;
+padding:10px;
+height:220px;
+overflow:auto;
+font-size:13px;
+margin-top:20px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -54,21 +53,13 @@ button{
 
 <script>
 
-/* ===============================
-   ESTADO GLOBAL
-================================*/
+/* =========================
+CONFIGURACIÓN
+========================= */
 
 let paso=0;
 
 let pilaRecoleccion=[];
-
-const rolesDisponibles=[
-"Ladrón",
-"Luchador",
-"Diplomático",
-"Comerciante",
-"Recolector"
-];
 
 const recursosBase=[
 {nombre:"Agua",categoria:"Alimentación",puntos:1},
@@ -78,26 +69,26 @@ const recursosBase=[
 {nombre:"Cuerda",categoria:"Utilidad",puntos:1},
 {nombre:"Martillo",categoria:"Utilidad",puntos:1},
 {nombre:"Mapa",categoria:"Orientación",puntos:1},
-{nombre:"Radio",categoria:"Orientación",puntos:1},
-{nombre:"Brújula",categoria:"Orientación",puntos:2}
+{nombre:"Radio",categoria:"Orientación",puntos:1}
 ];
 
 const recursosEspeciales=[
 {nombre:"Caña de pescar",categoria:"Alimentación",puntos:2},
 {nombre:"Mochila",categoria:"Utilidad",puntos:2},
-{nombre:"Encendedor",categoria:"Utilidad",puntos:1}
+{nombre:"Encendedor",categoria:"Utilidad",puntos:2}
 ];
 
 let grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
-miembros:Array(5).fill().map(()=>({nombre:"",roles:[]}))
+miembros:Array(5).fill().map(()=>({nombre:"",roles:[]})),
+recursos:[]
 }));
 
 let logJuego=[];
 
-/* ===============================
-   UTILIDADES
-================================*/
+/* =========================
+UTILIDADES
+========================= */
 
 function siguiente(){
 paso++;
@@ -120,7 +111,7 @@ function actualizarResumen(){
 grupos.forEach(g=>{
 let resumen={};
 
-g.recursos?.forEach(r=>{
+g.recursos.forEach(r=>{
 resumen[r]=(resumen[r]||0)+1;
 });
 
@@ -128,52 +119,33 @@ g.resumen=resumen;
 });
 }
 
-/* ===============================
-   GENERADOR DE PILA
-================================*/
-
-function inicializarPila(){
-
-let todos=[...recursosBase,...recursosEspeciales];
-
-pilaRecoleccion=[];
-
-for(let i=0;i<15;i++){
-pilaRecoleccion.push(
-todos[Math.floor(Math.random()*todos.length)].nombre
-);
-}
-
-}
-
-/* ===============================
-   RENDERIZADO
-================================*/
+/* =========================
+RENDERIZADO
+========================= */
 
 function mostrar(){
 
 let html="";
 
-/* ---------- PASO 0 INTRO ---------- */
+/* -------- PASO 0 -------- */
 
 if(paso===0){
 
 html+=`
-<h3>Introducción</h3>
+<h2>🏝 La Isla - Dinámica Estratégica</h2>
 
-<p>
-3 equipos en una isla. Solo podrán sobrevivir acumulando objetos.
-Cada objeto tiene 1 o 2 puntos en una categoría.
-</p>
+<p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
 
-<p>
-Objetivos:
+<p>Dinámica grupal para liderazgo, trabajo en equipo y estrategia.</p>
+
+<hr>
+
+<h4>📌 Reglas</h4>
+
 <ul>
-<li>4 puntos en Alimentación</li>
-<li>3 puntos en Utilidad</li>
-<li>2 puntos en Orientación</li>
+<li>Mínimo 2 equipos</li>
+<li>Mínimo 3 jugadores por equipo</li>
 </ul>
-</p>
 
 <hr>
 
@@ -181,6 +153,7 @@ Objetivos:
 `;
 
 grupos.forEach((g,i)=>{
+
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 for(let j=0;j<5;j++){
@@ -188,12 +161,13 @@ html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
 }
 
 html+="</div>";
+
 });
 
 html+=`<button onclick="guardarJugadores()">Comenzar partida</button>`;
 }
 
-/* ---------- PASO 1 ROLES ---------- */
+/* -------- PASO 1 ROLES -------- */
 
 if(paso===1){
 
@@ -207,13 +181,17 @@ g.miembros.forEach((m,j)=>{
 
 if(m.nombre!==""){
 
-let oblig=1;
+html+=`
+<div>${m.nombre}</div>
 
-html+=`<div>${m.nombre} elige ${oblig} rol</div>`;
-
-html+=`<select id="rol${i}_${j}">
-${rolesDisponibles.map(r=>`<option>${r}</option>`).join("")}
-</select><br>`;
+<select id="rol${i}_${j}">
+<option>Ladrón</option>
+<option>Luchador</option>
+<option>Diplomático</option>
+<option>Comerciante</option>
+<option>Recolector</option>
+</select><br>
+`;
 
 }
 
@@ -226,21 +204,20 @@ html+="</div>";
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-/* ---------- PASO 2 PLANEACION ---------- */
+/* -------- PASO 2 PLANEACIÓN -------- */
 
 if(paso===2){
 
-html+="<h3>Planeación inicial</h3>";
+html+="<h3>Planeación inicial (5 objetos base)</h3>";
 
 grupos.forEach((g,i)=>{
-html+=selectorObjetos(i,5);
-html+=selectorObjetos(i,2);
+html+=selectorObjetosBase(i,5);
 });
 
 html+=`<button onclick="resolverPlaneacion()">Continuar</button>`;
 }
 
-/* ---------- PASO 3 ROBO ---------- */
+/* -------- PASO 3 ROBO -------- */
 
 if(paso===3){
 
@@ -250,6 +227,7 @@ grupos.forEach((g,i)=>{
 
 html+=`
 <div class="equipo">
+
 <strong>${g.nombre}</strong>
 
 <select id="accion${i}">
@@ -271,7 +249,7 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 html+=`<button onclick="resolverRobo()">Continuar</button>`;
 }
 
-/* ---------- PASO 4 COMBATE ---------- */
+/* -------- PASO 4 COMBATE -------- */
 
 if(paso===4){
 
@@ -285,7 +263,7 @@ if(luchador){
 
 html+=`
 <div class="equipo">
-<strong>${g.nombre}</strong> (${luchador.nombre})
+<strong>${g.nombre}</strong>
 
 <select id="ataque${i}">
 ${grupos.map((x,j)=>
@@ -298,7 +276,6 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 <option>Papel</option>
 <option>Tijera</option>
 </select>
-
 </div>
 `;
 
@@ -309,11 +286,26 @@ j!==i?`<option value="${j}">${x.nombre}</option>`:""
 html+=`<button onclick="resolverCombate()">Continuar</button>`;
 }
 
-/* ---------- PASO 5 RECOLECCION ---------- */
+/* -------- PASO 5 DIPLOMACIA -------- */
 
 if(paso===5){
 
-html+="<h3>Recolección</h3>";
+html+="<h3>Diplomacia (objetos especiales)</h3>";
+
+grupos.forEach((g,i)=>{
+
+html+=selectorObjetosEspeciales(i,2);
+
+});
+
+html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
+}
+
+/* -------- PASO 6 RECOLECCIÓN -------- */
+
+if(paso===6){
+
+html+="<h3>Recolección Global</h3>";
 
 if(pilaRecoleccion.length===0)
 inicializarPila();
@@ -327,9 +319,11 @@ html+=`<div class="equipo"><strong>${g.nombre}</strong><br>`;
 
 for(let x=0;x<2;x++){
 
-html+=`<select id="rec${i}_${x}">
+html+=`
+<select id="rec${i}_${x}">
 ${pilaRecoleccion.map(r=>`<option>${r}</option>`).join("")}
-</select><br>`;
+</select><br>
+`;
 
 }
 
@@ -340,9 +334,9 @@ html+="</div>";
 html+=`<button onclick="resolverRecoleccion()">Continuar</button>`;
 }
 
-/* ---------- PASO 6 RESULTADOS ---------- */
+/* -------- RESULTADOS -------- */
 
-if(paso===6){
+if(paso===7){
 
 calcularResultados();
 return;
@@ -352,9 +346,47 @@ document.getElementById("contenido").innerHTML=html;
 mostrarLog();
 }
 
-/* ===============================
-   LOGICA
-================================*/
+/* =========================
+FUNCIONES LOGICAS
+========================= */
+
+function selectorObjetosBase(i,cantidad){
+
+let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
+
+for(let x=0;x<cantidad;x++){
+
+html+=`
+<select id="esp${i}_${x}">
+${recursosBase.map(r=>`<option>${r.nombre}</option>`).join("")}
+</select><br>
+`;
+
+}
+
+html+="</div>";
+
+return html;
+}
+
+function selectorObjetosEspeciales(i,cantidad){
+
+let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
+
+for(let x=0;x<cantidad;x++){
+
+html+=`
+<select id="dip${i}_${x}">
+${recursosEspeciales.map(r=>`<option>${r.nombre}</option>`).join("")}
+</select><br>
+`;
+
+}
+
+html+="</div>";
+
+return html;
+}
 
 function guardarJugadores(){
 
@@ -374,7 +406,7 @@ if(val!=="") activos++;
 
 if(activos<3){
 alert("Cada equipo necesita mínimo 3 jugadores");
-return;
+throw new Error();
 }
 
 });
@@ -384,41 +416,17 @@ siguiente();
 
 function guardarRoles(){
 
-grupos.forEach((g,i)=>{
-
+grupos.forEach(g=>{
 g.miembros.forEach((m,j)=>{
 
-let sel=document.getElementById(`rol${i}_${j}`);
+let sel=document.getElementById(`rol0_${j}`);
 
-if(sel){
-m.roles=[sel.value];
-}
+if(sel) m.roles=[sel.value];
 
 });
-
 });
 
 siguiente();
-}
-
-function selectorObjetos(i,cantidad){
-
-let html=`<div class="equipo"><h4>${grupos[i].nombre}</h4>`;
-
-for(let x=0;x<cantidad;x++){
-
-html+=`
-<select id="esp${i}_${x}">
-${[...recursosBase,...recursosEspeciales]
-.map(r=>`<option>${r.nombre}</option>`).join("")}
-</select><br>
-`;
-
-}
-
-html+="</div>";
-
-return html;
 }
 
 function resolverPlaneacion(){
@@ -427,13 +435,8 @@ grupos.forEach((g,i)=>{
 
 g.recursos=[];
 
-let selects=document.querySelectorAll(`[id^="esp${i}_"]`);
-
-selects.forEach((sel,j)=>{
-
-if(j<5)
+document.querySelectorAll(`[id^="esp${i}_"]`).forEach(sel=>{
 g.recursos.push(sel.value);
-
 });
 
 });
@@ -444,8 +447,6 @@ siguiente();
 
 function resolverRobo(){
 
-logJuego.push("=== ROBO NOCTURNO ===");
-
 grupos.forEach((g,i)=>{
 
 let accion=document.getElementById(`accion${i}`).value;
@@ -455,14 +456,9 @@ if(accion==="robar"){
 
 let victima=grupos[obj];
 
-if(victima.recursos.length>0){
-
+if(victima.recursos.length)
 g.recursos.push(victima.recursos.pop());
 
-}
-
-}else{
-logJuego.push(`${g.nombre} protege el campamento`);
 }
 
 });
@@ -488,24 +484,36 @@ let rival=grupos[parseInt(rivalSel.value)];
 
 let jugada=document.getElementById(`juego${i}`).value;
 
-let victoria=false;
-
-while(!victoria){
+while(true){
 
 let jugadaRival=["Piedra","Papel","Tijera"][Math.floor(Math.random()*3)];
 
 if(reglas[jugada]===jugadaRival){
 
-if(rival.recursos.length>0)
+if(rival.recursos.length)
 g.recursos.push(rival.recursos.pop());
 
-victoria=true;
-
-}else if(reglas[jugadaRival]===jugada){
-victoria=true;
+break;
+}
+else if(reglas[jugadaRival]===jugada){
+break;
 }
 
 }
+
+});
+
+actualizarResumen();
+siguiente();
+}
+
+function resolverDiplomacia(){
+
+grupos.forEach((g,i)=>{
+
+document.querySelectorAll(`[id^="dip${i}_"]`).forEach(sel=>{
+g.recursos.push(sel.value);
+});
 
 });
 
@@ -524,10 +532,7 @@ if(!recolector) return;
 for(let x=0;x<2;x++){
 
 let sel=document.getElementById(`rec${i}_${x}`);
-
-if(sel){
-g.recursos.push(sel.value);
-}
+if(sel) g.recursos.push(sel.value);
 
 }
 
@@ -560,10 +565,8 @@ puntos.Orientación>=2){
 
 ganadores.push(g.nombre);
 logJuego.push(g.nombre+" SOBREVIVE");
-
-}else{
-logJuego.push(g.nombre+" NO sobrevive");
 }
+else logJuego.push(g.nombre+" NO sobrevive");
 
 });
 
@@ -571,6 +574,20 @@ if(ganadores.length)
 logJuego.push("🏝 Sobrevivientes: "+ganadores.join(","));
 
 mostrarLog();
+}
+
+function inicializarPila(){
+
+let todos=[...recursosBase,...recursosEspeciales];
+
+pilaRecoleccion=[];
+
+for(let i=0;i<15;i++){
+pilaRecoleccion.push(
+todos[Math.floor(Math.random()*todos.length)].nombre
+);
+}
+
 }
 
 mostrar();
