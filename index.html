@@ -154,11 +154,12 @@ function render() {
                 <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y TÉRMINOS DE USO DE "LA ISLA" ⚠️</strong><br><br>
                 Esta herramienta, "La Isla", es un prototipo experimental y educativo desarrollado por Alejandro Scuro Rossi.<br><br>
                 <strong>1. Soporte Visual y No Evaluativo:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas. Todas las observaciones deben ser interpretadas por un profesional calificado.<br><br>
-                <strong>2. PROTECCIÓN DE DATOS Y RESPONSABILIDADES (RGPD):</strong><br>
+                <strong>2. PROTECCIÓN DE DATOS Y RESPONSABILIDADES (conforme a los principios generales de protección de datos inspirados en buenas prácticas del RGPD):</strong><br>
                 Los datos (nombres y decisiones) se almacenan exclusivamente en la memoria RAM del navegador y se borran automáticamente al cerrar la pestaña. No hay transmisión externa.<br><br>
                 Como facilitador, es su responsabilidad:<br>
                 - Informar a los participantes sobre el uso temporal de sus nombres.<br>
-                - Obtener el consentimiento para la dinámica.<br>
+                - Obtener el consentimiento para la dinámica.
+                Esta herramienta no constituye un sistema de tratamiento de datos personales a efectos de perfilado, evaluación automatizada o toma de decisiones sobre individuos.<br>
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
                 <div style="display: flex; align-items: flex-start; gap: 10px;">
                     <input type="checkbox" id="consent_check" style="width: 24px; height: 24px; cursor: pointer;" onchange="document.getElementById('start_btn').disabled = !this.checked">
@@ -441,4 +442,5 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
