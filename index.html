@@ -177,11 +177,15 @@ function generarGrupos() {
     });
     html += `</ul><p>Elegir objetos de rol:</p>`;
 
-    html += `<select id="grupo${grupoNum}-obj1"><option value="">--Seleccionar--</option>`;
+    // Primer objeto con onchange
+    html += `<select id="grupo${grupoNum}-obj1" onchange="actualizarOpciones(${grupoNum})">
+      <option value="">--Seleccionar--</option>`;
     objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
     html += `</select>`;
 
-    html += `<select id="grupo${grupoNum}-obj2"><option value="">--Seleccionar--</option>`;
+    // Segundo objeto
+    html += `<select id="grupo${grupoNum}-obj2">
+      <option value="">--Seleccionar--</option>`;
     objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
     html += `</select>`;
 
@@ -211,6 +215,21 @@ function guardarObjetos(numGrupo){
     `Objetos elegidos: ${obj1}, ${obj2}`;
 }
 
+// Evitar duplicar objeto en obj2
+function actualizarOpciones(grupoNum){
+  const obj1 = document.getElementById(`grupo${grupoNum}-obj1`).value;
+  const obj2Select = document.getElementById(`grupo${grupoNum}-obj2`);
+
+  // Restaurar todas las opciones
+  Array.from(obj2Select.options).forEach(opt => opt.disabled = false);
+
+  // Deshabilitar la opción seleccionada en obj1
+  if(obj1 !== ""){
+    const opt = Array.from(obj2Select.options).find(o => o.value === obj1);
+    if(opt) opt.disabled = true;
+  }
+}
+
 // Función para desplegar pasos
 function togglePaso(btn){
   const contenido = btn.nextElementSibling;
@@ -220,4 +239,5 @@ function togglePaso(btn){
 
 </body>
 </html>
+
 
