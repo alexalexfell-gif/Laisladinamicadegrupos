@@ -1,211 +1,252 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>La Isla - Dinámica de Liderazgo</title>
-
-<style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f3; padding: 25px; color: #333; }
-    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    h2 { color: #2c3e50; margin-top: 0; }
-    .tagline { font-style: italic; color: #555; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 15px; }
-    .equipo-grid { display: grid; grid-gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-    
-    .jugador-row { border-bottom: 1px solid #eee; padding: 10px 0; }
-    .rol-tag { background: #e1f5fe; color: #0277bd; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 5px; }
-    
-    button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-    button:hover { background: #2980b9; }
-    
-    select, input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
-    
-    .puntos-badge { background: #2c3e50; color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.9em; display: inline-block; margin-top: 10px; }
-    
-    .log { background: #111; color: #0f0; height: 120px; overflow: auto; padding: 12px; margin-top: 20px; font-family: monospace; font-size: 13px; border-radius: 8px; }
-</style>
+    <meta charset="UTF-8">
+    <title>La Isla: Sobrevivir - Dinámica Profesional</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1100px; margin: auto; }
+        .card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .tagline { font-style: italic; color: #666; border-left: 4px solid var(--accent); padding-left: 15px; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        
+        button { background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
+        button:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-next { background: var(--success); font-size: 1.1em; margin-top: 20px; }
+        
+        select, input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.85em; font-weight: bold; margin: 2px; }
+        .ali { background: #d4edda; color: #155724; }
+        .uti { background: #fff3cd; color: #856404; }
+        .ori { background: #d1ecf1; color: #0c5460; }
+        
+        .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 100px; overflow-y: auto; margin-top: 20px; }
+        .item-list { list-style: none; padding: 0; font-size: 0.9em; }
+        .item-list li { padding: 5px 0; border-bottom: 1px solid #eee; }
+    </style>
 </head>
-
 <body>
 
-<div id="app"></div>
-<div class="log" id="log">>> Sistema iniciado. Esperando configuración...</div>
+<div class="container">
+    <div class="header">
+        <h1>🏝️ LA ISLA: SOBREVIVIR</h1>
+        <p class="tagline">Evaluación de liderazgo, trabajo en equipo y estrategia.</p>
+    </div>
+
+    <div id="game-ui"></div>
+    <div class="log" id="game-log">>> Sistema iniciado. Esperando Paso 1...</div>
+</div>
 
 <script>
 /* ============================
-ESTADO DEL JUEGO
-============================ */
-const Game = {
-    fase: 0,
-    roles: ["Ladrón", "Luchador", "Diplomático", "Comerciante", "Recolector"],
-    grupos: ["Alfa", "Beta", "Omega"].map(nombre => ({
-        nombre,
-        miembros: [],
-        puntos: { ali: 0, uti: 0, ori: 0 }
+   ESTADO Y BASE DE DATOS
+   ============================ */
+const DB = {
+    objetosBase: [
+        { id: "agua", n: "Agua", c: "ali", p: 1 }, { id: "fruta", n: "Frutas", c: "ali", p: 1 },
+        { id: "latas", n: "Enlatados", c: "ali", p: 1 }, { id: "botiquin", n: "Botiquín", c: "uti", p: 1 },
+        { id: "cuerda", n: "Cuerda", c: "uti", p: 1 }, { id: "martillo", n: "Martillo", c: "uti", p: 1 },
+        { id: "lona", n: "Lona", c: "uti", p: 1 }, { id: "encendedor", n: "Encendedor", c: "uti", p: 1 },
+        { id: "mapa", n: "Mapa", c: "ori", p: 1 }, { id: "radio", n: "Radio", c: "ori", p: 1 }
+    ],
+    especiales: [
+        { id: "pesca", n: "Caña de Pescar", c: "ali", p: 2 },
+        { id: "mochila", n: "Mochila", c: "uti", p: 2 },
+        { id: "brujula", n: "Brújula", c: "ori", p: 2 }
+    ],
+    objetosRol: [
+        { id: "machete", n: "Machete (Luchador)" }, { id: "antifaz", n: "Antifaz (Ladrón)" },
+        { id: "maletin", n: "Maletín" }, { id: "alianza", n: "Alianza Militar" },
+        { id: "guantes", n: "Guantes (Recolector)" }
+    ]
+};
+
+let Game = {
+    paso: 1,
+    pactoResult: "ninguno", // acuerdo_2, triple, ninguno
+    excluido: null,
+    equipos: ["Alfa", "Beta", "Omega"].map(n => ({
+        nombre: n, inventario: [], descarte: [], roles: [], especial: null, puntos: { ali:0, uti:0, ori:0 }
     }))
 };
 
-function logger(msg) {
-    const logDiv = document.getElementById("log");
-    logDiv.innerHTML += `<br>> ${msg}`;
-    logDiv.scrollTop = logDiv.scrollHeight;
+function log(msg) {
+    const l = document.getElementById('game-log');
+    l.innerHTML += `<br>> ${msg}`;
+    l.scrollTop = l.scrollHeight;
 }
 
 /* ============================
-RENDER PRINCIPAL
-============================ */
+   RENDERIZADO DE PASOS
+   ============================ */
 function render() {
+    const ui = document.getElementById('game-ui');
     let html = "";
 
-    /* --- FASE 0: BIENVENIDA Y NOMBRES --- */
-    if (Game.fase === 0) {
-        html += `
-            <h2>🏝 La Isla - Dinámica Grupal</h2>
-            <p class="tagline">Dinámica adecuada para la evaluación de <strong>liderazgo</strong>, <strong>trabajo en equipo</strong> y <strong>estrategia</strong>.</p>
-            
-            <div class="card">
-                <h3>Configuración de Equipos</h3>
-                <p>Ingresa los nombres de los integrantes (mínimo 3 por equipo).</p>
-                <div class="equipo-grid">`;
+    switch(Game.paso) {
+        case 1: // Introducción
+            html = `
+                <div class="card">
+                    <h2>Paso 1: Introducción</h2>
+                    <p>Objetivo: Acumular objetos para sobrevivir. Mínimos requeridos:</p>
+                    <ul>
+                        <li class="ali">Alimentación: 4 puntos</li>
+                        <li class="uti">Utilidad: 3 puntos</li>
+                        <li class="ori">Orientación: 2 puntos</li>
+                    </ul>
+                    <button class="btn-next" onclick="Game.paso=2; render();">Siguiente: Roles</button>
+                </div>`;
+            break;
 
-        Game.grupos.forEach((g, i) => {
-            html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
-            for (let j = 0; j < 5; j++) {
-                html += `<input type="text" id="in_${i}_${j}" placeholder="Jugador ${j+1}">`;
-            }
-            html += `</div>`;
-        });
+        case 2: // Formación de Equipos
+            html = `
+                <h2>Paso 2: Equipos y Liderazgo</h2>
+                <div class="grid">
+                    ${Game.equipos.map((e, i) => `
+                        <div class="card">
+                            <h3>Equipo ${e.nombre}</h3>
+                            <input type="text" id="lider_${i}" placeholder="Tipo de Liderazgo">
+                            <p><small>Asigna los roles en papel según las instrucciones.</small></p>
+                        </div>
+                    `).join("")}
+                </div>
+                <button class="btn-next" onclick="Game.paso=3; render();">Siguiente: Planeación Inicial</button>`;
+            break;
 
-        html += `</div><button onclick="guardarJugadores()">Comenzar Dinámica</button></div>`;
+        case 3: // Planeación Inicial
+            html = `
+                <h2>Paso 3: Planeación Inicial</h2>
+                <p class="tagline">Elige 5 recursos base (los otros 5 van al Recolector) y 2 objetos de rol.</p>
+                <div class="grid">
+                    ${Game.equipos.map((e, i) => `
+                        <div class="card">
+                            <h3>${e.nombre}</h3>
+                            <select id="sel_base_${i}" multiple style="height:150px">
+                                ${DB.objetosBase.map(o => `<option value="${o.id}">${o.n} (${o.c})</option>`).join("")}
+                            </select>
+                            <p><small>Mantén Ctrl para elegir 5</small></p>
+                            <select id="sel_rol_${i}" multiple>
+                                ${DB.objetosRol.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}
+                            </select>
+                        </div>
+                    `).join("")}
+                </div>
+                <button class="btn-next" onclick="confirmarPaso3()">Confirmar Planeación</button>`;
+            break;
+
+        case 4: // Robo Nocturno
+            html = `
+                <div class="card">
+                    <h2>Paso 4: Robo Nocturno</h2>
+                    <p>El Ladrón comunica su acción en secreto. El facilitador procesa los cambios manuales en el inventario.</p>
+                    <button class="btn-next" onclick="Game.paso=5; render();">Siguiente: Pacto</button>
+                </div>`;
+            break;
+
+        case 5: // Pacto
+            html = `
+                <div class="card">
+                    <h2>Paso 5: Pacto de Diplomáticos</h2>
+                    <p>¿Quiénes alcanzaron el pacto?</p>
+                    <select id="pacto_tipo">
+                        <option value="ninguno">Nadie (1 recurso especial c/u)</option>
+                        <option value="triple">Los tres (1 recurso especial c/u)</option>
+                        <option value="acuerdo_2">Dos equipos pactan (2 recursos c/u, excluido 1)</option>
+                    </select>
+                    <div id="pacto_detalles"></div>
+                    <button class="btn-next" onclick="confirmarPaso5()">Confirmar Pacto</button>
+                </div>`;
+            break;
+
+        case 6: case 7: case 8: // Pasos Intermedios
+            html = `
+                <div class="card">
+                    <h2>Pasos 6, 7 y 8: Combate, Recolección e Intercambio</h2>
+                    <p>Realiza las dinámicas físicas. Usa los botones para añadir/quitar objetos manualmente si hubo robos o cambios.</p>
+                    <div class="grid">
+                        ${Game.equipos.map((e, i) => `
+                            <div class="card">
+                                <h3>${e.nombre}</h3>
+                                <ul class="item-list" id="inv_list_${i}">
+                                    ${e.inventario.map(obj => `<li>${obj.n} (${obj.p} pts)</li>`).join("")}
+                                </ul>
+                                <select id="add_obj_${i}">
+                                    <option value="">+ Añadir Objeto</option>
+                                    ${DB.objetosBase.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}
+                                    ${DB.especiales.map(o => `<option value="${o.id}">${o.n} (Esp)</option>`).join("")}
+                                </select>
+                                <button onclick="manualAdd(${i})" style="margin-top:5px; padding:5px;">Añadir</button>
+                            </div>
+                        `).join("")}
+                    </div>
+                    <button class="btn-next" onclick="Game.paso=9; render();">Siguiente: Decisión Final</button>
+                </div>`;
+            break;
+
+        case 9: // Decisión Final
+            html = `
+                <h2>Paso 9: Decisión Final</h2>
+                <div class="grid">
+                    ${Game.equipos.map(e => {
+                        const pts = calcularTotal(e);
+                        const vive = pts.ali >= 4 && pts.uti >= 3 && pts.ori >= 2;
+                        return `
+                        <div class="card" style="border-top: 10px solid ${vive ? 'var(--success)' : 'var(--danger)'}">
+                            <h3>Equipo ${e.nombre}</h3>
+                            <div class="badge ${pts.ali >= 4 ? 'ali' : ''}">🍎 Ali: ${pts.ali}/4</div>
+                            <div class="badge ${pts.uti >= 3 ? 'uti' : ''}">🛠 Uti: ${pts.uti}/3</div>
+                            <div class="badge ${pts.ori >= 2 ? 'ori' : ''}">🧭 Ori: ${pts.ori}/2</div>
+                            <h2 style="color: ${vive ? 'var(--success)' : 'var(--danger)'}">${vive ? "SOBREVIVEN" : "PERECEN"}</h2>
+                        </div>`;
+                    }).join("")}
+                </div>
+                <button onclick="location.reload()">Reiniciar Dinámica</button>`;
+            break;
     }
-
-    /* --- FASE 1: ASIGNACIÓN DE ROLES --- */
-    if (Game.fase === 1) {
-        html += `<h2>Asignación de Roles</h2>
-                 <p class="tagline">Distribuyan las responsabilidades. Algunos jugadores tendrán doble rol según el tamaño del equipo.</p>
-                 <div class="equipo-grid">`;
-
-        Game.grupos.forEach((g, gIdx) => {
-            html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
-            const total = g.miembros.length;
-
-            g.miembros.forEach((m, jIdx) => {
-                let cantRoles = 1;
-                // REGLA SOLICITADA:
-                if (total === 3 && (jIdx === 0 || jIdx === 1)) cantRoles = 2;
-                if (total === 4 && jIdx === 0) cantRoles = 2;
-
-                html += `<div class="jugador-row"><strong>${m.nombre}</strong> (Elige ${cantRoles})`;
-                for(let r=0; r < cantRoles; r++) {
-                    html += `
-                        <select id="rol_${gIdx}_${jIdx}_${r}">
-                            <option value="">-- Seleccionar Rol --</option>
-                            ${Game.roles.map(rol => `<option value="${rol}">${rol}</option>`).join("")}
-                        </select>`;
-                }
-                html += `</div>`;
-            });
-            html += `</div>`;
-        });
-
-        html += `</div><button onclick="guardarRoles()">Confirmar Roles y Continuar</button>`;
-    }
-
-    /* --- FASE 2: SELECCIÓN DE OBJETOS --- */
-    if (Game.fase === 2) {
-        html += `<h2>Fase de Equipamiento</h2>
-                 <p class="tagline">Elijan un objeto clave para su equipo. Los puntos se actualizarán según su elección.</p>
-                 <div class="equipo-grid">`;
-
-        Game.grupos.forEach((g, i) => {
-            html += `
-            <div class="card">
-                <h4>Equipo ${g.nombre}</h4>
-                <div class="puntos-badge">🍎: ${g.puntos.ali} | 🛠: ${g.puntos.uti} | 🧭: ${g.puntos.ori}</div>
-                <p><small>Roles: ${g.miembros.flatMap(m => m.roles).join(", ")}</small></p>
-                
-                <select id="obj_${i}">
-                    <option value="">-- Selecciona un objeto --</option>
-                    <option value="pesca">Kit de Pesca (+2 Alimentación)</option>
-                    <option value="brujula">Brújula Pro (+2 Orientación)</option>
-                    <option value="herramientas">Caja de Herramientas (+2 Utilidad)</option>
-                </select>
-                <br>
-                <button onclick="aplicarObjeto(${i})" style="margin-top:10px; padding:5px 10px; font-size:12px;">Aplicar Objeto</button>
-            </div>`;
-        });
-
-        html += `</div><div style="text-align:center; margin-top:20px;">
-                    <button onclick="location.reload()" style="background:#7f8c8d;">Reiniciar Todo</button>
-                 </div>`;
-    }
-
-    document.getElementById("app").innerHTML = html;
+    ui.innerHTML = html;
 }
 
 /* ============================
-CONTROLADORES DE LÓGICA
-============================ */
+   LÓGICA DE NEGOCIO
+   ============================ */
 
-function guardarJugadores() {
-    let error = false;
-    Game.grupos.forEach((g, i) => {
-        g.miembros = [];
-        for (let j = 0; j < 5; j++) {
-            let nombre = document.getElementById(`in_${i}_${j}`).value.trim();
-            if (nombre) g.miembros.push({ nombre: nombre, roles: [] });
-        }
-        if (g.miembros.length < 3) {
-            alert(`El equipo ${g.nombre} necesita al menos 3 jugadores.`);
-            error = true;
-        }
+function confirmarPaso3() {
+    Game.equipos.forEach((e, i) => {
+        const seleccionados = Array.from(document.getElementById(`sel_base_${i}`).selectedOptions).map(opt => opt.value);
+        e.inventario = DB.objetosBase.filter(obj => seleccionados.includes(obj.id));
+        e.descarte = DB.objetosBase.filter(obj => !seleccionados.includes(obj.id));
     });
-
-    if (!error) {
-        Game.fase = 1;
-        logger("Jugadores registrados. Procediendo a la elección de roles.");
-        render();
-    }
+    log("Planeación inicial guardada. Los descartes pasan al Recolector.");
+    Game.paso = 4; render();
 }
 
-function guardarRoles() {
-    let errorMsg = "";
-    Game.grupos.forEach((g, gIdx) => {
-        let usados = new Set();
-        g.miembros.forEach((m, jIdx) => {
-            const selects = document.querySelectorAll(`[id^="rol_${gIdx}_${jIdx}_"]`);
-            m.roles = [];
-            selects.forEach(sel => {
-                if (!sel.value) errorMsg = "Faltan roles por asignar.";
-                if (usados.has(sel.value)) errorMsg = `Rol repetido en equipo ${g.nombre}: ${sel.value}`;
-                usados.add(sel.value);
-                m.roles.push(sel.value);
-            });
-        });
-    });
+function confirmarPaso5() {
+    const tipo = document.getElementById('pacto_tipo').value;
+    log(`Pacto procesado: ${tipo}. Los diplomáticos eligen sus recursos especiales.`);
+    Game.paso = 6; render();
+}
 
-    if (errorMsg) { alert(errorMsg); return; }
-
-    Game.fase = 2; // PASA A OBJETOS, NO REINICIA
-    logger("Roles confirmados. Pasando a la fase de equipamiento.");
+function manualAdd(equipoIdx) {
+    const objId = document.getElementById(`add_obj_${equipoIdx}`).value;
+    if(!objId) return;
+    const item = DB.objetosBase.find(o => o.id === objId) || DB.especiales.find(o => o.id === objId);
+    Game.equipos[equipoIdx].inventario.push(item);
     render();
 }
 
-function aplicarObjeto(gIdx) {
-    const obj = document.getElementById(`obj_${gIdx}`).value;
-    const g = Game.grupos[gIdx];
-
-    if (!obj) return;
-
-    if (obj === "pesca") g.puntos.ali += 2;
-    if (obj === "brujula") g.puntos.ori += 2;
-    if (obj === "herramientas") g.puntos.uti += 2;
-
-    logger(`Equipo ${g.nombre} sumó puntos por objeto.`);
-    render(); // Actualiza la UI para mostrar los nuevos puntos
+function calcularTotal(e) {
+    let res = { ali: 0, uti: 0, ori: 0 };
+    e.inventario.forEach(item => {
+        res[item.c] += item.p;
+    });
+    return res;
 }
 
 render();
 </script>
 </body>
 </html>
+
 
