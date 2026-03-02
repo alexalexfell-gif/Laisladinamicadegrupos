@@ -61,7 +61,7 @@ const DB = {
 let Game = {
     paso: 1,
     equipos: ["Alfa", "Beta", "Omega"].map(n => ({
-        nombre: n, inventario: [], descarte: [], venganza: false
+        nombre: n, inventario: [], venganza: false
     }))
 };
 
@@ -105,7 +105,6 @@ function render() {
                         <div><strong>🛠️ Utilidad</strong><br>Mínimo 3 pts</div>
                         <div><strong>🧭 Orientación</strong><br>Mínimo 2 pts</div>
                     </div>
-                    <p>Objetivo: Reunir los mínimos requeridos mediante robo, comercio o lucha.</p>
                     <div class="author">Autor: Alejandro Scuro Rossi</div>
                     <button class="btn-next" onclick="Game.paso=2; render();">Siguiente: Equipos y Roles</button>
                 </div>`;
@@ -115,12 +114,15 @@ function render() {
             ui.innerHTML = `
                 <div class="card">
                     <h2>Paso 2: Formación de equipo y roles</h2>
-                    <p class="tagline">Asignación de roles y definición de relación con los demás grupos.</p>
+                    <p class="tagline">Asigna los nombres de los integrantes a cada rol estratégico.</p>
                     <div class="grid">${Game.equipos.map(e => `
                         <div class="card">
                             <h3>Equipo ${e.nombre}</h3>
-                            <input type="text" placeholder="Relación con otros grupos (Cooperación/Competición)">
-                            <p><small>Roles: Ladrón, Diplomático, Luchador, Recolector, Comerciante.</small></p>
+                            <input type="text" placeholder="Ladrón">
+                            <input type="text" placeholder="Diplomático">
+                            <input type="text" placeholder="Luchador">
+                            <input type="text" placeholder="Recolector">
+                            <input type="text" placeholder="Comerciante">
                         </div>
                     `).join("")}</div>
                     <button class="btn-next" onclick="Game.paso=3; render();">Siguiente: Planeación Inicial</button>
@@ -131,7 +133,7 @@ function render() {
             ui.innerHTML = `
                 <div class="card">
                     <h2>Paso 3: Planeación Inicial</h2>
-                    <p class="tagline">Elige 5 recursos base. Los otros 5 van al Recolector temporalmente.</p>
+                    <p class="tagline">Selecciona 5 recursos base para el inventario inicial del equipo.</p>
                     <div class="grid">${Game.equipos.map((e, i) => `
                         <div class="card">
                             <h3>${e.nombre}</h3>
@@ -171,10 +173,10 @@ function render() {
         case 5: 
             ui.innerHTML = `
                 <div class="card">
-                    <h2>Paso 5: Pacto</h2>
+                    <h2>Paso 5: Pacto de Diplomáticos</h2>
                     <div class="grid">
                         <div class="card">
-                            <h3>Pacto de Diplomáticos</h3>
+                            <h3>Equipos que pactan</h3>
                             ${Game.equipos.map((e, i) => `<label><input type="checkbox" class="pacto-check" value="${i}"> ${e.nombre}</label><br>`).join("")}
                         </div>
                         <div class="card">
@@ -196,7 +198,7 @@ function render() {
             ui.innerHTML = `
                 <div class="card">
                     <h2>Paso 6: Combate</h2>
-                    <p class="tagline">Venganza: El excluido ataca 2 veces.</p>
+                    <p class="tagline">El equipo excluido del pacto tiene Venganza (2 ataques).</p>
                     <div class="grid">${Game.equipos.map((e, i) => {
                         const n = e.venganza ? 2 : 1;
                         let ataques = "";
@@ -209,142 +211,4 @@ function render() {
                                 </select>
                                 <select id="res_c_${i}_${a}"><option value="win">Atacante Vence</option><option value="lose">Defensor Vence</option></select>
                                 <select id="obj_c_${i}_${a}"><option value="">-- Objeto --</option></select>
-                                <button class="btn-action" onclick="procesarCombate(${i}, ${a}, this)">Registrar</button>
-                            </div>`;
-                        }
-                        return `<div class="card"><h3>${e.nombre} ${e.venganza?'🔥':''}</h3>${ataques}</div>`;
-                    }).join("")}</div>
-                    <button class="btn-next" onclick="Game.paso=7; render();">Ir a Recolección</button>
-                </div>`;
-            break;
-
-        case 7: 
-            ui.innerHTML = `
-                <div class="card">
-                    <h2>Paso 7: Recolección</h2>
-                    <div class="grid">${Game.equipos.map((e, i) => `
-                        <div class="card">
-                            <h3>Recolector ${e.nombre}</h3>
-                            <select id="rec1_${i}">${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
-                            <select id="rec2_${i}">${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
-                        </div>
-                    `).join("")}</div>
-                    <button class="btn-next" onclick="procesarPaso7()">Finalizar Recolección</button>
-                </div>`;
-            break;
-
-        case 8: 
-            ui.innerHTML = `
-                <div class="card">
-                    <h2>Paso 8: Intercambio</h2>
-                    <div class="grid">${Game.equipos.map((e, i) => `
-                        <div class="card">
-                            <h3>Intercambio ${e.nombre}</h3>
-                            <select id="int_${i}"><option value="">Objeto recibido...</option>${DB.base.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select>
-                            <button class="btn-action" onclick="manualAdd(${i})">Añadir Objeto</button>
-                        </div>
-                    `).join("")}</div>
-                    <button class="btn-next" onclick="Game.paso=9; render();">Veredicto Final</button>
-                </div>`;
-            break;
-
-        case 9: 
-            ui.innerHTML = `
-                <div class="card" style="text-align:center">
-                    <h2>Paso 9: Decisión Final</h2>
-                    <div class="grid">${Game.equipos.map(e => {
-                        const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
-                        const v = p.ali>=4 && p.uti>=3 && p.ori>=2;
-                        return `<div class="card" style="border:3px solid ${v?'green':'red'}">
-                                    <h3>Equipo ${e.nombre}</h3>
-                                    <h1 style="color:${v?'green':'red'}">${v?'SOBREVIVEN':'PERECEN'}</h1>
-                                </div>`;
-                    }).join("")}</div>
-                    <button onclick="location.reload()">Reiniciar</button>
-                </div>`;
-            break;
-    }
-}
-
-function procesarPaso3() {
-    Game.equipos.forEach((e, i) => {
-        const sel = Array.from(document.getElementById(`plan_${i}`).selectedOptions).map(o => o.value);
-        if(sel.length !== 5) { alert(`Equipo ${e.nombre} debe elegir 5.`); throw "err"; }
-        e.inventario = sel.map(id => DB.base.find(o => o.id === id));
-    });
-    Game.paso = 4; render();
-}
-
-function updateUI4(i) {
-    document.getElementById(`box_robo_${i}`).style.display = document.getElementById(`acc_ladron_${i}`).value === 'robar' ? 'block' : 'none';
-}
-
-function loadInvVictima(aIdx, vId, oId) {
-    const vIdx = document.getElementById(vId).value;
-    const oSel = document.getElementById(oId);
-    if(vIdx === "") return;
-    oSel.innerHTML = Game.equipos[vIdx].inventario.map((obj, i) => `<option value="${i}">${obj.n}</option>`).join("");
-}
-
-function procesarPaso4() {
-    const defensas = Game.equipos.map((_, i) => document.getElementById(`acc_ladron_${i}`).value === 'defender');
-    Game.equipos.forEach((ladron, i) => {
-        if(document.getElementById(`acc_ladron_${i}`).value === 'robar') {
-            const vIdx = document.getElementById(`vic_ladron_${i}`).value;
-            const oIdx = document.getElementById(`obj_ladron_${i}`).value;
-            if(defensas[vIdx]) log(`Robo de ${ladron.nombre} falló: Defensa.`);
-            else if(oIdx !== ""){
-                const item = Game.equipos[vIdx].inventario.splice(oIdx, 1)[0];
-                ladron.inventario.push(item);
-                log(`${ladron.nombre} robó ${item.n} de ${Game.equipos[vIdx].nombre}`);
-            }
-        }
-    });
-    Game.paso = 5; render();
-}
-
-function procesarPaso5() {
-    const checks = Array.from(document.querySelectorAll('.pacto-check:checked')).map(c => parseInt(c.value));
-    if(checks.length === 2) {
-        const excIdx = [0,1,2].find(i => !checks.includes(i));
-        Game.equipos[excIdx].venganza = true;
-    }
-    Game.equipos.forEach((e, i) => {
-        const limit = (e.venganza) ? 1 : 2;
-        e.inventario.push(DB.especiales.find(o => o.id === document.querySelector(`.esp-1-${i}`).value));
-        const o2 = document.querySelector(`.esp-2-${i}`).value;
-        if(limit === 2 && o2) e.inventario.push(DB.especiales.find(o => o.id === o2));
-    });
-    Game.paso = 6; render();
-}
-
-function procesarCombate(aIdx, aNum, btn) {
-    const vIdx = document.getElementById(`vic_c_${aIdx}_${aNum}`).value;
-    const res = document.getElementById(`res_c_${aIdx}_${aNum}`).value;
-    const oIdx = document.getElementById(`obj_c_${aIdx}_${aNum}`).value;
-    if(res === 'win' && vIdx !== "" && oIdx !== "") {
-        const item = Game.equipos[vIdx].inventario.splice(oIdx, 1)[0];
-        Game.equipos[aIdx].inventario.push(item);
-        log(`${Game.equipos[aIdx].nombre} gana objeto de ${Game.equipos[vIdx].nombre}.`);
-    } else log("Combate sin robo.");
-    btn.disabled = true;
-    updateScoreboard();
-}
-
-function procesarPaso7() {
-    Game.equipos.forEach((e, i) => {
-        e.inventario.push(DB.base.find(o => o.id === document.getElementById(`rec1_${i}`).value));
-        e.inventario.push(DB.base.find(o => o.id === document.getElementById(`rec2_${i}`).value));
-    });
-    Game.paso = 8; render();
-}
-
-function manualAdd(i) {
-    const id = document.getElementById(`int_${i}`).value;
-    if(id) { Game.equipos[i].inventario.push(DB.base.find(o => o.id === id)); updateScoreboard(); }
-}
-
-render();
-</script>
-</body>
-</html>
+                                <button class="btn-action" onclick="procesarCombate
