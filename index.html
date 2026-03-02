@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Isla - Alejandro Scuro Rossi</title>
+    
+    <title>La Isla: Dinámica Grupal de Liderazgo y Trabajo en Equipo - Alejandro Scuro Rossi</title>
+    <meta name="description" content="Dinámica grupal de roleplay diseñada por Alejandro Scuro Rossi para Recursos Humanos. Enfocada en liderazgo, negociación y trabajo en equipo.">
+    <meta name="keywords" content="Liderazgo, Dinámica grupal, Recursos Humanos, Trabajo en equipo, roleplay, La isla, Alejandro Scuro Rossi, RRHH, Simulación">
+    <meta name="author" content="Alejandro Scuro Rossi">
+
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; --light: #ecf0f1; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
@@ -75,28 +80,44 @@ function render() {
     } else { sb.style.display = 'none'; }
 
     if (Game.paso === 1) {
-        ui.innerHTML = `<div class="card" style="text-align:center"><h1>🏝️ LA ISLA</h1><p><b>Autor:</b> Alejandro Scuro Rossi</p><hr style="border:0; border-top:1px solid #eee; margin:20px 0;"><div style="text-align:left; max-width:600px; margin:0 auto; line-height:1.6;"><p>Bienvenido a <b>La Isla</b>, un juego de estrategia, roles y supervivencia.</p><p><b>Objetivo:</b> Consigue los recursos para sobrevivir:</p><ul style="list-style-position: inside;"><li>🍎 4 puntos de Alimento</li><li>🛠 3 puntos de Utilidad</li><li>🧭 2 puntos de Orientación</li></ul></div><button onclick="Game.paso=2; render();" style="margin-top:20px;">Empezar Registro</button></div>`;
+        ui.innerHTML = `
+            <div class="card" style="text-align:center">
+                <h1>🏝️ LA ISLA</h1>
+                <p><b>Autor:</b> Alejandro Scuro Rossi</p>
+                <p style="font-style:italic; color:#666;">Dinámica grupal de Liderazgo, Recursos Humanos y Trabajo en Equipo</p>
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                <div style="text-align:left; max-width:600px; margin:0 auto; line-height:1.6;">
+                    <p>Bienvenido a esta simulación de <b>roleplay</b> diseñada para evaluar y potenciar las habilidades de gestión grupal.</p>
+                    <p><b>Objetivo de supervivencia:</b></p>
+                    <ul style="list-style-position: inside;">
+                        <li>🍎 4 puntos de Alimento</li>
+                        <li>🛠 3 puntos de Utilidad</li>
+                        <li>🧭 2 puntos de Orientación</li>
+                    </ul>
+                </div>
+                <button onclick="Game.paso=2; render();" style="margin-top:20px;">Iniciar Sesión</button>
+            </div>`;
     }
     else if (Game.paso === 2) {
-        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro</h2><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="sz_${i}" onchange="updateFieldsUI(${i})"><option value="5">5 Jugadores</option><option value="4">4 Jugadores</option><option value="3">3 Jugadores</option></select><div id="fields_${i}">${generateFieldsHTML(5, i)}</div></div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 2: Registro de Participantes</h2><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="sz_${i}" onchange="updateFieldsUI(${i})"><option value="5">5 Jugadores</option><option value="4">4 Jugadores</option><option value="3">3 Jugadores</option></select><div id="fields_${i}">${generateFieldsHTML(5, i)}</div></div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
     }
     else if (Game.paso === 3) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> por equipo.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Guardar Base</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación Estratégica</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> por equipo.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Guardar Base</button></div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Roles</h2><p class="instruction">Selecciona 2 objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Guardar Roles</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona los roles (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar Roles</button></div>`;
     }
     else if (Game.paso === 4) {
-        ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><p class="instruction">Los ladrones eligen robar o defender el campamento. Debe comunicarse al facilitador en secreto. No pueden robarse objetos en el maletín.</p><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 4: Fase de Robo Nocturno</h2><p class="instruction">Los ladrones eligen robar o defender el campamento. Debe comunicarse al facilitador en secreto. No pueden robarse objetos en el maletín.</p><div class="grid">${Game.equipos.map((e, i) => {
             const hasA = e.inventario.some(it => it.id === 'antifaz');
             return `<div class="card"><h3>${e.nombre} ${hasA ? '🎭' : ''}</h3>${renderMaletinUI(i)}<select id="n_act_${i}" onchange="updateNightUI(${i})"><option value="def">Defender</option><option value="atk">Robar (${hasA?2:1})</option></select><div id="n_ui_${i}" style="display:none"><select id="n_vic_${i}" onchange="loadNightItems(${i})"><option value="">¿Víctima?</option>${Game.equipos.map((v, vi) => i !== vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><select id="n_obj_${i}" multiple style="height:80px;"></select></div></div>`;
         }).join("")}</div><button onclick="processNightRobbery()">Ejecutar Robo</button></div>`;
     }
     else if (Game.paso === 5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 5: Pacto</h2><p class="instruction">Los diplomáticos negocian un pacto. El equipo excluido obtendrá Venganza en el siguiente Paso.</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3>${renderMaletinUI(i)}<div><input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa en pacto</label></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Finalizar Pacto</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 5: Negociación y Pacto</h2><p class="instruction">Los diplomáticos negocian un pacto. El equipo excluido obtendrá Venganza en el siguiente Paso.</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3>${renderMaletinUI(i)}<div><input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa en pacto</label></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Finalizar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
-        ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><p class="instruction">Los luchadores combaten con Piedra, papel o tijera. Un ataque exitoso supondrá el robo de un objeto. No pueden robarse objetos en el maletín.</p><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 6: Conflicto y Lucha</h2><p class="instruction">Los luchadores combaten con Piedra, papel o tijera. Un ataque exitoso supondrá el robo de un objeto. No pueden robarse objetos en el maletín.</p><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             const isMil = e.inventario.some(it => it.id === 'alianza_mil');
             return `<div class="card"><h3>${e.nombre} ${e.venganza ? '<span class="venganza-badge">VENGANZA</span>' : ''}</h3>${renderMaletinUI(i)}<div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Ataque ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿A quién ataca?</option>${Game.equipos.map((v,vi) => { const vMil = v.inventario.some(it => it.id === 'alianza_mil'); if(i === vi || (isMil && vMil)) return ''; return `<option value="${vi}">${v.nombre}</option>`; }).join("")}</select><div id="atk_ctrls_${i}_${a}" style="display:none; margin-top:10px;"><button class="btn-atk" onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button class="btn-fail" onclick="handleLuchaAtk(${i}, ${a}, false)">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none; margin-top:10px;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Confirmar Robo</button></div></div>`).join("")}</div></div>`;
@@ -109,33 +130,30 @@ function render() {
         const tieneG = e.inventario.some(it => it.id === 'guantes');
         let extra = (tieneG && !e.yaUsoGuantes) ? 1 : 0;
         const cantRequerida = turnoActual.cant + extra;
-        ui.innerHTML = `<div class="card"><h2>Paso 7: Recolección</h2><p class="instruction">Turno actual: <b>${e.nombre}</b> elige <b>${cantRequerida}</b> objeto(s).</p><div class="grid">${Game.equipos.map((eq, i) => `<div class="card ${eqIdx===i?'active-turn':''}" style="opacity:${eqIdx===i?'1':'0.5'}"><h3>${eq.nombre} ${tieneG && !eq.yaUsoGuantes && eqIdx===i ? '(+1 🧤)' : ''}</h3>${renderMaletinUI(i)}${eqIdx===i ? `<select id="rec_sel" multiple style="height:120px;">${CATALOGO_BASE.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select><button onclick="ejecutarTurnoRecoleccion(${i}, ${cantRequerida})">Confirmar</button>` : `<p>Esperando...</p>`}</div>`).join("")}</div></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 7: Fase de Recolección</h2><p class="instruction">Los recolectores consiguen 2 objetos de 1 punto. Los guantes otorgan 1 objeto extra. <br>Turno: <b>${e.nombre}</b> elige <b>${cantRequerida}</b> objeto(s).</p><div class="grid">${Game.equipos.map((eq, i) => `<div class="card ${eqIdx===i?'active-turn':''}" style="opacity:${eqIdx===i?'1':'0.5'}"><h3>${eq.nombre} ${tieneG && !eq.yaUsoGuantes && eqIdx===i ? '(+1 🧤)' : ''}</h3>${renderMaletinUI(i)}${eqIdx===i ? `<select id="rec_sel" multiple style="height:120px;">${CATALOGO_BASE.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select><button onclick="ejecutarTurnoRecoleccion(${i}, ${cantRequerida})">Confirmar</button>` : `<p>Esperando...</p>`}</div>`).join("")}</div></div>`;
     }
     else if (Game.paso === 8) {
-        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado</h2><p class="instruction"><b>Los comerciantes pueden intercambiar un máximo de 2 objetos por equipo. Selecciona un equipo para proponer un intercambio mutuo.</b></p><div class="grid">${Game.equipos.map((e, i) => {
+        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado de Intercambio</h2><p class="instruction">Los comerciantes pueden intercambiar un máximo de 2 objetos por equipo. No es obligatorio comerciar.</p><div class="grid">${Game.equipos.map((e, i) => {
             const finished = e.actionsMarket >= 2;
-            return `<div class="card ${finished ? 'btn-fail' : ''}" style="opacity:${finished ? '0.7' : '1'}"><h3>${e.nombre}</h3><span class="hint">Intercambios: ${e.actionsMarket}/2</span>${renderMaletinUI(i)}<div class="trade-slot"><b>Proponer a:</b><select id="m_partner_${i}" onchange="updateTradeProposalUI(${i})" ${finished ? 'disabled' : ''}><option value="">--- Seleccionar Pareja ---</option>${Game.equipos.map((p, pIdx) => (pIdx !== i && p.actionsMarket < 2) ? `<option value="${pIdx}">${p.nombre}</option>` : '').join("")}</select><div id="trade_ui_${i}" style="display:none; margin-top:10px;"><div style="background:#fff; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:5px;"><b>Tú entregas:</b><select id="m_give_${i}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select></div><div id="partner_give_area_${i}"></div><button onclick="ejecutarIntercambioDirecto(${i})">Confirmar Intercambio Mutuo</button></div></div></div>`;
-        }).join("")}</div><button onclick="Game.paso=9; render()">Finalizar Juego</button></div>`;
+            return `<div class="card ${finished ? 'btn-fail' : ''}" style="opacity:${finished ? '0.7' : '1'}"><h3>${e.nombre}</h3><span class="hint">Acciones: ${e.actionsMarket}/2</span>${renderMaletinUI(i)}<div class="trade-slot"><b>Proponer a:</b><select id="m_partner_${i}" onchange="updateTradeProposalUI(${i})" ${finished ? 'disabled' : ''}><option value="">--- Elegir Partner ---</option>${Game.equipos.map((p, pIdx) => (pIdx !== i && p.actionsMarket < 2) ? `<option value="${pIdx}">${p.nombre}</option>` : '').join("")}</select><div id="trade_ui_${i}" style="display:none; margin-top:10px;"><div style="background:#fff; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:5px;"><b>Entregas:</b><select id="m_give_${i}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select></div><div id="partner_give_area_${i}"></div><button onclick="ejecutarIntercambioDirecto(${i})">Confirmar Acuerdo</button></div></div></div>`;
+        }).join("")}</div><button onclick="Game.paso=9; render()">Finalizar Dinámica</button></div>`;
     }
     else if (Game.paso === 9) {
-        ui.innerHTML = `<div class="card" style="text-align:center"><h2>Paso 9: Recuento Final</h2><div class="grid">${Game.equipos.map(e => {
+        ui.innerHTML = `<div class="card" style="text-align:center"><h2>Paso 9: Resultados y Recuento Final</h2><div class="grid">${Game.equipos.map(e => {
             const totalInv = [...e.inventario, ...e.maletin];
             const p = totalInv.reduce((acc, i) => { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); return acc; }, { ali:0, uti:0, ori:0 });
             const win = p.ali >= 4 && p.uti >= 3 && p.ori >= 2;
-            const cats = { ali: "Alimento 🍎", uti: "Utilidad 🛠", ori: "Orientación 🧭" };
-            return `<div class="card" style="border-top: 5px solid ${win?'var(--success)':'var(--danger)'}"><h3>${e.nombre}</h3><h2 style="color:${win?'#27ae60':'#e74c3c'}">${win?'✅ SOBREVIVE':'💀 MUERE'}</h2><div class="recuento-list"><b>Objetos:</b><br>${totalInv.map(it => `• ${it.n} (${cats[it.c] || 'Rol'})`).join("<br>")}</div><div class="recuento-list" style="background:#f9f9f9; padding:8px;"><b>Puntos:</b><div class="stat-line"><span>🍎 Ali:</span> <b>${p.ali}/4</b></div><div class="stat-line"><span>🛠 Uti:</span> <b>${p.uti}/3</b></div><div class="stat-line"><span>🧭 Ori:</span> <b>${p.ori}/2</b></div></div></div>`;
-        }).join("")}</div><button onclick="location.reload()">Reiniciar</button></div>`;
+            return `<div class="card" style="border-top: 5px solid ${win?'var(--success)':'var(--danger)'}"><h3>${e.nombre}</h3><h2 style="color:${win?'#27ae60':'#e74c3c'}">${win?'✅ SOBREVIVE':'💀 NO LOGRADO'}</h2><div class="recuento-list"><b>Objetos:</b><br>${totalInv.map(it => `• ${it.n}`).join("<br>")}</div><div class="recuento-list" style="background:#f9f9f9; padding:8px;"><b>Métricas:</b><div class="stat-line"><span>🍎 Ali:</span> <b>${p.ali}/4</b></div><div class="stat-line"><span>🛠 Uti:</span> <b>${p.uti}/3</b></div><div class="stat-line"><span>🧭 Ori:</span> <b>${p.ori}/2</b></div></div></div>`;
+        }).join("")}</div><button onclick="location.reload()">Reiniciar Simulación</button></div>`;
     }
 }
 
-// FUNCIONES PASO 8
+// Lógica de mercado
 function updateTradeProposalUI(eqIdx) {
     const partnerIdx = document.getElementById(`m_partner_${eqIdx}`).value;
     const ui = document.getElementById(`trade_ui_${eqIdx}`);
     const partnerArea = document.getElementById(`partner_give_area_${eqIdx}`);
-    
     if (partnerIdx === "") { ui.style.display = "none"; return; }
-    
     ui.style.display = "block";
     const partner = Game.equipos[partnerIdx];
     partnerArea.innerHTML = `<div style="background:#fff; padding:8px; border-radius:5px; border:1px solid #ddd; margin-bottom:5px;"><b>${partner.nombre} entrega:</b><select id="m_partner_give_${eqIdx}">${partner.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select></div>`;
@@ -145,24 +163,17 @@ function ejecutarIntercambioDirecto(eqIdx) {
     const pIdx = document.getElementById(`m_partner_${eqIdx}`).value;
     const giveIdx = document.getElementById(`m_give_${eqIdx}`).value;
     const pGiveIdx = document.getElementById(`m_partner_give_${eqIdx}`).value;
-    
-    if (giveIdx === "" || pGiveIdx === "") return alert("Ambos equipos deben seleccionar un objeto.");
-
-    // Realizar intercambio
+    if (giveIdx === "" || pGiveIdx === "") return alert("Selección incompleta.");
     const itemA = Game.equipos[eqIdx].inventario.splice(giveIdx, 1)[0];
     const itemB = Game.equipos[pIdx].inventario.splice(pGiveIdx, 1)[0];
-    
     Game.equipos[eqIdx].inventario.push(itemB);
     Game.equipos[pIdx].inventario.push(itemA);
-    
-    // Contar acción para ambos
     Game.equipos[eqIdx].actionsMarket++;
     Game.equipos[pIdx].actionsMarket++;
-    
     render();
 }
 
-// RESTO DE FUNCIONES SOPORTE
+// Soporte de recolección y utilidades
 function ejecutarTurnoRecoleccion(eqIdx, cantRequerida) {
     const sel = document.getElementById('rec_sel');
     const opts = Array.from(sel.selectedOptions);
@@ -177,6 +188,7 @@ function ejecutarTurnoRecoleccion(eqIdx, cantRequerida) {
     if(Game.recoleccion.indexPaso >= Game.recoleccion.secuencia.length) Game.paso = 8;
     render();
 }
+
 function updateScoreboard() {
     document.getElementById('scoreboard').innerHTML = Game.equipos.map(e => {
         const totalInv = [...e.inventario, ...e.maletin];
@@ -184,12 +196,14 @@ function updateScoreboard() {
         return `<div class="score-card"><b>${e.nombre}</b><br>🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>`;
     }).join("");
 }
+
 function renderMaletinUI(eqIdx) {
     const e = Game.equipos[eqIdx];
     const hasM = e.inventario.some(it => it.id === 'maletin') || e.maletin.some(it => it.id === 'maletin');
     if (!hasM) return '';
-    return `<div class="maletin-box"><b>🧳 Maletín (${e.maletin.length}/2)</b><div style="font-size:0.85em; margin:5px 0;">${e.maletin.length > 0 ? e.maletin.map((it, idx) => `<div>• ${it.n} <button style="width:auto; padding:2px 5px; margin:0;" onclick="removeFromMaletin(${eqIdx}, ${idx})">Sacar</button></div>`).join("") : 'Vacío'}</div>${e.maletin.length < 2 ? `<select id="to_maletin_${eqIdx}" style="font-size:0.8em; padding:5px;"><option value="">Guardar objeto...</option>${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><button style="padding:5px; font-size:0.8em;" onclick="addToMaletin(${eqIdx})">Guardar</button>` : ''}</div>`;
+    return `<div class="maletin-box"><b>🧳 Maletín (${e.maletin.length}/2)</b><div style="font-size:0.85em; margin:5px 0;">${e.maletin.length > 0 ? e.maletin.map((it, idx) => `<div>• ${it.n} <button style="width:auto; padding:2px 5px; margin:0;" onclick="removeFromMaletin(${eqIdx}, ${idx})">Sacar</button></div>`).join("") : 'Vacío'}</div>${e.maletin.length < 2 ? `<select id="to_maletin_${eqIdx}" style="font-size:0.8em; padding:5px;"><option value="">Guardar...</option>${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><button style="padding:5px; font-size:0.8em;" onclick="addToMaletin(${eqIdx})">Guardar</button>` : ''}</div>`;
 }
+
 function addToMaletin(eqIdx) {
     const sel = document.getElementById(`to_maletin_${eqIdx}`);
     if (sel.value === "" || Game.equipos[eqIdx].maletin.length >= 2) return;
@@ -197,23 +211,27 @@ function addToMaletin(eqIdx) {
     Game.equipos[eqIdx].maletin.push(item);
     render();
 }
+
 function removeFromMaletin(eqIdx, itemIdx) {
     const item = Game.equipos[eqIdx].maletin.splice(itemIdx, 1)[0];
     Game.equipos[eqIdx].inventario.push(item);
     render();
 }
+
 function saveRegistration() {
     for(let i=0; i<3; i++) Game.equipos[i].numJugadores = parseInt(document.getElementById(`sz_${i}`).value);
     Game.paso = 3; render();
 }
+
 function saveInv3() {
     for(let i=0; i<3; i++) {
         const s = Array.from(document.getElementById(`p_${i}`).selectedOptions);
-        if(s.length!==5) return alert("Elige 5 objetos.");
+        if(s.length!==5) return alert("Elige 5.");
         Game.equipos[i].inventario = s.map(o => ({...CATALOGO_BASE.find(b => b.id === o.value)}));
     }
     Game.paso = 3.5; render();
 }
+
 function saveRoleInv() {
     for(let i=0; i<3; i++) {
         const select = document.getElementById(`ro_${i}`);
@@ -221,10 +239,12 @@ function saveRoleInv() {
     }
     Game.paso = 4; render();
 }
+
 function toggleAtkControls(eqIdx, atkIdx) {
     const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
     document.getElementById(`atk_ctrls_${eqIdx}_${atkIdx}`).style.display = vicIdx !== "" ? "block" : "none";
 }
+
 function handleLuchaAtk(eqIdx, atkIdx, isSuccess) {
     if (!isSuccess) { document.getElementById(`atk_block_${eqIdx}_${atkIdx}`).innerHTML = `<div class="attack-done" style="color:var(--danger)">FALLIDO</div>`; return; }
     const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
@@ -233,6 +253,7 @@ function handleLuchaAtk(eqIdx, atkIdx, isSuccess) {
     const selectRob = document.getElementById(`item_to_rob_${eqIdx}_${atkIdx}`);
     selectRob.innerHTML = Game.equipos[vicIdx].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
 }
+
 function finishLuchaRob(eqIdx, atkIdx) {
     const vicIdx = document.getElementById(`vic_sel_${eqIdx}_${atkIdx}`).value;
     const itIdx = document.getElementById(`item_to_rob_${eqIdx}_${atkIdx}`).value;
@@ -243,12 +264,15 @@ function finishLuchaRob(eqIdx, atkIdx) {
         updateScoreboard();
     }
 }
+
 function updateNightUI(eq) { document.getElementById(`n_ui_${eq}`).style.display = (document.getElementById(`n_act_${eq}`).value==='atk'?'block':'none'); }
+
 function loadNightItems(eq) {
     const v = document.getElementById(`n_vic_${eq}`).value;
     if(v==="") return;
     document.getElementById(`n_obj_${eq}`).innerHTML = Game.equipos[v].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
 }
+
 function processNightRobbery() {
     Game.equipos.forEach((e, i) => {
         if (document.getElementById(`n_act_${i}`).value === 'atk') {
@@ -261,12 +285,14 @@ function processNightRobbery() {
     });
     Game.paso = 5; render();
 }
+
 function updatePactUI() {
     let s = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
     if(s.length!==2) return;
     let ex = [0,1,2].find(i=>!s.includes(i));
     document.getElementById('pacto-area').innerHTML = `<div class="grid">${s.map(idx => `<div class="card"><h4>${Game.equipos[idx].nombre}</h4><select class="p-sel" data-eq="${idx}" multiple style="height:60px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}<div class="card"><h4>${Game.equipos[ex].nombre}</h4><select class="v-sel">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div>`;
 }
+
 function processPact() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
     if(ps.length!==2) return;
@@ -275,17 +301,18 @@ function processPact() {
     Game.equipos[ex].inventario.push({...PACTO_OBJ.find(x=>x.id===document.querySelector('.v-sel').value)});
     Game.equipos[ex].venganza = true; Game.paso = 6; render();
 }
+
 function generateFieldsHTML(n, eqIdx) {
-    let roles = (n==5)?["Ladrón","Dipl.","Luch.","Recol.","Comer."]:(n==4)?["Ladrón/Dipl.","Luch.","Recol.","Comer."]:["Ladrón/Dipl.","Luch/Rec.","Comer."];
-    return roles.map(r => `<span class="role-tag">${r}</span><input type="text">`).join("");
+    let roles = (n==5)?["Ladrón","Diplomático","Luchador","Recolector","Comerciante"]:(n==4)?["Ladrón/Dipl.","Luchador","Recolector","Comerciante"]:["Ladrón/Dipl.","Luch/Rec.","Comerciante"];
+    return roles.map(r => `<span class="role-tag">${r}</span><input type="text" placeholder="Nombre...">`).join("");
 }
+
 function updateFieldsUI(i) { 
     const val = parseInt(document.getElementById(`sz_${i}`).value);
     document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(val, i); 
 }
+
 window.onload = render;
 </script>
 </body>
 </html>
-
-
