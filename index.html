@@ -33,6 +33,8 @@
         .req-list { list-style: none; padding: 0; font-weight: bold; }
         .phase-list { padding-left: 18px; }
         .phase-list li { margin-bottom: 8px; }
+        /* Nueva sección para roles en el inicio */
+        .obj-guide { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -86,24 +88,29 @@ function render() {
                 <h3>📜 Guía de Supervivencia</h3>
                 <div class="manual-grid">
                     <div>
-                        <p><b>Meta:</b> Observar la interacción y toma de decisiones.</p>
                         <p><b>Mínimos para Sobrevivir:</b></p>
                         <ul class="req-list">
                             <li style="color:var(--danger)">🍎 4 Alimentos (Ali)</li>
                             <li style="color:var(--primary)">🛠️ 3 Utilidades (Uti)</li>
                             <li style="color:var(--info)">🧭 2 Orientación (Ori)</li>
                         </ul>
+                        <div class="obj-guide">
+                            <div><b>🎭 Ladrón:</b> Roba si no defienden.</div>
+                            <div><b>🤝 Diplomático:</b> Negocia el Pacto.</div>
+                            <div><b>⚔️ Luchador:</b> Ataca y arrebata.</div>
+                            <div><b>🎒 Comerciante:</b> Gestiona el mercado.</div>
+                            <div><b>🌿 Recolector:</b> Bonus de recolección.</div>
+                        </div>
                     </div>
                     <div>
                         <p><b>Fases de la Dinámica:</b></p>
                         <ol class="phase-list">
-                            <li>Registro</li>
-                            <li>Planeación</li>
+                            <li>Registro de Jugadores</li>
+                            <li>Planeación de Recursos</li>
                             <li>Robo Nocturno</li>
-                            <li>El Pacto y Lucha</li>
-                             <li>Lucha</li>
-                             <li>Recolección</li>
-                            <li>Mercado</li>
+                            <li>El Pacto y La Lucha</li>
+                            <li>Recolección de la Isla</li>
+                            <li>Mercado de Intercambio</li>
                         </ol>
                     </div>
                 </div>
@@ -153,12 +160,11 @@ function render() {
                 <div id="fields_${i}">${generateFieldsHTML(5)}</div>
             </div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
     }
-    // Resto de la lógica de renderizado permanece idéntica a la versión anterior para no simplificar el código
     else if (Game.paso === 3) {
         ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona 2 objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona los objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
     }
     else if (Game.paso === 4) {
         ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><p class="instruction">El ladrón decide su acción. (Ctrl+Click para víctimas/objetos).</p><div class="grid">${Game.equipos.map((e, i) => {
@@ -395,6 +401,7 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
 
 
