@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>La Isla - Versión Profesional</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f3; padding: 25px; color: #333; }
-        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        h2 { color: #2c3e50; margin-top: 0; }
-        .tagline { font-style: italic; color: #555; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 15px; }
-        .equipo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .jugador-row { margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee; }
-        button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #2980b9; }
-        select { margin: 5px 0; padding: 5px; width: 100%; }
-        .log { background: #111; color: #0f0; height: 150px; overflow: auto; padding: 12px; margin-top: 20px; font-family: monospace; font-size: 13px; border-radius: 8px; }
-    </style>
+<meta charset="UTF-8">
+<title>La Isla - Dinámica de Liderazgo</title>
+
+<style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f3; padding: 25px; color: #333; }
+    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    h2 { color: #2c3e50; margin-top: 0; }
+    .tagline { font-style: italic; color: #555; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 15px; }
+    .equipo-grid { display: grid; grid-gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    
+    .jugador-row { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .rol-tag { background: #e1f5fe; color: #0277bd; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; margin-right: 5px; }
+    
+    button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #2980b9; }
+    
+    select, input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
+    
+    .puntos-badge { background: #2c3e50; color: #fff; padding: 5px 10px; border-radius: 20px; font-size: 0.9em; display: inline-block; margin-top: 10px; }
+    
+    .log { background: #111; color: #0f0; height: 120px; overflow: auto; padding: 12px; margin-top: 20px; font-family: monospace; font-size: 13px; border-radius: 8px; }
+</style>
 </head>
+
 <body>
 
 <div id="app"></div>
-<div class="log" id="log">>> Sistema iniciado. Esperando configuración de equipos...</div>
+<div class="log" id="log">>> Sistema iniciado. Esperando configuración...</div>
 
 <script>
 /* ============================
@@ -30,7 +39,8 @@ const Game = {
     roles: ["Ladrón", "Luchador", "Diplomático", "Comerciante", "Recolector"],
     grupos: ["Alfa", "Beta", "Omega"].map(nombre => ({
         nombre,
-        miembros: [] // Se llenará dinámicamente
+        miembros: [],
+        puntos: { ali: 0, uti: 0, ori: 0 }
     }))
 };
 
@@ -41,11 +51,12 @@ function logger(msg) {
 }
 
 /* ============================
-RENDER
+RENDER PRINCIPAL
 ============================ */
 function render() {
     let html = "";
 
+    /* --- FASE 0: BIENVENIDA Y NOMBRES --- */
     if (Game.fase === 0) {
         html += `
             <h2>🏝 La Isla - Dinámica Grupal</h2>
@@ -53,46 +64,40 @@ function render() {
             
             <div class="card">
                 <h3>Configuración de Equipos</h3>
-                <p><small>Mínimo 3, máximo 5 jugadores por equipo. Deja en blanco para menos de 5.</small></p>
-                <div class="equipo-grid">
-        `;
+                <p>Ingresa los nombres de los integrantes (mínimo 3 por equipo).</p>
+                <div class="equipo-grid">`;
 
         Game.grupos.forEach((g, i) => {
             html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
             for (let j = 0; j < 5; j++) {
-                html += `
-                    <div class="jugador-row">
-                        <label>Jugador ${j + 1}:</label><br>
-                        <input type="text" id="input_${i}_${j}" placeholder="Nombre del participante">
-                    </div>`;
+                html += `<input type="text" id="in_${i}_${j}" placeholder="Jugador ${j+1}">`;
             }
             html += `</div>`;
         });
 
-        html += `</div><button onclick="guardarJugadores()">Comenzar dinámica</button></div>`;
+        html += `</div><button onclick="guardarJugadores()">Comenzar Dinámica</button></div>`;
     }
 
+    /* --- FASE 1: ASIGNACIÓN DE ROLES --- */
     if (Game.fase === 1) {
         html += `<h2>Asignación de Roles</h2>
-                 <p class="tagline">Seleccionen sus especialidades. Recuerden: algunos jugadores deben asumir doble responsabilidad.</p>
+                 <p class="tagline">Distribuyan las responsabilidades. Algunos jugadores tendrán doble rol según el tamaño del equipo.</p>
                  <div class="equipo-grid">`;
 
         Game.grupos.forEach((g, gIdx) => {
             html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
-            
             const total = g.miembros.length;
 
             g.miembros.forEach((m, jIdx) => {
-                // Lógica de cantidad de roles solicitada
                 let cantRoles = 1;
+                // REGLA SOLICITADA:
                 if (total === 3 && (jIdx === 0 || jIdx === 1)) cantRoles = 2;
                 if (total === 4 && jIdx === 0) cantRoles = 2;
 
                 html += `<div class="jugador-row"><strong>${m.nombre}</strong> (Elige ${cantRoles})`;
-                
                 for(let r=0; r < cantRoles; r++) {
                     html += `
-                        <select class="sel-rol" data-grupo="${gIdx}" id="rol_${gIdx}_${jIdx}_${r}">
+                        <select id="rol_${gIdx}_${jIdx}_${r}">
                             <option value="">-- Seleccionar Rol --</option>
                             ${Game.roles.map(rol => `<option value="${rol}">${rol}</option>`).join("")}
                         </select>`;
@@ -102,30 +107,51 @@ function render() {
             html += `</div>`;
         });
 
-        html += `</div><button onclick="guardarRoles()">Finalizar Configuración</button>`;
+        html += `</div><button onclick="guardarRoles()">Confirmar Roles y Continuar</button>`;
     }
 
+    /* --- FASE 2: SELECCIÓN DE OBJETOS --- */
     if (Game.fase === 2) {
-        html += `
-            <div class="card" style="text-align:center">
-                <h2>¡Dinámica Iniciada!</h2>
-                <p>Los roles han sido asignados estratégicamente. Revisen el log para ver la distribución final.</p>
-                <button onclick="location.reload()">Reiniciar</button>
+        html += `<h2>Fase de Equipamiento</h2>
+                 <p class="tagline">Elijan un objeto clave para su equipo. Los puntos se actualizarán según su elección.</p>
+                 <div class="equipo-grid">`;
+
+        Game.grupos.forEach((g, i) => {
+            html += `
+            <div class="card">
+                <h4>Equipo ${g.nombre}</h4>
+                <div class="puntos-badge">🍎: ${g.puntos.ali} | 🛠: ${g.puntos.uti} | 🧭: ${g.puntos.ori}</div>
+                <p><small>Roles: ${g.miembros.flatMap(m => m.roles).join(", ")}</small></p>
+                
+                <select id="obj_${i}">
+                    <option value="">-- Selecciona un objeto --</option>
+                    <option value="pesca">Kit de Pesca (+2 Alimentación)</option>
+                    <option value="brujula">Brújula Pro (+2 Orientación)</option>
+                    <option value="herramientas">Caja de Herramientas (+2 Utilidad)</option>
+                </select>
+                <br>
+                <button onclick="aplicarObjeto(${i})" style="margin-top:10px; padding:5px 10px; font-size:12px;">Aplicar Objeto</button>
             </div>`;
+        });
+
+        html += `</div><div style="text-align:center; margin-top:20px;">
+                    <button onclick="location.reload()" style="background:#7f8c8d;">Reiniciar Todo</button>
+                 </div>`;
     }
 
     document.getElementById("app").innerHTML = html;
 }
 
 /* ============================
-CONTROLADORES
+CONTROLADORES DE LÓGICA
 ============================ */
+
 function guardarJugadores() {
     let error = false;
     Game.grupos.forEach((g, i) => {
-        g.miembros = []; // Reset
+        g.miembros = [];
         for (let j = 0; j < 5; j++) {
-            let nombre = document.getElementById(`input_${i}_${j}`).value.trim();
+            let nombre = document.getElementById(`in_${i}_${j}`).value.trim();
             if (nombre) g.miembros.push({ nombre: nombre, roles: [] });
         }
         if (g.miembros.length < 3) {
@@ -136,44 +162,50 @@ function guardarJugadores() {
 
     if (!error) {
         Game.fase = 1;
-        logger("Jugadores registrados. Pasando a selección de roles.");
+        logger("Jugadores registrados. Procediendo a la elección de roles.");
         render();
     }
 }
 
 function guardarRoles() {
     let errorMsg = "";
-    
     Game.grupos.forEach((g, gIdx) => {
         let usados = new Set();
-        
         g.miembros.forEach((m, jIdx) => {
             const selects = document.querySelectorAll(`[id^="rol_${gIdx}_${jIdx}_"]`);
             m.roles = [];
-            
             selects.forEach(sel => {
-                let rVal = sel.value;
-                if (!rVal) errorMsg = "Todos los jugadores deben tener sus roles asignados.";
-                if (usados.has(rVal)) errorMsg = `Conflicto en equipo ${g.nombre}: El rol '${rVal}' está repetido.`;
-                usados.add(rVal);
-                m.roles.push(rVal);
+                if (!sel.value) errorMsg = "Faltan roles por asignar.";
+                if (usados.has(sel.value)) errorMsg = `Rol repetido en equipo ${g.nombre}: ${sel.value}`;
+                usados.add(sel.value);
+                m.roles.push(sel.value);
             });
         });
     });
 
-    if (errorMsg) {
-        alert(errorMsg);
-        return;
-    }
+    if (errorMsg) { alert(errorMsg); return; }
 
-    logger("Roles asignados correctamente. Equipos listos para la isla.");
-    Game.fase = 2;
+    Game.fase = 2; // PASA A OBJETOS, NO REINICIA
+    logger("Roles confirmados. Pasando a la fase de equipamiento.");
     render();
+}
+
+function aplicarObjeto(gIdx) {
+    const obj = document.getElementById(`obj_${gIdx}`).value;
+    const g = Game.grupos[gIdx];
+
+    if (!obj) return;
+
+    if (obj === "pesca") g.puntos.ali += 2;
+    if (obj === "brujula") g.puntos.ori += 2;
+    if (obj === "herramientas") g.puntos.uti += 2;
+
+    logger(`Equipo ${g.nombre} sumó puntos por objeto.`);
+    render(); // Actualiza la UI para mostrar los nuevos puntos
 }
 
 render();
 </script>
 </body>
 </html>
-
 
