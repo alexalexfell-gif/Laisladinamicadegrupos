@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>La Isla - Dinámica grupal</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; max-width: 900px; margin: auto; }
-    h1, h2, h3 { text-align: center; margin: 5px 0; }
-    h1 { font-size: 2em; }
-    h2 { font-size: 1.2em; color: #555; }
-    h3 { font-size: 1em; color: #777; margin-bottom: 20px; }
-    hr { margin: 20px 0; }
-    textarea { width: 100%; height: 150px; padding: 10px; margin-bottom: 15px; resize: vertical; }
-    input, button, select { padding: 10px; margin-top: 10px; font-size: 1em; }
-    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    .grupo { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    ul { padding-left: 20px; }
-    .objetos { margin-top: 10px; font-style: italic; color: #333; }
-    .instrucciones { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .pasos { background: #fff; padding: 15px; border-radius: 8px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .contenido { display:none; padding:10px; background:#f9f9f9; border-radius:5px; margin-top:5px; }
-    .paso button { width:100%; text-align:left; padding:10px; font-size:1em; cursor:pointer; border:none; background:#ddd; border-radius:5px; margin-top:5px; }
-  </style>
+<meta charset="UTF-8">
+<title>La Isla - Dinámica grupal</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; max-width: 900px; margin: auto; }
+h1, h2, h3 { text-align: center; margin: 5px 0; }
+h1 { font-size: 2em; }
+h2 { font-size: 1.2em; color: #555; }
+h3 { font-size: 1em; color: #777; margin-bottom: 20px; }
+hr { margin: 20px 0; }
+textarea { width: 100%; height: 150px; padding: 10px; margin-bottom: 15px; resize: vertical; }
+input, button, select { padding: 10px; margin-top: 10px; font-size: 1em; }
+button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+button:disabled { background-color: #aaa; cursor: default; }
+.grupo { background: white; padding: 15px; margin: 15px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+ul { padding-left: 20px; }
+.objetos { margin-top: 10px; font-style: italic; color: #333; }
+.paso-contenido { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 20px; min-height: 120px; }
+.nav-btns { text-align: center; margin-top: 10px; }
+</style>
 </head>
 <body>
 
@@ -30,20 +29,6 @@
 <hr>
 
 <div class="instrucciones">
-  <h2>Instrucciones Generales</h2>
-  <p>Modalidad: Juego estratégico con negociación, intercambio, conflicto y supervivencia.</p>
-  <p>Objetivo: Planificación colectiva, negociación interna y externa, manejo del conflicto y gestión de recursos.</p>
-  <p>Preparación: 3 zonas separadas, hojas grandes, tarjetas de recursos y papel/bolígrafo.</p>
-  <p>Sistema de recursos:</p>
-  <ul>
-    <li>Alimentación (mínimo 4 puntos): Agua(1), Frutas(1), Comida enlatada(1), Caña de pescar(2 – especial)</li>
-    <li>Utilidad (mínimo 3 puntos): Botiquín, Cuerda, Martillo, Lona, Encendedor(1), Mochila(2 – especial)</li>
-    <li>Orientación (mínimo 2 puntos): Mapa(1), Radio(1), Brújula(2 – especial)</li>
-  </ul>
-  <p>Objetos de rol: Machete, Antifaz, Maletín, Alianza militar, Guantes.</p>
-  <p>Roles del equipo: Comerciante, Diplomático, Luchador, Ladrón, Recolector.</p>
-</div>
-
 <label>Participantes (uno por línea, máximo 15):</label>
 <textarea id="participantes" placeholder="Ej: Juan Pérez&#10;María López&#10;Pedro González"></textarea>
 <br>
@@ -52,121 +37,66 @@
 <br><br>
 <button onclick="generarGrupos()">Generar Grupos y Asignar Roles</button>
 <div id="resultado"></div>
+</div>
 
-<div class="pasos">
-  <h2>Desarrollo del juego</h2>
+<div class="paso-contenido" id="pasoContenido">
+  <!-- Aquí se mostrará el paso actual -->
+</div>
 
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 1: Introducción</button>
-    <div class="contenido">
-      3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.<br>
-      Objetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.<br>
-      Pueden obtenerse objetos repetidos a través del robo, el comercio o la lucha.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 2: Formación de equipo y roles</button>
-    <div class="contenido">
-      Asignación de roles. Cada jugador obtendrá un rol con el que participará en cada paso de la dinámica.<br>
-      Definición del liderazgo del grupo (autoritario vs democrático) y la relación con los demás grupos (cooperación vs competición).
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 3: Planeación inicial</button>
-    <div class="contenido">
-      Selección de 5 recursos entre los 10 iniciales. Los otros 5 los mantiene el Recolector temporalmente (no cuentan para la puntuación grupal).<br>
-      Selección de 2 objetos de rol por cada grupo.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 4: Robo nocturno</button>
-    <div class="contenido">
-      Los Ladrones de cada equipo pueden decidir robar un objeto de otro equipo o proteger los objetos de su equipo evitando robos.<br>
-      Dos Ladrones pueden robar al mismo equipo.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 5: Pacto</button>
-    <div class="contenido">
-      Los Diplomáticos negocian entre sí. Aquellos dos que logren alcanzar un pacto deben darse la mano.<br>
-      Obtendrán cada uno 2 recursos especiales a elegir. El Diplomático que no llegue a un pacto solo podrá elegir 1 recurso especial.<br>
-      En caso de no llegarse a un pacto todos los Diplomáticos obtendrán 1 recurso especial.<br>
-      En caso de que se forme una Alianza militar entre dos equipos, los Luchadores de ambos no podrán atacarse entre sí en el siguiente paso.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 6: Combate</button>
-    <div class="contenido">
-      Los Luchadores combaten entre sí. Cada Luchador dispone de un ataque.<br>
-      Ataque exitoso: roba un objeto del equipo contrario.<br>
-      Defensa exitosa: no se pierden objetos.<br>
-      En caso de empate se repite hasta que atacante o defensor tengan éxito.<br>
-      Venganza: El luchador del equipo excluido del pacto del Paso 5 ataca 2 veces.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 7: Recolección</button>
-    <div class="contenido">
-      Los Recolectores de todos los equipos se reunirán llevando consigo los 5 objetos descartados inicialmente.<br>
-      De esta pila de 15 objetos, cada uno podrá elegir 2 objetos.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 8: Intercambio</button>
-    <div class="contenido">
-      Los Comerciantes elegirán dos objetos para intercambiar con los demás equipos.
-    </div>
-  </div>
-
-  <div class="paso">
-    <button onclick="togglePaso(this)">Paso 9: Decisión final</button>
-    <div class="contenido">
-      Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica.
-    </div>
-  </div>
-
+<div class="nav-btns">
+<button id="prevBtn" onclick="cambiarPaso(-1)" disabled>Anterior</button>
+<button id="nextBtn" onclick="cambiarPaso(1)">Siguiente</button>
 </div>
 
 <script>
 const roles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
 const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
+let pasoActual = 0;
 
+const pasos = [
+  {titulo:"Paso 1: Introducción", contenido:"3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos. Cada objeto tiene una puntuación de 1 o 2 puntos en una categoría determinada.\nObjetivos a reunir: 4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación.\nPueden obtenerse objetos repetidos a través del robo, el comercio o la lucha."},
+  {titulo:"Paso 2: Formación de equipo y roles", contenido:"Asignación de roles. Cada jugador obtendrá un rol con el que participará en cada paso de la dinámica.\nDefinición del liderazgo del grupo (autoritario vs democrático) y la relación con los demás grupos (cooperación vs competición)."},
+  {titulo:"Paso 3: Planeación inicial", contenido:"Selección de 5 recursos entre los 10 iniciales. Los otros 5 los mantiene el Recolector temporalmente (no cuentan para la puntuación grupal).\nSelección de 2 objetos de rol por cada grupo."},
+  {titulo:"Paso 4: Robo nocturno", contenido:"Los Ladrones de cada equipo pueden decidir robar un objeto de otro equipo o proteger los objetos de su equipo evitando robos.\nDos Ladrones pueden robar al mismo equipo."},
+  {titulo:"Paso 5: Pacto", contenido:"Los Diplomáticos negocian entre sí. Aquellos dos que logren alcanzar un pacto deben darse la mano.\nObtendrán cada uno 2 recursos especiales a elegir. El Diplomático que no llegue a un pacto solo podrá elegir 1 recurso especial.\nEn caso de no llegarse a un pacto todos los Diplomáticos obtendrán 1 recurso especial.\nEn caso de que se forme una Alianza militar entre dos equipos, los Luchadores de ambos no podrán atacarse entre sí en el siguiente paso."},
+  {titulo:"Paso 6: Combate", contenido:"Los Luchadores combaten entre sí. Cada Luchador dispone de un ataque.\nAtaque exitoso: roba un objeto del equipo contrario.\nDefensa exitosa: no se pierden objetos.\nEn caso de empate se repite hasta que atacante o defensor tengan éxito.\nVenganza: El luchador del equipo excluido del pacto del Paso 5 ataca 2 veces."},
+  {titulo:"Paso 7: Recolección", contenido:"Los Recolectores de todos los equipos se reunirán llevando consigo los 5 objetos descartados inicialmente.\nDe esta pila de 15 objetos, cada uno podrá elegir 2 objetos."},
+  {titulo:"Paso 8: Intercambio", contenido:"Los Comerciantes elegirán dos objetos para intercambiar con los demás equipos."},
+  {titulo:"Paso 9: Decisión final", contenido:"Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica."},
+];
+
+// Función para mostrar el paso actual
+function mostrarPaso(){
+  const paso = pasos[pasoActual];
+  document.getElementById("pasoContenido").innerText = `${paso.titulo}\n\n${paso.contenido}`;
+  document.getElementById("prevBtn").disabled = pasoActual === 0;
+  document.getElementById("nextBtn").disabled = pasoActual === pasos.length - 1;
+}
+
+function cambiarPaso(direccion){
+  pasoActual += direccion;
+  if(pasoActual < 0) pasoActual = 0;
+  if(pasoActual >= pasos.length) pasoActual = pasos.length - 1;
+  mostrarPaso();
+}
+
+// Generar grupos y asignar roles con objetos
 function generarGrupos() {
   const nombres = document.getElementById("participantes")
     .value.split("\n")
     .filter(n => n.trim() !== "");
-
   const numGrupos = parseInt(document.getElementById("numGrupos").value);
+  if(nombres.length === 0){ alert("Introduce al menos un participante"); return; }
+  if(nombres.length > 15){ alert("Máximo 15 participantes"); return; }
 
-  if(nombres.length === 0){
-    alert("Introduce al menos un participante");
-    return;
-  }
-  if(nombres.length > 15){
-    alert("Máximo 15 participantes");
-    return;
-  }
-
-  // Mezclar nombres
   for (let i = nombres.length -1; i>0; i--){
     const j = Math.floor(Math.random() * (i+1));
     [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
   }
 
   let grupos = Array.from({length: numGrupos}, ()=>[]);
+  nombres.forEach((nombre,index)=>{ grupos[index % numGrupos].push(nombre); });
 
-  nombres.forEach((nombre,index)=>{
-    grupos[index % numGrupos].push(nombre);
-  });
-
-  // Mostrar resultados con selección de objetos
   let html = "";
   grupos.forEach((grupo,i)=>{
     const grupoNum = i+1;
@@ -176,65 +106,40 @@ function generarGrupos() {
       html += `<li>${p} - <strong>${rolAsignado}</strong></li>`;
     });
     html += `</ul><p>Elegir objetos de rol:</p>`;
-
-    // Primer objeto con onchange
     html += `<select id="grupo${grupoNum}-obj1" onchange="actualizarOpciones(${grupoNum})">
       <option value="">--Seleccionar--</option>`;
     objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
     html += `</select>`;
-
-    // Segundo objeto
-    html += `<select id="grupo${grupoNum}-obj2">
-      <option value="">--Seleccionar--</option>`;
+    html += `<select id="grupo${grupoNum}-obj2"><option value="">--Seleccionar--</option>`;
     objetosRol.forEach(obj => html += `<option value="${obj}">${obj}</option>`);
     html += `</select>`;
-
     html += ` <button onclick="guardarObjetos(${grupoNum})">Guardar objetos del grupo ${grupoNum}</button>`;
-    html += `<p id="grupo${grupoNum}-objetos-asignados" class="objetos"></p>`;
-    html += `</div>`;
+    html += `<p id="grupo${grupoNum}-objetos-asignados" class="objetos"></p></div>`;
   });
-
   document.getElementById("resultado").innerHTML = html;
 }
 
-// Guardar objetos elegidos
 function guardarObjetos(numGrupo){
   const obj1 = document.getElementById(`grupo${numGrupo}-obj1`).value;
   const obj2 = document.getElementById(`grupo${numGrupo}-obj2`).value;
-
-  if(obj1 === "" || obj2 === ""){
-    alert("Selecciona ambos objetos de rol");
-    return;
-  }
-  if(obj1 === obj2){
-    alert("No se puede seleccionar el mismo objeto dos veces");
-    return;
-  }
-
+  if(obj1 === "" || obj2 === ""){ alert("Selecciona ambos objetos de rol"); return; }
+  if(obj1 === obj2){ alert("No se puede seleccionar el mismo objeto dos veces"); return; }
   document.getElementById(`grupo${numGrupo}-objetos-asignados`).innerText =
     `Objetos elegidos: ${obj1}, ${obj2}`;
 }
 
-// Evitar duplicar objeto en obj2
 function actualizarOpciones(grupoNum){
   const obj1 = document.getElementById(`grupo${grupoNum}-obj1`).value;
   const obj2Select = document.getElementById(`grupo${grupoNum}-obj2`);
-
-  // Restaurar todas las opciones
   Array.from(obj2Select.options).forEach(opt => opt.disabled = false);
-
-  // Deshabilitar la opción seleccionada en obj1
   if(obj1 !== ""){
     const opt = Array.from(obj2Select.options).find(o => o.value === obj1);
     if(opt) opt.disabled = true;
   }
 }
 
-// Función para desplegar pasos
-function togglePaso(btn){
-  const contenido = btn.nextElementSibling;
-  contenido.style.display = contenido.style.display === "none" ? "block" : "none";
-}
+// Mostrar primer paso al cargar
+mostrarPaso();
 </script>
 
 </body>
