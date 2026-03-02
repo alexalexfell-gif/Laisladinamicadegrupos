@@ -1,38 +1,75 @@
-# 🏝️ LA ISLA - Herramienta de Apoyo Visual
+La Isla- Herramienta de Soporte Visual
 
-**Autor:** Alejandro Scuro Rossi  
-**Versión:** 1.0 (Prototipo Experimental)
+Autor: Alejandro Scuro Rossi
+Versión: 1.0 (Prototipo Experimental)
 
-## 📋 Descripción
-"La Isla" es una aplicación web interactiva diseñada como **recurso de apoyo visual para dinámicas grupales**. La herramienta permite a un facilitador gestionar una simulación de supervivencia por turnos, facilitando el seguimiento de recursos, roles y acciones de los participantes en un entorno gamificado.
+📋 Descripción
 
-Esta herramienta se ejecuta completamente en el navegador (**Client-Side**), lo que garantiza la privacidad de los datos, ya que no se almacena información en servidores externos.
+"La Isla" es una aplicación web interactiva diseñada como un recurso de soporte visual para dinámicas grupales. La herramienta permite que un facilitador gestione una simulación de supervivencia por turnos, facilitando el seguimiento de recursos, roles y acciones de los participantes dentro de un entorno gamificado.
 
----
+Esta aplicación se ejecuta completamente en el navegador (Client-Side), garantizando la privacidad de los datos, ya que no se almacena ni se envía información a servidores externos.
+Este proyecto es una herramienta de simulación experimental y no está destinado a la toma de decisiones operativas.
 
-## ⚠️ AVISO LEGAL Y TÉRMINOS DE USO (DISCLAIMER)
+⚠️ DESCARGO LEGAL Y TÉRMINOS DE USO
 
-Esta herramienta, **"La Isla"**, es un **prototipo experimental y educativo** desarrollado por **Alejandro Scuro Rossi**. 
+Esta herramienta, "The Island", es un prototipo experimental y educativo desarrollado por Alejandro Scuro Rossi.
 
-1. **Sin Garantía:** El software se entrega "tal cual" (as is), sin garantías de ningún tipo, expresas o implícitas. El autor no garantiza la exactitud, fiabilidad o idoneidad de la simulación para procesos profesionales.
-2. **Limitación de Responsabilidad:** Bajo ninguna circunstancia el autor será responsable de decisiones de contratación, resultados de gestión de talento, evaluaciones de desempeño o cualquier daño derivado del uso de esta herramienta. 
-3. **Interpretación Profesional:** Esta dinámica está concebida exclusivamente como un apoyo visual. Cualquier conclusión extraída de su uso debe ser interpretada y validada por un profesional cualificado en la materia.
-4. **Naturaleza del Proyecto:** Al utilizar este software, el usuario reconoce su naturaleza experimental y acepta utilizarlo bajo su propia cuenta y riesgo.
-5. El autor no asume responsabilidad por usos del software fuera del contexto educativo o facilitación grupal.
-6. Esta herramienta no está diseñada ni validada para diagnósticos psicológicos, selección de personal o certificación de competencias.
+Sin Garantía: El software se proporciona "tal cual", sin garantía de ningún tipo, expresa o implícita. El autor no garantiza la precisión, fiabilidad o idoneidad de la simulación para procesos profesionales.
 
----
+Limitación de Responsabilidad: En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento, evaluaciones de desempeño o cualquier daño derivado del uso de esta herramienta.
 
-## 🛠️ Características Técnicas
-- **Lenguajes:** HTML5, CSS3 y JavaScript (Vanilla JS).
-- **Privacidad:** No utiliza cookies ni bases de datos. Los nombres y datos introducidos desaparecen al recargar la página.
-- **Arquitectura:** Aplicación de una sola página (SPA).
+Interpretación Profesional: Esta dinámica está destinada exclusivamente como ayuda visual. Cualquier conclusión derivada de su uso debe ser interpretada y validada por un profesional cualificado en el área.
 
-## 🚀 Instalación y Uso
-No requiere instalación. 
-1. Clona este repositorio o descarga el archivo `index.html`.
-2. Abre `index.html` en cualquier navegador moderno.
-3. Sigue las fases indicadas en la pantalla de inicio.
+Naturaleza del Proyecto: Al utilizar este software, el usuario reconoce su naturaleza experimental y acepta usarlo bajo su propio riesgo.
 
-## 📄 Licencia
-Este proyecto está bajo la **Licencia MIT**. Esto permite el uso, copia y modificación del software, siempre que se mantenga el aviso de copyright y la limitación de responsabilidad del autor original.
+El autor no asume ninguna responsabilidad por usos del software fuera del contexto educativo o de facilitación grupal.
+
+Esta herramienta no está diseñada ni validada para diagnóstico psicológico, selección de personal o certificación de competencias.
+
+🛠️ Especificaciones Técnicas
+
+Lenguajes: HTML5, CSS3 y JavaScript (JavaScript puro - Vanilla JS).
+
+Privacidad: No utiliza cookies ni bases de datos. Los nombres y datos introducidos desaparecen al refrescar la página.
+
+Arquitectura: Aplicación de una sola página (SPA - Single Page Application).
+
+🚀 Instalación y Uso
+
+No requiere instalación.
+
+Clonar este repositorio o descargar el archivo index.html.
+
+Abrir index.html en cualquier navegador web moderno.
+
+Seguir las fases indicadas en la pantalla de inicio.
+
+📄 Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT. Esto permite el uso, copia y modificación del software, siempre que se mantenga el aviso de copyright original y la limitación de responsabilidad del autor.
+
+AVISO LEGAL, ÉTICO Y DE RESPONSABILIDAD
+
+Este software, "The Island", es una herramienta experimental educativa y de visualización diseñada para apoyar procesos de facilitación grupal mediante una simulación gamificada de supervivencia.
+
+La aplicación está destinada a asistir la interpretación humana de dinámicas de interacción dentro de actividades grupales. Expresamente no es un sistema de diagnóstico psicológico, evaluación de talento, selección laboral o sistema de certificación de competencias.
+
+La herramienta no genera juicios automatizados sobre individuos o grupos. Todas las interpretaciones de los resultados de la simulación deben ser realizadas por un profesional cualificado utilizando juicio independiente.
+
+El software se ejecuta exclusivamente del lado del cliente. No se transmite información personal a servidores externos y no se implementa almacenamiento persistente en bases de datos. La información introducida por el usuario, como nombres de participantes y decisiones durante la sesión, se almacena únicamente de forma temporal en la memoria del navegador durante la sesión activa y se elimina automáticamente cuando la sesión finaliza, cuando la página se refresca o cuando se cierra la pestaña del navegador.
+
+Debido a que el sistema se distribuye como código fuente con fines educativos y experimentales, el autor no puede garantizar la seguridad de los entornos de ejecución, plataformas de alojamiento o modificaciones de terceros del software después de su despliegue.
+
+El software se proporciona "tal cual", sin garantía de ningún tipo, incluyendo pero no limitándose a garantías implícitas de comerciabilidad, idoneidad para un propósito particular o fiabilidad de los resultados de la simulación.
+
+En ningún caso el autor será responsable de decisiones, acciones organizacionales, procesos de contratación, gestión de talento, calificaciones educativas, interpretaciones psicológicas, uso comercial o cualquier daño indirecto derivado del uso de esta herramienta.
+
+Este proyecto está destinado únicamente a contextos educativos, de investigación o de apoyo a la facilitación grupal. El uso de este software fuera de esos contextos no está respaldado por el autor.
+
+Los usuarios son responsables de garantizar el cumplimiento de las regulaciones de privacidad y protección de datos aplicables en su jurisdicción, incluyendo requisitos de consentimiento y manejo ético de la información de los participantes.
+
+Cualquier conclusión, interpretación conductual o decisión organizacional derivada del uso de este software debe ser validada de forma independiente por profesionales cualificados.
+
+La modificación no autorizada del código fuente, la redistribución sin la atribución correspondiente o el despliegue en entornos que introduzcan mecanismos de seguimiento, recolección de datos o análisis adicionales no está respaldada.
+
+Al utilizar este software, el usuario reconoce que el proyecto es experimental y asume plena responsabilidad por su uso.
