@@ -1,312 +1,179 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>La Isla - Versión Profesional</title>
-
-<style>
-
-body{
-font-family: Arial;
-background:#eef2f3;
-padding:25px;
-}
-
-.card{
-background:white;
-border-radius:12px;
-padding:18px;
-margin-bottom:15px;
-box-shadow:0 0 8px rgba(0,0,0,0.08);
-}
-
-button{
-padding:10px 18px;
-margin-top:15px;
-cursor:pointer;
-}
-
-.log{
-background:#111;
-color:#0f0;
-height:200px;
-overflow:auto;
-padding:12px;
-margin-top:20px;
-font-size:13px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <title>La Isla - Versión Profesional</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f3; padding: 25px; color: #333; }
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        h2 { color: #2c3e50; margin-top: 0; }
+        .tagline { font-style: italic; color: #555; margin-bottom: 20px; border-left: 4px solid #3498db; padding-left: 15px; }
+        .equipo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .jugador-row { margin-bottom: 10px; padding: 10px; border-bottom: 1px solid #eee; }
+        button { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        select { margin: 5px 0; padding: 5px; width: 100%; }
+        .log { background: #111; color: #0f0; height: 150px; overflow: auto; padding: 12px; margin-top: 20px; font-family: monospace; font-size: 13px; border-radius: 8px; }
+    </style>
 </head>
-
 <body>
 
 <div id="app"></div>
-<div class="log" id="log"></div>
+<div class="log" id="log">>> Sistema iniciado. Esperando configuración de equipos...</div>
 
 <script>
-
 /* ============================
 ESTADO DEL JUEGO
 ============================ */
-
 const Game = {
-
-fase:0,
-
-roles:[
-"Ladrón",
-"Luchador",
-"Diplomático",
-"Comerciante",
-"Recolector"
-],
-
-grupos:["Alfa","Beta","Omega"].map(nombre=>({
-
-nombre,
-
-miembros:Array(5).fill().map(()=>({
-nombre:"",
-roles:[]
-})),
-
-recursos:[]
-
-}))
-
+    fase: 0,
+    roles: ["Ladrón", "Luchador", "Diplomático", "Comerciante", "Recolector"],
+    grupos: ["Alfa", "Beta", "Omega"].map(nombre => ({
+        nombre,
+        miembros: [] // Se llenará dinámicamente
+    }))
 };
+
+function logger(msg) {
+    const logDiv = document.getElementById("log");
+    logDiv.innerHTML += `<br>> ${msg}`;
+    logDiv.scrollTop = logDiv.scrollHeight;
+}
 
 /* ============================
 RENDER
 ============================ */
+function render() {
+    let html = "";
 
-function render(){
+    if (Game.fase === 0) {
+        html += `
+            <h2>🏝 La Isla - Dinámica Grupal</h2>
+            <p class="tagline">Dinámica adecuada para la evaluación de <strong>liderazgo</strong>, <strong>trabajo en equipo</strong> y <strong>estrategia</strong>.</p>
+            
+            <div class="card">
+                <h3>Configuración de Equipos</h3>
+                <p><small>Mínimo 3, máximo 5 jugadores por equipo. Deja en blanco para menos de 5.</small></p>
+                <div class="equipo-grid">
+        `;
 
-let html="";
+        Game.grupos.forEach((g, i) => {
+            html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
+            for (let j = 0; j < 5; j++) {
+                html += `
+                    <div class="jugador-row">
+                        <label>Jugador ${j + 1}:</label><br>
+                        <input type="text" id="input_${i}_${j}" placeholder="Nombre del participante">
+                    </div>`;
+            }
+            html += `</div>`;
+        });
 
-/* ===== INTRO ===== */
+        html += `</div><button onclick="guardarJugadores()">Comenzar dinámica</button></div>`;
+    }
 
-if(Game.fase===0){
+    if (Game.fase === 1) {
+        html += `<h2>Asignación de Roles</h2>
+                 <p class="tagline">Seleccionen sus especialidades. Recuerden: algunos jugadores deben asumir doble responsabilidad.</p>
+                 <div class="equipo-grid">`;
 
-html+=`
-<h2>🏝 La Isla - Dinámica grupal profesional</h2>
+        Game.grupos.forEach((g, gIdx) => {
+            html += `<div class="card"><h4>Equipo ${g.nombre}</h4>`;
+            
+            const total = g.miembros.length;
 
-<p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
+            g.miembros.forEach((m, jIdx) => {
+                // Lógica de cantidad de roles solicitada
+                let cantRoles = 1;
+                if (total === 3 && (jIdx === 0 || jIdx === 1)) cantRoles = 2;
+                if (total === 4 && jIdx === 0) cantRoles = 2;
 
-<div class="card">
+                html += `<div class="jugador-row"><strong>${m.nombre}</strong> (Elige ${cantRoles})`;
+                
+                for(let r=0; r < cantRoles; r++) {
+                    html += `
+                        <select class="sel-rol" data-grupo="${gIdx}" id="rol_${gIdx}_${jIdx}_${r}">
+                            <option value="">-- Seleccionar Rol --</option>
+                            ${Game.roles.map(rol => `<option value="${rol}">${rol}</option>`).join("")}
+                        </select>`;
+                }
+                html += `</div>`;
+            });
+            html += `</div>`;
+        });
 
-<h3>Introducción</h3>
+        html += `</div><button onclick="guardarRoles()">Finalizar Configuración</button>`;
+    }
 
-<p>
-Tras un naufragio, tres equipos llegan a una isla desconocida.
-Deben organizarse, negociar, luchar y sobrevivir.
-</p>
+    if (Game.fase === 2) {
+        html += `
+            <div class="card" style="text-align:center">
+                <h2>¡Dinámica Iniciada!</h2>
+                <p>Los roles han sido asignados estratégicamente. Revisen el log para ver la distribución final.</p>
+                <button onclick="location.reload()">Reiniciar</button>
+            </div>`;
+    }
 
-<h4>Objetivos de supervivencia</h4>
-
-<ul>
-<li>4 puntos en Alimentación</li>
-<li>3 puntos en Utilidad</li>
-<li>2 puntos en Orientación</li>
-</ul>
-
-</div>
-
-<div class="card">
-
-<h3>Configuración de equipos</h3>
-`;
-
-Game.grupos.forEach((g,i)=>{
-
-html+=`<div class="card"><h4>${g.nombre}</h4>`;
-
-for(let j=0;j<5;j++){
-
-html+=`
-Jugador ${j+1}
-<input id="jug${i}_${j}">
-<br>
-`;
-
-}
-
-html+="</div>";
-
-});
-
-html+=`
-<button onclick="guardarJugadores()">
-Comenzar dinámica
-</button>
-`;
-
-}
-
-/* ===== ROLES ===== */
-
-if(Game.fase===1){
-
-html+=`<h3>Asignación de Roles</h3>`;
-
-Game.grupos.forEach((g,i)=>{
-
-html+=`<div class="card"><h4>${g.nombre}</h4>`;
-
-let jugadores=g.miembros.filter(m=>m.nombre);
-
-let total=jugadores.length;
-
-/* Control matemático de roles */
-
-g.miembros.forEach((m,j)=>{
-
-if(!m.nombre) return;
-
-let multiplicador=1;
-
-/* REGLA PROFESIONAL */
-
-if(total===3 && (j===0 || j===1)){
-multiplicador=2;
-}
-
-if(total===4 && j===0){
-multiplicador=2;
-}
-
-html+=`
-<div>${m.nombre}</div>
-
-<select id="rol${i}_${j}">
-${Game.roles.map(r=>`<option>${r}</option>`).join("")}
-</select>
-<br>
-`;
-
-m._multiplicador=multiplicador;
-
-});
-
-html+="</div>";
-
-});
-
-html+=`
-<button onclick="guardarRoles()">
-Continuar
-</button>
-`;
-
-}
-
-/* ===== FINAL ===== */
-
-if(Game.fase===2){
-
-html+=`
-<div class="card">
-<h2>Dinámica lista</h2>
-<p>Fase de juego completada.</p>
-</div>
-`;
-}
-
-document.getElementById("app").innerHTML=html;
-
+    document.getElementById("app").innerHTML = html;
 }
 
 /* ============================
 CONTROLADORES
 ============================ */
+function guardarJugadores() {
+    let error = false;
+    Game.grupos.forEach((g, i) => {
+        g.miembros = []; // Reset
+        for (let j = 0; j < 5; j++) {
+            let nombre = document.getElementById(`input_${i}_${j}`).value.trim();
+            if (nombre) g.miembros.push({ nombre: nombre, roles: [] });
+        }
+        if (g.miembros.length < 3) {
+            alert(`El equipo ${g.nombre} necesita al menos 3 jugadores.`);
+            error = true;
+        }
+    });
 
-function guardarJugadores(){
-
-Game.grupos.forEach((g,i)=>{
-
-let activos=0;
-
-g.miembros.forEach((m,j)=>{
-
-let val=document.getElementById(`jug${i}_${j}`).value.trim();
-
-m.nombre=val;
-
-if(val) activos++;
-
-});
-
-if(activos<3){
-alert("Cada equipo necesita mínimo 3 jugadores");
-throw new Error();
+    if (!error) {
+        Game.fase = 1;
+        logger("Jugadores registrados. Pasando a selección de roles.");
+        render();
+    }
 }
 
-});
+function guardarRoles() {
+    let errorMsg = "";
+    
+    Game.grupos.forEach((g, gIdx) => {
+        let usados = new Set();
+        
+        g.miembros.forEach((m, jIdx) => {
+            const selects = document.querySelectorAll(`[id^="rol_${gIdx}_${jIdx}_"]`);
+            m.roles = [];
+            
+            selects.forEach(sel => {
+                let rVal = sel.value;
+                if (!rVal) errorMsg = "Todos los jugadores deben tener sus roles asignados.";
+                if (usados.has(rVal)) errorMsg = `Conflicto en equipo ${g.nombre}: El rol '${rVal}' está repetido.`;
+                usados.add(rVal);
+                m.roles.push(rVal);
+            });
+        });
+    });
 
-Game.fase=1;
-render();
+    if (errorMsg) {
+        alert(errorMsg);
+        return;
+    }
 
+    logger("Roles asignados correctamente. Equipos listos para la isla.");
+    Game.fase = 2;
+    render();
 }
-
-/* --------------------------- */
-
-function guardarRoles(){
-
-Game.grupos.forEach((g,i)=>{
-
-let jugadores=g.miembros.filter(m=>m.nombre);
-
-let total=jugadores.length;
-
-let usados=new Set();
-
-/* Distribución profesional */
-
-g.miembros.forEach((m,j)=>{
-
-if(!m.nombre) return;
-
-let select=document.getElementById(`rol${i}_${j}`);
-if(!select) return;
-
-let rol=select.value;
-
-if(usados.has(rol)){
-alert("No se pueden repetir roles en el equipo");
-throw new Error();
-}
-
-usados.add(rol);
-
-let cantidad=1;
-
-if(total===3 && (j===0 || j===1)){
-cantidad=2;
-}
-
-if(total===4 && j===0){
-cantidad=2;
-}
-
-m.roles=Array(cantidad).fill(rol);
-
-});
-
-});
-
-Game.fase=2;
-render();
-
-}
-
-/* ============================ */
 
 render();
-
 </script>
-
 </body>
 </html>
-</html>
+
 
