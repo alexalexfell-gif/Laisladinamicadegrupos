@@ -22,6 +22,8 @@
         .instruction-highlight { color: #c0392b; font-weight: bold; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px dashed #e74c3c; margin-bottom: 20px; text-align: center; }
         
         select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; }
+        input { width: 100%; padding: 8px; margin: 4px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .role-label { font-size: 0.85em; color: #7f8c8d; font-weight: bold; display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -46,9 +48,9 @@ const DB = {
 let Game = {
     paso: 1,
     equipos: [
-        { nombre: "Alfa", inventario: [], defensa: true },
-        { nombre: "Beta", inventario: [], defensa: true },
-        { nombre: "Omega", inventario: [], defensa: true }
+        { nombre: "Alfa", inventario: [] },
+        { nombre: "Beta", inventario: [] },
+        { nombre: "Omega", inventario: [] }
     ]
 };
 
@@ -81,14 +83,24 @@ function render() {
                 <h1>🏝️ La Isla</h1>
                 <h3>Dinámica grupal para la evaluación de liderazgo, trabajo en equipo y estrategia</h3>
                 <div class="author">Autor: Alejandro Scuro Rossi</div>
-                <button onclick="Game.paso=2; render();">Siguiente: Equipos</button>
+                <button onclick="Game.paso=2; render();">Siguiente: Registro de Roles</button>
             </div>`;
     } 
     else if (Game.paso === 2) {
         ui.innerHTML = `
             <div class="card">
-                <h2>Paso 2: Registro de Equipos</h2>
-                <div class="grid">${Game.equipos.map(e => `<div class="card"><h3>Equipo ${e.nombre}</h3><input type="text" placeholder="Integrantes..."></div>`).join("")}</div>
+                <h2>Paso 2: Registro de Integrantes y Roles</h2>
+                <p>Ingresa el nombre de cada estudiante según su función:</p>
+                <div class="grid">${Game.equipos.map(e => `
+                    <div class="card">
+                        <h3>Equipo ${e.nombre}</h3>
+                        <label class="role-label">Ladrón:</label> <input type="text" placeholder="Nombre...">
+                        <label class="role-label">Diplomático:</label> <input type="text" placeholder="Nombre...">
+                        <label class="role-label">Luchador:</label> <input type="text" placeholder="Nombre...">
+                        <label class="role-label">Recolector:</label> <input type="text" placeholder="Nombre...">
+                        <label class="role-label">Comerciante:</label> <input type="text" placeholder="Nombre...">
+                    </div>
+                `).join("")}</div>
                 <button onclick="Game.paso=3; render();">Siguiente: Planeación Inicial</button>
             </div>`;
     }
@@ -97,7 +109,7 @@ function render() {
             <div class="card">
                 <h2>Paso 3: Planeación Inicial</h2>
                 <div class="instruction-highlight">
-                    🖱️ <strong>INSTRUCCIÓN:</strong> Mantén presionado <strong>CTRL</strong> (o Cmd) y haz <strong>clic</strong> para elegir exactamente <strong>5 objetos</strong> por equipo.
+                    🖱️ <strong>INSTRUCCIÓN:</strong> Mantén presionado <strong>CTRL</strong> y haz <strong>clic</strong> para elegir exactamente <strong>5 objetos</strong> por equipo.
                 </div>
                 <div class="grid">${Game.equipos.map((e, i) => `
                     <div class="card">
@@ -114,10 +126,12 @@ function render() {
         setTimeout(() => {
             Game.equipos.forEach((_, i) => {
                 const sel = document.getElementById(`plan_${i}`);
-                sel.onchange = () => {
-                    const count = Array.from(sel.selectedOptions).length;
-                    document.getElementById(`count_${i}`).innerText = `Seleccionados: ${count}`;
-                };
+                if(sel) {
+                    sel.onchange = () => {
+                        const count = Array.from(sel.selectedOptions).length;
+                        document.getElementById(`count_${i}`).innerText = `Seleccionados: ${count}`;
+                    };
+                }
             });
         }, 100);
     }
@@ -125,7 +139,7 @@ function render() {
         ui.innerHTML = `
             <div class="card">
                 <h2>Paso 4: Robo Nocturno</h2>
-                <p>La planeación ha terminado. Ahora los ladrones deben actuar en secreto.</p>
+                <p>¡Planeación confirmada! Ahora los ladrones deben decidir su acción secreta.</p>
                 <div class="grid">${Game.equipos.map((e, i) => `
                     <div class="card">
                         <h3>Ladrón de ${e.nombre}</h3>
@@ -135,13 +149,12 @@ function render() {
                         </select>
                     </div>
                 `).join("")}</div>
-                <button onclick="alert('Funcionalidad de robo cargando...')">Resolver Noche</button>
+                <button onclick="alert('Lógica de robo en desarrollo...')">Procesar Noche</button>
             </div>`;
     }
 }
 
 function procesarPaso3() {
-    console.log("Intentando procesar paso 3..."); // Debug en consola
     let errores = [];
     let nuevosInventarios = [];
 
@@ -158,21 +171,16 @@ function procesarPaso3() {
     });
 
     if (errores.length > 0) {
-        alert("⚠️ Cada equipo debe seleccionar exactamente 5 objetos.\nEquipos incompletos: " + errores.join(", "));
+        alert("⚠️ Selección incorrecta.\nEquipos que no tienen 5 objetos: " + errores.join(", "));
     } else {
-        // Asignar inventarios si todo está bien
-        Game.equipos.forEach((e, i) => {
-            e.inventario = nuevosInventarios[i];
-        });
-        log("Planeación confirmada para todos los equipos.");
+        Game.equipos.forEach((e, i) => { e.inventario = nuevosInventarios[i]; });
+        log("Inventarios guardados. Pasando al Robo Nocturno.");
         Game.paso = 4;
         render();
     }
 }
 
-// Iniciar
 render();
 </script>
 </body>
 </html>
-
