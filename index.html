@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dinámica de Grupos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f6f9;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .grupo {
+      background: white;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Generador de Grupos</h1>
+
+<label>Participantes (uno por línea):</label>
+<textarea id="participantes"></textarea>
+
+<label>Número de grupos:</label>
+<input type="number" id="numGrupos" value="3" min="2">
+
+<br><br>
+<button onclick="generarGrupos()">Generar Grupos</button>
+
+<div id="resultado"></div>
+
+<script>
+function generarGrupos() {
+  const nombres = document.getElementById("participantes")
+    .value.split("\n")
+    .filter(n => n.trim() !== "");
+
+  const numGrupos = parseInt(document.getElementById("numGrupos").value);
+
+  if (nombres.length === 0) {
+    alert("Introduce al menos un participante");
+    return;
+  }
+
+  // Mezclar nombres
+  for (let i = nombres.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
+  }
+
+  let grupos = Array.from({length: numGrupos}, () => []);
+
+  nombres.forEach((nombre, index) => {
+    grupos[index % numGrupos].push(nombre);
+  });
+
+  let html = "";
+  grupos.forEach((grupo, i) => {
+    html += `<div class="grupo">`;
+    html += `<h2>Grupo ${i + 1}</h2><ul>`;
+    grupo.forEach(p => {
+      html += `<li>${p}</li>`;
+    });
+    html += "</ul></div>";
+  });
+
+  document.getElementById("resultado").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
