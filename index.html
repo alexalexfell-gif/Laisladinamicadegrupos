@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>La Isla: Sobrevivir - Sistema Integral</title>
+    <title>La Isla - Dinámica Grupal</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
@@ -27,6 +27,7 @@
         select, input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; height: 120px; overflow-y: auto; margin-top: 20px; }
         .intro-box { text-align: center; padding: 40px; }
+        .author { margin-top: 30px; font-weight: bold; color: var(--primary); border-top: 1px solid #eee; padding-top: 15px; }
         .min-box { display: flex; justify-content: space-around; background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #eee; }
     </style>
 </head>
@@ -96,14 +97,16 @@ function render() {
         case 1: 
             ui.innerHTML = `
                 <div class="card intro-box">
-                    <h1>🏝️ PASO 1: INTRODUCCIÓN</h1>
-                    <p class="tagline">3 equipos en una isla, solo se podrá sobrevivir a través de acumular objetos.</p>
+                    <h1>🏝️ La Isla</h1>
+                    <h3>Dinámica grupal para la evaluación de liderazgo, trabajo en equipo y estrategia</h3>
+                    <p class="tagline">3 equipos en una isla, solo podrán sobrevivir a través de la gestión de recursos.</p>
                     <div class="min-box">
                         <div><strong>🍎 Alimentación</strong><br>Mínimo 4 pts</div>
                         <div><strong>🛠️ Utilidad</strong><br>Mínimo 3 pts</div>
                         <div><strong>🧭 Orientación</strong><br>Mínimo 2 pts</div>
                     </div>
-                    <p>Objetos: 1 o 2 puntos. Métodos: Robo, comercio o lucha.</p>
+                    <p>Objetivo: Reunir los mínimos requeridos mediante robo, comercio o lucha.</p>
+                    <div class="author">Autor: Alejandro Scuro Rossi</div>
                     <button class="btn-next" onclick="Game.paso=2; render();">Siguiente: Equipos y Roles</button>
                 </div>`;
             break;
