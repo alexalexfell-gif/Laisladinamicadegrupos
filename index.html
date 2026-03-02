@@ -247,16 +247,19 @@ let total=jugadores.length;
 
 let rolesUsados=new Set();
 
+/* Reglas de distribución */
+
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
 
 let sel=document.getElementById(`rol${i}_${j}`);
+
 if(!sel) return;
 
 let rol=sel.value;
 
-/* No repetir roles */
+/* No repetir roles dentro del equipo */
 
 if(rolesUsados.has(rol)){
 alert("No se pueden repetir roles dentro del equipo");
@@ -265,7 +268,7 @@ throw new Error();
 
 rolesUsados.add(rol);
 
-/* Distribución de roles */
+/* Cantidad de roles según regla */
 
 let cantidad=1;
 
@@ -276,6 +279,12 @@ cantidad=2;
 else if(total===4 && j===0){
 cantidad=2;
 }
+
+else if(total===5){
+cantidad=1;
+}
+
+/* Guardar roles correctamente */
 
 m.roles=Array(cantidad).fill(rol);
 
@@ -301,5 +310,6 @@ mostrar();
 
 </body>
 </html>
+
 
 
