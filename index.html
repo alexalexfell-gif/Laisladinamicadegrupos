@@ -42,19 +42,21 @@ margin-top:20px;
 
 <script>
 
-/* ============================
+/* ===========================
 ESTADO GLOBAL
-============================ */
+=========================== */
 
 let paso=0;
 
-/* Recursos */
-
 const rolesDisponibles=[
-"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
+"Ladrón",
+"Luchador",
+"Diplomático",
+"Comerciante",
+"Recolector"
 ];
 
-const grupos=["Alfa","Beta","Omega"].map(nombre=>({
+let grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
 miembros:Array(5).fill().map(()=>({
 nombre:"",
@@ -63,24 +65,24 @@ roles:[]
 recursos:[]
 }));
 
-/* ============================
+/* ===========================
 FLUJO
-============================ */
+=========================== */
 
 function siguiente(){
 paso++;
 mostrar();
 }
 
-/* ============================
+/* ===========================
 RENDER
-============================ */
+=========================== */
 
 function mostrar(){
 
 let html="";
 
-/* ===== PASO 0 ===== */
+/* ---------- PASO 0 ---------- */
 
 if(paso===0){
 
@@ -108,7 +110,7 @@ html+="</div>";
 html+=`<button onclick="guardarJugadores()">Comenzar</button>`;
 }
 
-/* ===== PASO 1 ROLES ===== */
+/* ---------- PASO 1 ROLES ---------- */
 
 if(paso===1){
 
@@ -120,23 +122,9 @@ html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 let total=g.miembros.filter(m=>m.nombre!=="").length;
 
-let rolesUsados=new Set();
-
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
-
-/* REGLAS EXACTAS */
-
-let oblig=1;
-
-if(total===3){
-if(j===0 || j===1) oblig=2;
-}
-
-else if(total===4){
-if(j===0) oblig=2;
-}
 
 html+=`<div>${m.nombre}</div>`;
 
@@ -157,7 +145,7 @@ html+="</div>";
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-/* ===== RESULTADOS ===== */
+/* ---------- RESULTADOS ---------- */
 
 if(paso===2){
 calcularResultados();
@@ -167,9 +155,9 @@ return;
 document.getElementById("contenido").innerHTML=html;
 }
 
-/* ============================
+/* ===========================
 LOGICA
-============================ */
+=========================== */
 
 function guardarJugadores(){
 
@@ -213,24 +201,29 @@ if(m.nombre==="") return;
 
 let oblig=1;
 
-/* REGLAS EXACTAS */
+/* ===== REGLAS EXACTAS ===== */
 
-if(total===3 && (j===0 || j===1)){
-oblig=2;
+if(total===3){
+if(j===0 || j===1) oblig=2;
 }
 
-else if(total===4 && j===0){
-oblig=2;
+else if(total===4){
+if(j===0) oblig=2;
 }
 
-/* LECTURA SELECT */
+else if(total===5){
+oblig=1;
+}
+
+/* ===== LECTURA SELECT ===== */
 
 let sel=document.getElementById(`rol${i}_${j}`);
+
 if(!sel) return;
 
 let rol=sel.value;
 
-/* NO REPETIR ROLES */
+/* No repetir roles */
 
 if(rolesUsados.has(rol)){
 alert("No se pueden repetir roles dentro del equipo");
@@ -266,7 +259,9 @@ document.getElementById("log").innerHTML=html;
 mostrar();
 
 </script>
+
 </body>
 </html>
+
 
 
