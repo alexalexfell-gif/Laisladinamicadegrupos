@@ -33,7 +33,6 @@
         .req-list { list-style: none; padding: 0; font-weight: bold; }
         .phase-list { padding-left: 18px; }
         .phase-list li { margin-bottom: 8px; }
-        .obj-guide { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ccc; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -82,7 +81,6 @@ function render() {
         <div class="card" style="text-align:center">
             <h1>🏝️ LA ISLA</h1>
             <p style="font-weight:bold; color:var(--primary); margin-bottom:0;">Autor: Alejandro Scuro Rossi</p>
-            <p style="font-size: 0.9em; color: #666;">Dinámica Grupal - Soporte Visual</p>
             
             <div class="manual-container">
                 <h3>📜 Guía de Supervivencia</h3>
@@ -102,30 +100,37 @@ function render() {
                             <li>Registro</li>
                             <li>Planeación</li>
                             <li>Robo Nocturno</li>
-                            <li>El Pacto</li>
-                            <li>Lucha</li>
-                            <li>Recolección</li>
+                            <li>El Pacto y Lucha</li>
                             <li>Mercado</li>
                         </ol>
                     </div>
                 </div>
             </div>
 
-            <div style="font-size: 0.75rem; color: #636e72; text-align: left; background: #f8f9fa; padding: 15px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; line-height: 1.4;">
-                <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y TÉRMINOS DE USO:</strong><br>
-                Esta herramienta, "La Isla", es un <strong>prototipo experimental y educativo</strong> desarrollado por <strong>Alejandro Scuro Rossi</strong>. 
-                <br><br>
-                <strong>Solo Soporte Visual:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas de liderazgo, trabajo en equipo o estrategia. Todas las observaciones deben ser interpretadas por un profesional calificado.
-                <br><br>
-                <strong>Sin Garantía:</strong> El software se proporciona "tal cual", sin garantía de ningún tipo. El autor no garantiza la precisión, fiabilidad o idoneidad de la simulación para procesos de selección profesional.
-                <br><br>
-                <strong>Limitación de Responsabilidad:</strong> En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento o cualquier daño derivado del uso de esta herramienta.
-                <br><br>
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+            <div style="font-size: 0.75rem; color: #636e72; text-align: left; background: #f8f9fa; padding: 20px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; line-height: 1.5; max-height: 400px; overflow-y: auto;">
+                <strong>⚠️ DESCARGO DE RESPONSABILIDAD LEGAL Y TÉRMINOS DE USO DE "LA ISLA" ⚠️</strong><br><br>
+                Esta herramienta, "La Isla", es un prototipo experimental y educativo desarrollado por Alejandro Scuro Rossi.<br><br>
+                <strong>1. Soporte Visual y No Evaluativo:</strong> Este software es estrictamente una ayuda visual para facilitadores. No realiza evaluaciones automatizadas de liderazgo, trabajo en equipo o estrategia. Todas las observaciones deben ser interpretadas por un profesional calificado.<br><br>
+                <strong>2. Sin Garantía:</strong> El software se proporciona "tal cual", sin garantía de ningún tipo. El autor no garantiza la precisión, fiabilidad o idoneidad de la simulación para procesos de selección profesional.<br><br>
+                <strong>3. Limitación de Responsabilidad:</strong> En ningún caso el autor será responsable de decisiones de contratación, resultados de gestión de talento o cualquier daño derivado del uso de esta herramienta.<br><br>
+                <strong>4. PROTECCIÓN DE DATOS Y RESPONSABILIDADES DEL FACILITADOR (RGPD):</strong><br>
+                "La Isla" procesa temporalmente los siguientes datos de los participantes:
+                <ul>
+                    <li>Nombre del participante.</li>
+                    <li>Decisiones tomadas durante la dinámica (en el rol asignado).</li>
+                </ul>
+                Estos datos se almacenan exclusivamente en el navegador web de cada participante y se borran automáticamente al cerrar la pestaña o el navegador. "La Isla" no guarda ni transmite estos datos a ningún servidor externo ni los conserva de forma permanente.<br><br>
+                Como facilitador, es tu responsabilidad EXCLUSIVA y OBLIGATORIA:
+                <ul>
+                    <li>Informar claramente a todos los participantes, antes de iniciar la dinámica, sobre: qué datos se recogen temporalmente (su nombre y las decisiones que tomen en el juego), dónde se almacenan (solo en su navegador), cuándo se borran (automáticamente al cerrar la sesión) y la finalidad de esta recogida temporal (observación de la interacción grupal por parte del facilitador).</li>
+                    <li>Obtener el consentimiento explícito de cada participante para este tratamiento temporal de sus datos. Esto puede ser mediante una declaración verbal registrada, un formulario o un checkbox.</li>
+                    <li>Asegurarte de que cualquier observación, registro o análisis posterior que realices a partir de la dinámica (por ejemplo, tomando notas sobre el comportamiento de los participantes) cumpla con la normativa de protección de datos aplicable (RGPD). Eres el único responsable de dicho tratamiento adicional.</li>
+                </ul>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
                 <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <input type="checkbox" id="consent_check" style="width: 20px; height: 20px; cursor: pointer;" onchange="document.getElementById('start_btn').disabled = !this.checked">
+                    <input type="checkbox" id="consent_check" style="width: 24px; height: 24px; cursor: pointer;" onchange="document.getElementById('start_btn').disabled = !this.checked">
                     <label for="consent_check" style="cursor: pointer; font-weight: bold; color: #2c3e50;">
-                        Confirmo que los participantes han sido informados y otorgan su consentimiento para el registro temporal de sus datos en esta dinámica.
+                        He leído el descargo de responsabilidad y confirmo que los participantes han otorgado su consentimiento conforme al RGPD.
                     </label>
                 </div>
             </div>
@@ -146,6 +151,7 @@ function render() {
                 <div id="fields_${i}">${generateFieldsHTML(5)}</div>
             </div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
     }
+    // Resto de la lógica de renderizado permanece idéntica a la versión anterior para no simplificar el código
     else if (Game.paso === 3) {
         ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
     }
