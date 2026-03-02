@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <title>La Isla - Dinámica Grupal</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; text-align: center; }
-  .resaltar { color: red; font-weight: bold; }
-  .pasado { color: gray; }
-  select, input, button { margin: 5px; padding: 5px; }
-  .grupo { margin-bottom: 25px; }
+body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; }
+h1,h2,h3 { margin-bottom:10px; }
+.select-block { margin:5px auto; }
+.resaltar { color: red; font-weight: bold; }
+.pasado { color: gray; }
+select, input, button { margin:5px; padding:5px; }
+.grupo { margin-bottom:25px; display:inline-block; text-align:left; }
 </style>
 </head>
 <body>
@@ -20,9 +22,8 @@
 <button onclick="siguientePaso()" style="margin-top:20px;">Siguiente Paso</button>
 
 <script>
-// Datos iniciales
+// ----- Datos iniciales -----
 let pasoActual = 0;
-
 const nombresGrupos = ["Alfa","Beta","Omega"];
 const recursos = [
   {nombre:"Agua", categoria:"Alimentación", puntos:1},
@@ -52,7 +53,7 @@ let grupos = [
 let objetosDescartados = [];
 let pactos = [];
 
-// Función principal para mostrar cada paso
+// ----- Función principal -----
 function mostrarPaso(){
   let html = "";
   switch(pasoActual){
@@ -61,25 +62,33 @@ function mostrarPaso(){
       html += "<p>3 equipos en una isla. Sobrevivir requiere acumular objetos:</p>";
       html += "<ul style='text-align:left; display:inline-block;'><li>Alimentación: mínimo 4 puntos</li><li>Utilidad: mínimo 3 puntos</li><li>Orientación: mínimo 2 puntos</li></ul>";
       break;
-    case 1:
+
+    case 1: // Paso 2: Roles y objetos de rol
       html += "<h3>Paso 2: Nombres, roles y objetos de rol</h3>";
       grupos.forEach((g,i)=>{
         html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
         g.miembros.forEach((m,j)=>{
-          html += `<div>Jugador ${j+1}: <input type="text" id="nombre${i}${j}" placeholder="${m}" style="width:150px;"> `;
-          html += `Rol: <select id="rol${i}${j}" onchange="validarRoles(${i})">`;
+          html += `<div class="select-block">Jugador ${j+1}: 
+          <input type="text" id="nombre${i}${j}" placeholder="${m}" style="width:150px;"> `;
+          
+          html += `Rol: <select id="rol${i}${j}" onchange="validarRoles(${i})">
+          <option value="">--Selecciona rol--</option>`;
           ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"].forEach(r=> html += `<option value="${r}">${r}</option>`);
           html += `</select> `;
-          html += `Objeto de rol: <select id="objRol${i}${j}" onchange="validarObjetos(${i})">`;
-          objetosRol.forEach(o=> html += `<option value="${o}">${o}</option>`);
+
+          html += `Objeto de rol: <select id="objRol${i}${j}" onchange="validarObjetos(${i})">
+          <option value="">--Selecciona objeto--</option>`;
+          for(let k=0;k<2;k++){ // solo 2 objetos por grupo
+            html += `<option value="${objetosRol[k]}">${objetosRol[k]}</option>`;
+          }
           html += `</select></div>`;
         });
         html += `</div>`;
       });
       html += `<button onclick="guardarPaso2()" style="margin-top:10px;">Guardar nombres, roles y objetos</button>`;
       break;
-    case 2:
-      // Paso 3: Selección de 5 recursos por equipo
+
+    case 2: // Paso 3: selección de 5 recursos
       html += "<h3>Paso 3: Selección de 5 recursos por equipo</h3>";
       grupos.forEach((g,i)=>{
         html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
@@ -92,12 +101,14 @@ function mostrarPaso(){
       });
       html += `<button onclick="guardarPaso3()">Guardar recursos</button>`;
       break;
-    // Los pasos 4 a 9 se mantienen iguales que antes, puedes integrarlos después
+
+    // PASOS 4 a 9: Se pueden agregar aquí siguiendo la misma lógica
+    // incluyendo: robo nocturno, pacto, combate, recolección, intercambio, resultados
   }
   document.getElementById("contenido").innerHTML = html;
 }
 
-// Validar roles únicos dentro de un grupo
+// ----- Validaciones -----
 function validarRoles(indiceGrupo){
   const roles = new Set();
   grupos[indiceGrupo].miembros.forEach((m,j)=>{
@@ -111,7 +122,6 @@ function validarRoles(indiceGrupo){
   });
 }
 
-// Validar máximo 2 objetos de rol por grupo y sin repetir
 function validarObjetos(indiceGrupo){
   let seleccionados = [];
   grupos[indiceGrupo].miembros.forEach((m,j)=>{
@@ -135,7 +145,7 @@ function validarObjetos(indiceGrupo){
   }
 }
 
-// Guardar nombres, roles y objetos de rol
+// ----- Guardar nombres, roles y objetos -----
 function guardarPaso2(){
   grupos.forEach((g,i)=>{
     g.roles = [];
@@ -151,7 +161,7 @@ function guardarPaso2(){
   alert("Nombres, roles y objetos de rol guardados");
 }
 
-// Guardar recursos del paso 3
+// ----- Guardar recursos del paso 3 -----
 function guardarPaso3(){
   grupos.forEach((g,i)=>{
     g.objetos = g.objetos.concat(Array.from({length:5},(_,r)=>document.getElementById(`rec${i}${r}`).value));
@@ -159,11 +169,12 @@ function guardarPaso3(){
   alert("Recursos seleccionados guardados");
 }
 
-// Función para avanzar paso
+// ----- Siguiente paso -----
 function siguientePaso(){ mostrarPaso(); pasoActual++; }
 
 // Mostrar paso inicial
 mostrarPaso();
+
 </script>
 
 </body>
