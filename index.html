@@ -2,180 +2,347 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>La Isla - Dinámica Grupal Completa</title>
+<title>La Isla - Versión Online</title>
 <style>
-body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; }
-h1,h2,h3 { margin-bottom:10px; }
-.select-block { margin:5px auto; }
-.resaltar { color: red; font-weight: bold; }
-.pasado { color: gray; }
-select, input, button { margin:5px; padding:5px; }
-.grupo { margin-bottom:25px; display:inline-block; text-align:left; }
-.obj-list { display:inline-block; text-align:left; margin-top:10px; }
+body{font-family:Arial;padding:20px;background:#f4f4f4}
+h3{margin-top:30px}
+.equipo{border:1px solid #ccc;padding:10px;margin:10px;background:white}
+.destacado{color:#b30000;font-weight:bold}
+button{margin-top:15px;padding:8px 15px}
+.log{background:#111;color:#0f0;padding:10px;height:200px;overflow:auto;font-size:13px}
 </style>
 </head>
 <body>
 
-<h1>La Isla - Dinámica Grupal</h1>
-
+<h2>La Isla - Juego Estratégico</h2>
 <div id="contenido"></div>
-<button onclick="siguientePaso()" style="margin-top:20px;">Siguiente Paso</button>
+<div class="log" id="log"></div>
 
 <script>
-// ---------------- Datos iniciales ----------------
-let pasoActual = 0;
-let grupos = [
-  {nombre:"Alfa", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false},
-  {nombre:"Beta", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false},
-  {nombre:"Omega", miembros:["","","","",""], roles:[], objetos:[], protegido:false, noPacto:false}
+
+let paso = 0;
+
+const rolesDisponibles = [
+"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
 ];
-const rolesDisponibles = ["Comerciante","Diplomático","Luchador","Ladrón","Recolector"];
-const objetosRol = ["Antifaz","Maletín","Machete","Guantes","Alianza militar"];
+
 const recursosBase = [
-  {nombre:"Agua", categoria:"Alimentación", puntos:1},
-  {nombre:"Frutas", categoria:"Alimentación", puntos:1},
-  {nombre:"Comida enlatada", categoria:"Alimentación", puntos:1},
-  {nombre:"Botiquín", categoria:"Utilidad", puntos:1},
-  {nombre:"Cuerda", categoria:"Utilidad", puntos:1},
-  {nombre:"Martillo", categoria:"Utilidad", puntos:1},
-  {nombre:"Lona", categoria:"Utilidad", puntos:1},
-  {nombre:"Encendedor", categoria:"Utilidad", puntos:1},
-  {nombre:"Mapa", categoria:"Orientación", puntos:1},
-  {nombre:"Radio", categoria:"Orientación", puntos:1}
+{nombre:"Agua",categoria:"Alimentación",puntos:1},
+{nombre:"Fruta",categoria:"Alimentación",puntos:1},
+{nombre:"Madera",categoria:"Utilidad",puntos:1},
+{nombre:"Cuerda",categoria:"Utilidad",puntos:1},
+{nombre:"Mapa",categoria:"Orientación",puntos:1},
+{nombre:"Brújula básica",categoria:"Orientación",puntos:1}
 ];
+
 const recursosEspeciales = [
-  {nombre:"Caña de pescar", categoria:"Alimentación", puntos:2},
-  {nombre:"Mochila", categoria:"Utilidad", puntos:2},
-  {nombre:"Brújula", categoria:"Orientación", puntos:2}
+{nombre:"Caña de pescar",categoria:"Alimentación",puntos:2},
+{nombre:"Mochila",categoria:"Utilidad",puntos:2},
+{nombre:"Brújula",categoria:"Orientación",puntos:2}
 ];
-let objetosDescartados = [];
-let pactos = [];
 
-// ---------------- Funciones para mostrar pasos ----------------
-function mostrarPaso(){
-  let html = "";
-  switch(pasoActual){
-    case 0: // Paso 1 - Introducción
-      html += "<h2>Autor: Alejandro Scuro Rossi</h2>";
-      html += "<h3>Paso 1: Introducción</h3>";
-      html += "<p>Dinámica grupal para evaluar <strong>Liderazgo, trabajo en equipo y estrategia</strong>.</p>";
-      html += "<p>3 equipos en una isla. Para sobrevivir deberán acumular objetos y gestionar recursos:</p>";
-      html += "<ul style='text-align:left; display:inline-block;'><li>Alimentación: mínimo 4 puntos</li><li>Utilidad: mínimo 3 puntos</li><li>Orientación: mínimo 2 puntos</li></ul>";
-      break;
+let grupos = ["Alfa","Beta","Omega"].map(nombre=>({
+nombre,
+miembros:[
+{nombre:"",roles:[]},
+{nombre:"",roles:[]},
+{nombre:"",roles:[]},
+{nombre:"",roles:[]},
+{nombre:"",roles:[]}
+],
+totalJugadores:0,
+recursos:[],
+protegido:false,
+venganza:false,
+ataquesExtra:0,
+noAtacarA:[]
+}));
 
-    case 1: // Paso 2 - Nombres, roles y objetos de rol
-      html += "<h3>Paso 2: Nombres, roles y objetos de rol</h3>";
-      grupos.forEach((g,i)=>{
-        html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
-        g.miembros.forEach((m,j)=>{
-          html += `<div class="select-block">Jugador ${j+1}: <input type="text" id="nombre${i}${j}" placeholder="Nombre"> `;
-          html += `Rol: <select id="rol${i}${j}" onchange="validarRoles(${i})">
-            <option value="">--Selecciona rol--</option>`;
-          rolesDisponibles.forEach(r=> html+=`<option value="${r}">${r}</option>`);
-          html += `</select></div>`;
-        });
-        html += "<div><strong>Objetos de rol del equipo (elige 2):</strong><br>";
-        for(let k=0;k<2;k++){
-          html += `<select id="objRol${i}${k}" onchange="validarObjetos(${i})">
-            <option value="">--Selecciona objeto--</option>`;
-          objetosRol.forEach(o=> html+=`<option value="${o}">${o}</option>`);
-          html += "</select><br>";
-        }
-        html += "</div></div><br>";
-      });
-      html += `<button onclick="guardarPaso2()">Guardar nombres, roles y objetos</button>`;
-      break;
+let logJuego=[];
 
-    case 2: // Paso 3 - Selección de recursos
-      html += "<h3>Paso 3: Selección de 5 recursos por equipo</h3>";
-      grupos.forEach((g,i)=>{
-        html += `<div class="grupo"><strong>Equipo ${g.nombre}</strong><br>`;
-        for(let r=0;r<5;r++){
-          html += `Recurso ${r+1}: <select id="rec${i}${r}">`;
-          recursosBase.forEach(obj=> html += `<option value="${obj.nombre}">${obj.nombre}</option>`);
-          html += `</select><br>`;
-        }
-        html += "</div>";
-      });
-      html += `<button onclick="guardarPaso3()">Guardar recursos</button>`;
-      break;
+function siguiente(){ paso++; mostrar(); }
+function mostrarLog(){ document.getElementById("log").innerHTML=logJuego.join("<br>"); }
 
-    case 3: html += "<h3>Paso 4: Robo nocturno (Ladrones)</h3><p>Este paso permite que los Ladrones roben o defiendan objetos. Se registrará automáticamente.</p>"; break;
-    case 4: html += "<h3>Paso 5: Pacto (Diplomáticos)</h3><p>Se generan pactos entre equipos y se asignan recursos especiales. Equipos que no pactan obtienen Venganza.</p>"; break;
-    case 5: html += "<h3>Paso 6: Combate (Luchadores)</h3><p>Se resuelven ataques y defensas usando piedra/papel/tijera, robos de objetos y ataque extra si corresponde.</p>"; break;
-    case 6: html += "<h3>Paso 7: Recolección</h3><p>Los Recolectores eligen 2 objetos de los 15 descartados según el orden definido.</p>"; break;
-    case 7: html += "<h3>Paso 8: Intercambio</h3><p>Los Comerciantes realizan hasta 2 intercambios por equipo, registrados automáticamente.</p>"; break;
-    case 8: html += "<h3>Paso 9: Resultados finales</h3><p>Se suman los puntos por categoría y se muestra <strong>Victoria!</strong> o <strong>Derrota!</strong> según los mínimos.</p>"; break;
-    default: html="<h3>Dinámica finalizada</h3>"; break;
-  }
+function mostrar(){
 
-  document.getElementById("contenido").innerHTML = html;
+let html="";
+
+if(paso===0){
+
+html+=`
+<h3>Configuración</h3>
+<p><strong>Mínimo 3 jugadores por equipo.</strong></p>
+<p>
+3 jugadores → los dos primeros eligen 2 roles.<br>
+4 jugadores → el primero elige 2 roles.<br>
+5 jugadores → todos eligen 1 rol.
+</p>
+`;
+
+grupos.forEach((g,i)=>{
+html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
+for(let j=0;j<5;j++){
+html+=`Jugador ${j+1}: <input id="jug${i}_${j}"><br>`;
+}
+html+="</div>";
+});
+
+html+=`<button onclick="guardarJugadores()">Continuar</button>`;
 }
 
-// ---------------- Validaciones y guardado de Paso 2 y 3 ----------------
-function validarRoles(indiceGrupo){
-  let seleccionados = [];
-  grupos[indiceGrupo].miembros.forEach((m,j)=>{
-    const val = document.getElementById(`rol${indiceGrupo}${j}`).value;
-    if(val) seleccionados.push(val);
-  });
-  const duplicados = seleccionados.filter((v,i,a)=> a.indexOf(v) !== i);
-  if(duplicados.length>0){
-    alert("No se puede repetir el mismo rol dentro del grupo.");
-    for(let k=0;k<5;k++){
-      const select = document.getElementById(`rol${indiceGrupo}${k}`);
-      if(duplicados.includes(select.value)) select.value="";
-    }
-  }
+if(paso===1){
+
+html+="<h3>Asignación de Roles</h3>";
+
+let rolesGlobal=[];
+
+grupos.forEach((g,i)=>{
+html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
+
+g.miembros.forEach((m,j)=>{
+if(m.nombre!==""){
+
+let oblig=rolesObligatorios(g.totalJugadores,j);
+
+html+=`<div><strong>${m.nombre}</strong> debe elegir ${oblig} rol(es)</div>`;
+
+for(let r=0;r<oblig;r++){
+html+=`<select id="rol${i}_${j}_${r}">
+${rolesDisponibles.map(rol=>`<option>${rol}</option>`).join("")}
+</select><br>`;
+}
+}
+});
+
+html+="</div>";
+});
+
+html+=`<button onclick="guardarRoles()">Continuar</button>`;
 }
 
-function validarObjetos(indiceGrupo){
-  let seleccionados = [];
-  for(let k=0;k<2;k++){
-    const val = document.getElementById(`objRol${indiceGrupo}${k}`).value;
-    if(val) seleccionados.push(val);
-  }
-  const duplicados = seleccionados.filter((v,i,a)=> a.indexOf(v) !== i);
-  if(duplicados.length>0){
-    alert("No se puede repetir el mismo objeto de rol dentro del grupo.");
-    for(let k=0;k<2;k++){
-      const select = document.getElementById(`objRol${indiceGrupo}${k}`);
-      if(duplicados.includes(select.value)) select.value="";
-    }
-  }
+if(paso===2){
+
+html+="<h3>Robo Nocturno</h3>";
+
+grupos.forEach((g,i)=>{
+let ladron=buscarRol(g,"Ladrón");
+if(ladron){
+html+=`<div class="equipo">
+<div class="destacado">${ladron.nombre} (Ladrón)</div>
+<select id="accion${i}">
+<option value="robar">Robar</option>
+<option value="proteger">Defender</option>
+</select>
+<select id="objetivo${i}">
+${grupos.map((x,j)=> j!==i?`<option value="${j}">${x.nombre}</option>`:"").join("")}
+</select>
+</div>`;
+}
+});
+
+html+=`<button onclick="resolverRobo()">Continuar</button>`;
 }
 
-function guardarPaso2(){
-  grupos.forEach((g,i)=>{
-    g.roles = [];
-    g.objetos = [];
-    g.miembros.forEach((m,j)=>{
-      const nombre = document.getElementById(`nombre${i}${j}`).value;
-      if(nombre) g.miembros[j] = nombre;
-      const rol = document.getElementById(`rol${i}${j}`).value;
-      if(rol) g.roles.push(rol);
-    });
-    for(let k=0;k<2;k++){
-      const obj = document.getElementById(`objRol${i}${k}`).value;
-      if(obj) g.objetos.push(obj);
-    }
-  });
-  alert("Nombres, roles y objetos de rol guardados correctamente");
+if(paso===3){
+
+html+="<h3>Diplomacia</h3>";
+
+grupos.forEach((g,i)=>{
+let dip=buscarRol(g,"Diplomático");
+if(dip){
+html+=`<input type="checkbox" id="pacto${i}"> ${g.nombre} (${dip.nombre})<br>`;
+}
+});
+
+html+=`<button onclick="configurarDiplomacia()">Confirmar pacto</button>`;
 }
 
-function guardarPaso3(){
-  grupos.forEach((g,i)=>{
-    for(let r=0;r<5;r++){
-      const obj = document.getElementById(`rec${i}${r}`).value;
-      if(obj) g.objetos.push(obj);
-    }
-  });
-  alert("Recursos guardados");
+if(paso===5){
+calcularResultados();
+return;
 }
 
-// ---------------- Navegación ----------------
-function siguientePaso(){ pasoActual++; mostrarPaso(); }
-mostrarPaso();
+document.getElementById("contenido").innerHTML=html;
+mostrarLog();
+}
+
+function guardarJugadores(){
+
+grupos.forEach((g,i)=>{
+let activos=0;
+g.miembros.forEach((m,j)=>{
+let val=document.getElementById(`jug${i}_${j}`).value.trim();
+m.nombre=val;
+if(val!=="") activos++;
+});
+if(activos<3){alert("Mínimo 3 jugadores por equipo");return;}
+g.totalJugadores=activos;
+});
+siguiente();
+}
+
+function rolesObligatorios(total,indice){
+if(total===3 && (indice===0||indice===1)) return 2;
+if(total===4 && indice===0) return 2;
+return 1;
+}
+
+function guardarRoles(){
+
+let global=[];
+
+grupos.forEach((g,i)=>{
+g.miembros.forEach((m,j)=>{
+if(m.nombre!==""){
+let oblig=rolesObligatorios(g.totalJugadores,j);
+m.roles=[];
+for(let r=0;r<oblig;r++){
+let val=document.getElementById(`rol${i}_${j}_${r}`).value;
+if(global.includes(val)){alert("Rol repetido");return;}
+global.push(val);
+m.roles.push(val);
+}
+}
+});
+});
+
+siguiente();
+}
+
+function buscarRol(grupo,rol){
+for(let m of grupo.miembros){
+if(m.roles.includes(rol)) return m;
+}
+return null;
+}
+
+function resolverRobo(){
+
+logJuego.push("=== ROBO NOCTURNO ===");
+
+grupos.forEach(g=>g.protegido=false);
+
+grupos.forEach((g,i)=>{
+let accion=document.getElementById(`accion${i}`).value;
+let obj=document.getElementById(`objetivo${i}`).value;
+
+if(accion==="proteger"){
+g.protegido=true;
+logJuego.push(`${g.nombre} defiende`);
+}else{
+let defensor=grupos[obj];
+if(defensor.protegido){
+logJuego.push(`Robo fallido contra ${defensor.nombre}`);
+}else{
+if(defensor.recursos.length>0){
+let robado=defensor.recursos.pop();
+g.recursos.push(robado);
+logJuego.push(`${g.nombre} robó ${robado}`);
+}
+}
+}
+});
+
+siguiente();
+}
+
+function configurarDiplomacia(){
+
+let pactantes=[];
+
+grupos.forEach((g,i)=>{
+if(document.getElementById(`pacto${i}`).checked) pactantes.push(i);
+g.venganza=false;
+g.ataquesExtra=0;
+});
+
+let html="<h3>Elección objetos (2 puntos)</h3>";
+
+if(pactantes.length===2){
+
+pactantes.forEach(i=>{
+html+=selectorObjetos(i,2);
+});
+
+grupos.forEach((g,i)=>{
+if(!pactantes.includes(i)){
+g.venganza=true;
+g.ataquesExtra=1;
+html+=selectorObjetos(i,1);
+}
+});
+
+}else{
+
+grupos.forEach((g,i)=>{
+html+=selectorObjetos(i,1);
+});
+
+}
+
+html+=`<button onclick="resolverDiplomacia()">Continuar</button>`;
+document.getElementById("contenido").innerHTML=html;
+}
+
+function selectorObjetos(i,cantidad){
+
+let dip=buscarRol(grupos[i],"Diplomático");
+
+let html=`<div class="equipo">
+<div class="destacado">${grupos[i].nombre} (${dip?dip.nombre:""})</div>`;
+
+for(let x=0;x<cantidad;x++){
+html+=`<select id="esp${i}_${x}">
+${recursosEspeciales.map(r=>`<option>${r.nombre}</option>`).join("")}
+</select><br>`;
+}
+
+html+="</div>";
+return html;
+}
+
+function resolverDiplomacia(){
+
+grupos.forEach((g,i)=>{
+let selects=document.querySelectorAll(`[id^="esp${i}_"]`);
+selects.forEach(sel=>{
+g.recursos.push(sel.value);
+logJuego.push(`${g.nombre} obtiene ${sel.value}`);
+});
+});
+
+siguiente();
+}
+
+function calcularResultados(){
+
+logJuego.push("=== RESULTADOS ===");
+
+grupos.forEach(g=>{
+
+let puntos={Alimentación:0,Utilidad:0,Orientación:0};
+
+g.recursos.forEach(nombre=>{
+let r=[...recursosBase,...recursosEspeciales].find(x=>x.nombre===nombre);
+if(r) puntos[r.categoria]+=r.puntos;
+});
+
+if(puntos.Alimentación>=4 &&
+puntos.Utilidad>=3 &&
+puntos.Orientación>=2){
+logJuego.push(`${g.nombre}: VICTORIA!`);
+}else{
+logJuego.push(`${g.nombre}: DERROTA!`);
+}
+
+});
+
+mostrarLog();
+}
+
+mostrar();
+
 </script>
 </body>
 </html>
+
