@@ -25,6 +25,8 @@ Naturaleza del Proyecto: Al utilizar este software, el usuario reconoce su natur
 El autor no asume ninguna responsabilidad por usos del software fuera del contexto educativo o de facilitación grupal.
 
 Esta herramienta no está diseñada ni validada para diagnóstico psicológico, selección de personal o certificación de competencias.
+La herramienta no reclama validez predictiva, diagnóstica o evaluativa.
+El software está diseñado únicamente como una ayuda de visualización y no genera, almacena ni infiere métricas de evaluación sobre individuos.
 
 🛠️ Especificaciones Técnicas
 
