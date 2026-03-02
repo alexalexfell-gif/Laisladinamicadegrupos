@@ -42,25 +42,19 @@ margin-top:20px;
 
 <script>
 
-/* ===============================
-CONFIGURACIÓN
-=============================== */
+/* ============================
+ESTADO GLOBAL
+============================ */
 
 let paso=0;
 
-const recursosBase=[
-"Agua","Fruta","Comida enlatada",
-"Botiquín","Cuerda","Martillo",
-"Mapa","Radio"
+/* Recursos */
+
+const rolesDisponibles=[
+"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
 ];
 
-const recursosEspeciales=[
-"Caña de pescar",
-"Mochila",
-"Encendedor"
-];
-
-let grupos=["Alfa","Beta","Omega"].map(nombre=>({
+const grupos=["Alfa","Beta","Omega"].map(nombre=>({
 nombre,
 miembros:Array(5).fill().map(()=>({
 nombre:"",
@@ -69,18 +63,18 @@ roles:[]
 recursos:[]
 }));
 
-/* ===============================
-CONTROL DE FLUJO
-=============================== */
+/* ============================
+FLUJO
+============================ */
 
 function siguiente(){
 paso++;
 mostrar();
 }
 
-/* ===============================
-RENDERIZADO
-=============================== */
+/* ============================
+RENDER
+============================ */
 
 function mostrar(){
 
@@ -94,8 +88,6 @@ html+=`
 <h2>La isla - Dinámica grupal</h2>
 
 <p><strong>Autor:</strong> Alejandro Scuro Rossi</p>
-
-<p>Dinámica grupal para liderazgo, trabajo en equipo y estrategia.</p>
 
 <hr>
 
@@ -122,23 +114,19 @@ if(paso===1){
 
 html+="<h3>Asignación de Roles</h3>";
 
-const rolesDisponibles=[
-"Ladrón","Luchador","Diplomático","Comerciante","Recolector"
-];
-
 grupos.forEach((g,i)=>{
 
 html+=`<div class="equipo"><h4>${g.nombre}</h4>`;
 
 let total=g.miembros.filter(m=>m.nombre!=="").length;
 
+let rolesUsados=new Set();
+
 g.miembros.forEach((m,j)=>{
 
 if(m.nombre==="") return;
 
-/* ===========================
-REGLA DE ROLES CORRECTA
-=========================== */
+/* REGLAS EXACTAS */
 
 let oblig=1;
 
@@ -163,6 +151,7 @@ html+=`</select><br>`;
 });
 
 html+="</div>";
+
 });
 
 html+=`<button onclick="guardarRoles()">Continuar</button>`;
@@ -178,9 +167,9 @@ return;
 document.getElementById("contenido").innerHTML=html;
 }
 
-/* ===============================
+/* ============================
 LOGICA
-=============================== */
+============================ */
 
 function guardarJugadores(){
 
@@ -208,7 +197,7 @@ throw new Error();
 siguiente();
 }
 
-/* ------------------------------- */
+/* -------------------------- */
 
 function guardarRoles(){
 
@@ -224,7 +213,7 @@ if(m.nombre==="") return;
 
 let oblig=1;
 
-/* ===== REGLAS EXACTAS ===== */
+/* REGLAS EXACTAS */
 
 if(total===3 && (j===0 || j===1)){
 oblig=2;
@@ -234,14 +223,14 @@ else if(total===4 && j===0){
 oblig=2;
 }
 
-/* ===== LECTURA SELECT ===== */
+/* LECTURA SELECT */
 
 let sel=document.getElementById(`rol${i}_${j}`);
 if(!sel) return;
 
 let rol=sel.value;
 
-/* No repetir roles */
+/* NO REPETIR ROLES */
 
 if(rolesUsados.has(rol)){
 alert("No se pueden repetir roles dentro del equipo");
@@ -261,7 +250,7 @@ m.roles=Array(oblig).fill(rol);
 siguiente();
 }
 
-/* ------------------------------- */
+/* -------------------------- */
 
 function calcularResultados(){
 
@@ -274,15 +263,10 @@ html+=g.nombre+"<br>";
 document.getElementById("log").innerHTML=html;
 }
 
-/* =============================== */
-
 mostrar();
 
 </script>
-
 </body>
 </html>
-
-
 
 
