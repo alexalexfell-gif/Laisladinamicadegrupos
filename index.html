@@ -286,7 +286,7 @@ function processPact() {
     Game.equipos[ex].venganza = true; Game.paso = 6; render();
 }
 function generateFieldsHTML(n, eqIdx) {
-    let roles = (n==5)?["Ladrón","Dipl.","Luch.","Recol.","Comer."]:(n==4)?["Ladrón/Dipl.","Luch.","Recol.","Comer."]:["Ladrón/Dipl.","Luch/Rec.","Comer."];
+    let roles = (n==5)?["Ladrón","Diplomático","Luchador","Recolector","Comerciante"]:(n==4)?["Ladrón/Diplomático","Luchador","Recolector","Comerciante"]:["Ladrón/Diplomático","Luchador/Recolector","Comerciante"];
     return roles.map(r => `<span class="role-tag">${r}</span><input type="text">`).join("");
 }
 function updateFieldsUI(i) { document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(document.getElementById(`sz_${i}`).value, i); }
@@ -294,4 +294,5 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
