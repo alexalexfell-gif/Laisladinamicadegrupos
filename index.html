@@ -7,32 +7,32 @@
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --danger: #e74c3c; --warning: #f39c12; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1100px; margin: auto; }
-        .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .score-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; }
-        .points { font-size: 1.2em; font-weight: bold; }
-        .status-ok { color: #2ecc71; }
+        .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; position: sticky; top: 10px; z-index: 100; }
+        .score-card { background: var(--primary); color: white; padding: 15px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .card { background: white; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .tagline { font-style: italic; color: #666; border-left: 4px solid var(--accent); padding-left: 15px; margin-bottom: 20px; }
-        button { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
-        button:hover { background: #2980b9; }
-        .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 80px; overflow-y: auto; margin-top: 20px; }
+        
+        button { background: var(--success); color: white; border: none; padding: 18px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.2em; transition: 0.3s; margin-top: 10px; box-shadow: 0 4px 0 #219150; }
+        button:hover { background: #2ecc71; transform: translateY(-2px); box-shadow: 0 6px 0 #219150; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+        
+        .log { background: #111; color: #0f0; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; height: 100px; overflow-y: auto; margin-top: 20px; }
         .intro-box { text-align: center; padding: 40px; }
-        .author { margin-top: 30px; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; }
-        .min-box { display: flex; justify-content: space-around; background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .author { margin-top: 30px; font-weight: bold; color: var(--primary); border-top: 1px solid #eee; padding-top: 15px; }
+        .instruction-highlight { color: #c0392b; font-weight: bold; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px dashed #e74c3c; margin-bottom: 20px; text-align: center; }
+        
+        select { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="scoreboard" class="scoreboard" style="display:none;"></div>
-    <div id="game-ui">
-        </div>
-    <div class="log" id="game-log">>> Sistema listo.</div>
+    <div id="game-ui"></div>
+    <div class="log" id="game-log">>> Sistema iniciado.</div>
 </div>
 
 <script>
-/* DATOS */
 const DB = {
     base: [
         { id: "agua", n: "Agua", c: "ali", p: 1 }, { id: "fruta", n: "Frutas", c: "ali", p: 1 },
@@ -40,98 +40,137 @@ const DB = {
         { id: "cuerda", n: "Cuerda", c: "uti", p: 1 }, { id: "martillo", n: "Martillo", c: "uti", p: 1 },
         { id: "lona", n: "Lona", c: "uti", p: 1 }, { id: "encendedor", n: "Encendedor", c: "uti", p: 1 },
         { id: "mapa", n: "Mapa", c: "ori", p: 1 }, { id: "radio", n: "Radio", c: "ori", p: 1 }
-    ],
-    especiales: [
-        { id: "pesca", n: "Caña de Pescar (2 pts)", c: "ali", p: 2 },
-        { id: "mochila", n: "Mochila (2 pts)", c: "uti", p: 2 },
-        { id: "brujula", n: "Brújula (2 pts)", c: "ori", p: 2 }
     ]
 };
 
 let Game = {
     paso: 1,
-    equipos: ["Alfa", "Beta", "Omega"].map(n => ({ nombre: n, inventario: [], venganza: false }))
+    equipos: [
+        { nombre: "Alfa", inventario: [], defensa: true },
+        { nombre: "Beta", inventario: [], defensa: true },
+        { nombre: "Omega", inventario: [], defensa: true }
+    ]
 };
 
-/* MOTOR DE RENDERIZADO */
+function log(msg) {
+    const l = document.getElementById('game-log');
+    l.innerHTML += `<br>> ${msg}`;
+    l.scrollTop = l.scrollHeight;
+}
+
+function updateScoreboard() {
+    const sb = document.getElementById('scoreboard');
+    if (Game.paso < 3) return;
+    sb.style.display = 'grid';
+    sb.innerHTML = Game.equipos.map(e => {
+        const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
+        return `<div class="score-card">
+            <small>Equipo ${e.nombre}</small>
+            <div class="points">🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>
+        </div>`;
+    }).join("");
+}
+
 function render() {
     const ui = document.getElementById('game-ui');
-    const sb = document.getElementById('scoreboard');
-    
-    // Control de Marcador
-    if(Game.paso >= 3) {
-        sb.style.display = 'grid';
-        sb.innerHTML = Game.equipos.map(e => {
-            const p = e.inventario.reduce((acc, i) => { acc[i.c] += i.p; return acc; }, { ali:0, uti:0, ori:0 });
-            return `<div class="score-card">
-                <small>Equipo ${e.nombre}</small>
-                <div class="points">🍎${p.ali} | 🛠${p.uti} | 🧭${p.ori}</div>
-            </div>`;
-        }).join("");
-    }
+    updateScoreboard();
 
-    // Pasos
     if (Game.paso === 1) {
         ui.innerHTML = `
             <div class="card intro-box">
                 <h1>🏝️ La Isla</h1>
                 <h3>Dinámica grupal para la evaluación de liderazgo, trabajo en equipo y estrategia</h3>
-                <p class="tagline">Sobrevive gestionando recursos eficientemente.</p>
-                <div class="min-box">
-                    <div><strong>🍎 Alimentación</strong><br>Mín. 4 pts</div>
-                    <div><strong>🛠️ Utilidad</strong><br>Mín. 3 pts</div>
-                    <div><strong>🧭 Orientación</strong><br>Mín. 2 pts</div>
-                </div>
                 <div class="author">Autor: Alejandro Scuro Rossi</div>
-                <br>
-                <button onclick="Game.paso=2; render();">Empezar Dinámica</button>
+                <button onclick="Game.paso=2; render();">Siguiente: Equipos</button>
             </div>`;
-    } else if (Game.paso === 2) {
+    } 
+    else if (Game.paso === 2) {
         ui.innerHTML = `
             <div class="card">
-                <h2>Paso 2: Formación de equipo y roles</h2>
-                <div class="grid">${Game.equipos.map(e => `
-                    <div class="card">
-                        <h3>Equipo ${e.nombre}</h3>
-                        <input type="text" placeholder="Integrante 1 (Ladrón)">
-                        <input type="text" placeholder="Integrante 2 (Diplomático)">
-                        <input type="text" placeholder="Integrante 3 (Luchador)">
-                        <input type="text" placeholder="Integrante 4 (Recolector)">
-                        <input type="text" placeholder="Integrante 5 (Comerciante)">
-                    </div>
-                `).join("")}</div>
+                <h2>Paso 2: Registro de Equipos</h2>
+                <div class="grid">${Game.equipos.map(e => `<div class="card"><h3>Equipo ${e.nombre}</h3><input type="text" placeholder="Integrantes..."></div>`).join("")}</div>
                 <button onclick="Game.paso=3; render();">Siguiente: Planeación Inicial</button>
             </div>`;
-    } else if (Game.paso === 3) {
+    }
+    else if (Game.paso === 3) {
         ui.innerHTML = `
             <div class="card">
-                <h2>Paso 3: Planeación Inicial (Selecciona 5)</h2>
+                <h2>Paso 3: Planeación Inicial</h2>
+                <div class="instruction-highlight">
+                    🖱️ <strong>INSTRUCCIÓN:</strong> Mantén presionado <strong>CTRL</strong> (o Cmd) y haz <strong>clic</strong> para elegir exactamente <strong>5 objetos</strong> por equipo.
+                </div>
                 <div class="grid">${Game.equipos.map((e, i) => `
                     <div class="card">
-                        <h3>${e.nombre}</h3>
-                        <select id="plan_${i}" multiple style="height:150px">
-                            ${DB.base.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}
+                        <h3>Equipo ${e.nombre}</h3>
+                        <select id="plan_${i}" multiple style="height:200px;">
+                            ${DB.base.map(o => `<option value="${o.id}">${o.n} (${o.c})</option>`).join("")}
+                        </select>
+                        <div id="count_${i}" style="font-weight:bold; margin-top:5px; color:var(--accent);">Seleccionados: 0</div>
+                    </div>
+                `).join("")}</div>
+                <button id="confirmar-btn" onclick="procesarPaso3()">Confirmar Planeación</button>
+            </div>`;
+
+        setTimeout(() => {
+            Game.equipos.forEach((_, i) => {
+                const sel = document.getElementById(`plan_${i}`);
+                sel.onchange = () => {
+                    const count = Array.from(sel.selectedOptions).length;
+                    document.getElementById(`count_${i}`).innerText = `Seleccionados: ${count}`;
+                };
+            });
+        }, 100);
+    }
+    else if (Game.paso === 4) {
+        ui.innerHTML = `
+            <div class="card">
+                <h2>Paso 4: Robo Nocturno</h2>
+                <p>La planeación ha terminado. Ahora los ladrones deben actuar en secreto.</p>
+                <div class="grid">${Game.equipos.map((e, i) => `
+                    <div class="card">
+                        <h3>Ladrón de ${e.nombre}</h3>
+                        <select id="accion_${i}">
+                            <option value="def">🛡️ Defender Campamento</option>
+                            <option value="atk">👤 Robar a otro equipo</option>
                         </select>
                     </div>
                 `).join("")}</div>
-                <button onclick="procesarPaso3()">Confirmar Planeación</button>
+                <button onclick="alert('Funcionalidad de robo cargando...')">Resolver Noche</button>
             </div>`;
     }
-    // ... (El resto de pasos se activan tras el 3)
 }
 
 function procesarPaso3() {
+    console.log("Intentando procesar paso 3..."); // Debug en consola
+    let errores = [];
+    let nuevosInventarios = [];
+
     Game.equipos.forEach((e, i) => {
-        const sel = Array.from(document.getElementById(`plan_${i}`).selectedOptions).map(o => o.value);
-        if(sel.length !== 5) { alert(`Equipo ${e.nombre} debe elegir 5.`); throw "err"; }
-        e.inventario = sel.map(id => DB.base.find(o => o.id === id));
+        const selectElement = document.getElementById(`plan_${i}`);
+        const selectedOptions = Array.from(selectElement.selectedOptions);
+        
+        if (selectedOptions.length !== 5) {
+            errores.push(`${e.nombre} (${selectedOptions.length}/5)`);
+        } else {
+            const items = selectedOptions.map(opt => DB.base.find(item => item.id === opt.value));
+            nuevosInventarios.push(items);
+        }
     });
-    alert("Recursos asignados. ¡Comienza la supervivencia!");
-    Game.paso = 4; // Aquí seguirían los pasos de Robo, Pacto, etc.
-    render();
+
+    if (errores.length > 0) {
+        alert("⚠️ Cada equipo debe seleccionar exactamente 5 objetos.\nEquipos incompletos: " + errores.join(", "));
+    } else {
+        // Asignar inventarios si todo está bien
+        Game.equipos.forEach((e, i) => {
+            e.inventario = nuevosInventarios[i];
+        });
+        log("Planeación confirmada para todos los equipos.");
+        Game.paso = 4;
+        render();
+    }
 }
 
-// Ejecutar al cargar
+// Iniciar
 render();
 </script>
 </body>
