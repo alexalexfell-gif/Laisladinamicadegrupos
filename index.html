@@ -43,13 +43,13 @@ const objetosRol = ["Machete","Antifaz","Maletín","Alianza militar","Guantes"];
 let pasoActual = 0;
 let grupos = [];
 
-// Mapear cada objeto a su paso relevante
+// Mapear solo los objetos que tienen un paso relevante
 const objetoAPaso = {
   "Machete": 6,
   "Antifaz": 4,
-  "Maletín": 4,
   "Alianza militar": 5,
   "Guantes": 7
+  // Maletín no tiene paso, no se incluye
 };
 
 const pasos = [
@@ -64,11 +64,11 @@ const pasos = [
   {titulo:"Paso 9: Decisión final", contenido:"Se sumarán las puntuaciones obtenidas en cada categoría. El equipo que logre alcanzar el mínimo de todas las categorías (4 puntos en Alimentación, 3 puntos en Utilidad y 2 puntos en Orientación) gana la dinámica."}
 ];
 
-// Función para mostrar el paso actual
+// Mostrar paso actual
 function mostrarPaso(){
   let html = `<strong>${pasos[pasoActual].titulo}</strong>\n\n` + pasos[pasoActual].contenido;
 
-  // Paso 2 → mostrar generador de grupos
+  // Paso 2 → generador de grupos y selección de objetos
   if(pasoActual === 1){
     html += `<br><br>Introduce los participantes y genera los grupos y objetos de rol.`;
     html += `<br><label>Participantes (uno por línea, máximo 15):</label>
@@ -79,20 +79,20 @@ function mostrarPaso(){
     <div id="resultado"></div>`;
   }
 
-  // Pasos posteriores → mostrar resumen de grupos y objetos
+  // Pasos posteriores → resumen de grupos y objetos
   if(pasoActual > 1 && grupos.length > 0){
     html += "\n\nResumen de grupos y objetos:\n";
     grupos.forEach((grupo,i)=>{
       html += `Grupo ${i+1}:\n`;
-      grupo.miembros.forEach((p,j)=>{
-        html += `  ${p} - ${grupo.roles[j]}\n`;
-      });
+      grupo.miembros.forEach((p,j)=>{ html += `  ${p} - ${grupo.roles[j]}\n`; });
       html += "  Objetos: ";
       grupo.objetos.forEach(obj=>{
         let clase = "";
         const pasoObjeto = objetoAPaso[obj];
-        if(pasoActual + 1 === pasoObjeto) clase = "relevante"; // rojo si es el paso actual
-        else if(pasoActual + 1 > pasoObjeto) clase = "usado";   // gris si paso ya pasó
+        if(pasoObjeto !== undefined){
+          if(pasoActual + 1 === pasoObjeto) clase = "relevante"; // rojo si paso actual
+          else if(pasoActual + 1 > pasoObjeto) clase = "usado";  // gris si paso ya pasó
+        }
         html += `<span class="${clase}">${obj}</span> `;
       });
       html += "\n";
@@ -111,14 +111,13 @@ function cambiarPaso(direccion){
   mostrarPaso();
 }
 
-// Generar grupos y asignar roles con objetos
-function generarGrupos() {
+// Generar grupos y asignar roles
+function generarGrupos(){
   const nombres = document.getElementById("participantes").value.split("\n").filter(n => n.trim() !== "");
   const numGrupos = parseInt(document.getElementById("numGrupos").value);
   if(nombres.length === 0){ alert("Introduce al menos un participante"); return; }
   if(nombres.length > 15){ alert("Máximo 15 participantes"); return; }
 
-  // Mezclar participantes
   for(let i=nombres.length-1;i>0;i--){
     const j = Math.floor(Math.random()*(i+1));
     [nombres[i], nombres[j]] = [nombres[j], nombres[i]];
@@ -131,7 +130,6 @@ function generarGrupos() {
     grupos[g].roles.push(roles[index % roles.length]);
   });
 
-  // Crear HTML para seleccionar objetos
   let html = "";
   grupos.forEach((grupo,i)=>{
     const grupoNum = i+1;
@@ -147,6 +145,7 @@ function generarGrupos() {
     html += ` <button onclick="guardarObjetos(${grupoNum})">Guardar objetos del grupo ${grupoNum}</button>`;
     html += `<p id="grupo${grupoNum}-objetos-asignados" class="objetos"></p></div>`;
   });
+
   document.getElementById("resultado").innerHTML = html;
 }
 
@@ -174,6 +173,4 @@ mostrarPaso();
 </script>
 </body>
 </html>
-
-
 
