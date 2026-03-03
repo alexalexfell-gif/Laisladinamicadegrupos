@@ -283,28 +283,45 @@ function saveRegistration() {
 function updatePactUI() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
     Game.equipos.forEach((_, i) => {
-        // En este paso todos pueden elegir un objeto (los pactados por acuerdo, el excluido por venganza)
-        if(document.getElementById(`pact_choice_${i}`)) document.getElementById(`pact_choice_${i}`).style.display = "block";
+        const container = document.getElementById(`pact_choice_${i}`);
+        if(container) {
+            container.style.display = "block";
+            // Si está en el pacto, permitimos selección múltiple de 2, si no, solo 1.
+            const isPact = ps.includes(i);
+            const select = document.getElementById(`pact_sel_${i}`);
+            select.multiple = isPact;
+            container.querySelector('b').innerText = isPact ? "Elegir 2 Objetos (Ctrl+Click):" : "Elegir 1 Objeto:";
+        }
     });
 }
 
 function processPact() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
-    if(ps.length !== 2) return alert("Selecciona 2 equipos para el pacto.");
+    if(ps.length !== 2) return alert("Selecciona exactamente 2 equipos para el pacto.");
     
-    Game.equipos.forEach((_, i) => {
-        const sel = document.getElementById(`pact_sel_${i}`).value;
-        const item = {...PACTO_OBJ.find(p => p.id === sel)};
+    for(let i=0; i<3; i++) {
+        const select = document.getElementById(`pact_sel_${i}`);
+        const selectedOpts = Array.from(select.selectedOptions);
         
         if(ps.includes(i)) {
-            // Equipos en el pacto
-            Game.equipos[i].inventario.push(item);
+            // Equipos en el pacto: deben elegir 2
+            if(selectedOpts.length !== 2) {
+                alert(`El equipo ${Game.equipos[i].nombre} debe elegir 2 objetos.`);
+                return;
+            }
+            selectedOpts.forEach(opt => {
+                Game.equipos[i].inventario.push({...PACTO_OBJ.find(p => p.id === opt.value)});
+            });
         } else { 
-            // Equipo excluido recibe objeto Y venganza
-            Game.equipos[i].inventario.push(item);
+            // Equipo excluido: debe elegir 1
+            if(selectedOpts.length !== 1) {
+                alert(`El equipo ${Game.equipos[i].nombre} (excluido) debe elegir 1 objeto.`);
+                return;
+            }
+            Game.equipos[i].inventario.push({...PACTO_OBJ.find(p => p.id === selectedOpts[0].value)});
             Game.equipos[i].venganza = true; 
         }
-    });
+    }
     Game.paso = 6; render();
 }
 
@@ -433,3 +450,4 @@ window.onload = render;
 </script>
 </body>
 </html>
+
