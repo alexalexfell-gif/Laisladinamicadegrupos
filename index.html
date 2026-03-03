@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="y2jTAuWIOHGZjEVlHQWZikiKp-2kZubUix0gA1uebRo" />
     
-    <title>The Island ha sido desarrollado por Alejandro Scuro Rossi como un proyecto experimental de visualización que explora las dinámicas de interacción grupal en simulaciones basadas en navegador.</title>
+    <title>The Island - Alejandro Scuro Rossi</title>
     <meta name="description" content="La Isla: Una dinámica grupal creada por Alejandro Scuro Rossi.">
     <meta name="keywords" content="Alejandro Scuro Rossi, trabajo en equipo, recursos humanos, dinámica grupal, liderazgo, roleplay, simulación de supervivencia, evaluación de competencias">
     <meta name="author" content="Alejandro Scuro Rossi">
@@ -232,10 +232,16 @@ function render() {
 
 function generateFieldsHTML(n) {
     let fields = [];
-    if (n == 5) fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
-    else if (n == 4) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
-    else if (n == 3) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador/Recolector"},{r:"Comerciante"}];
-    return fields.map(f => `<span class="role-tag">${f.r}</span><input type="text" class="player-input" data-role="${f.r}" placeholder="Nombre...">`).join("");
+    if (n == 5) {
+        fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
+    } else if (n == 4) {
+        // El primero tendrá 2 roles según instrucción
+        fields = [{r:"Ladrón/Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
+    } else if (n == 3) {
+        // Los dos primeros tendrán 2 roles según instrucción
+        fields = [{r:"Ladrón/Diplomático"},{r:"Luchador/Recolector"},{r:"Comerciante"}];
+    }
+    return fields.map(f => `<span class="role-tag">${f.r}</span><input type="text" class="player-input" data-role="${f.r}" placeholder="Nombre del jugador...">`).join("");
 }
 
 function updateFieldsUI(i) { document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(parseInt(document.getElementById(`sz_${i}`).value)); }
@@ -268,7 +274,7 @@ function updatePactUI() {
 
 function processPact() {
     let ps = Array.from(document.querySelectorAll('.p-check:checked')).map(c=>parseInt(c.value));
-    if(ps.length !== 2) return alert("Selecciona 2 equipos.");
+    if(ps.length !== 2) return alert("Selecciona exactamente 2 equipos para realizar el pacto.");
     Game.equipos.forEach((_, i) => {
         const s = Array.from(document.getElementById(`pact_sel_${i}`).selectedOptions);
         s.forEach(opt => Game.equipos[i].inventario.push({...PACTO_OBJ.find(p => p.id === opt.value)}));
@@ -288,7 +294,7 @@ function updateScoreboard() {
 function saveInv3() {
     for(let i=0; i<3; i++) {
         const s = Array.from(document.getElementById(`p_${i}`).selectedOptions);
-        if(s.length!==5) return alert(`Elige 5.`);
+        if(s.length!==5) return alert(`Cada equipo debe elegir exactamente 5 objetos.`);
         Game.equipos[i].inventario = s.map(o => ({...CATALOGO_BASE.find(b => b.id === o.value)}));
     }
     Game.paso = 3.5; render();
@@ -324,7 +330,7 @@ function processNightRobbery() {
 
 function toggleAtkControls(eq, atk) { document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "block"; }
 function handleLuchaAtk(eq, atk, win) {
-    if(!win) { document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "FALLO"; return; }
+    if(!win) { document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "ATAQUE FALLIDO"; return; }
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "none";
     document.getElementById(`rob_area_${eq}_${atk}`).style.display = "block";
@@ -334,13 +340,13 @@ function finishLuchaRob(eq, atk) {
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     const idx = document.getElementById(`item_to_rob_${eq}_${atk}`).value;
     if(idx !== "") Game.equipos[eq].inventario.push(Game.equipos[vic].inventario.splice(idx, 1)[0]);
-    document.getElementById('atk_block_'+eq+'_'+atk).innerHTML = "ÉXITO";
+    document.getElementById('atk_block_'+eq+'_'+atk).innerHTML = "ATAQUE EXITOSO";
     updateScoreboard();
 }
 
 function ejecutarTurnoRecoleccion(eqIdx, cant) {
     const opts = Array.from(document.getElementById('rec_sel').selectedOptions);
-    if (opts.length !== cant) return alert(`Elige ${cant}.`);
+    if (opts.length !== cant) return alert(`Debes seleccionar exactamente ${cant} objetos.`);
     opts.forEach(o => {
         const idx = CATALOGO_BASE.findIndex(x => x.id === o.value);
         if(idx !== -1) Game.equipos[eqIdx].inventario.push({...CATALOGO_BASE.splice(idx, 1)[0]});
@@ -355,7 +361,7 @@ function updateTradeProposalUI(eqIdx) {
     const pIdx = document.getElementById(`m_partner_${eqIdx}`).value;
     if (pIdx === "") { document.getElementById(`trade_ui_${eqIdx}`).style.display = "none"; return; }
     document.getElementById(`trade_ui_${eqIdx}`).style.display = "block";
-    document.getElementById(`partner_give_area_${eqIdx}`).innerHTML = `<b>Da ${Game.equipos[pIdx].nombre}:</b><select id="m_partner_give_${eqIdx}">${Game.equipos[pIdx].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select>`;
+    document.getElementById(`partner_give_area_${eqIdx}`).innerHTML = `<b>Ofrece ${Game.equipos[pIdx].nombre}:</b><select id="m_partner_give_${eqIdx}">${Game.equipos[pIdx].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select>`;
 }
 
 function ejecutarIntercambioDirecto(eqIdx) {
@@ -372,7 +378,7 @@ function ejecutarIntercambioDirecto(eqIdx) {
 function renderMaletinUI(eqIdx) {
     const e = Game.equipos[eqIdx];
     if (!e.inventario.some(it => it.id === 'maletin') && !e.maletin.some(it => it.id === 'maletin')) return '';
-    return `<div class="maletin-box"><b>🧳 Maletín (${e.maletin.length}/2)</b><br>${e.maletin.length < 2 ? `<select id="to_m_${eqIdx}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><button onclick="addToMaletin(${eqIdx})">Guardar</button>` : 'Lleno'}</div>`;
+    return `<div class="maletin-box"><b>🧳 Maletín (${e.maletin.length}/2)</b><br>${e.maletin.length < 2 ? `<select id="to_m_${eqIdx}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><button onclick="addToMaletin(${eqIdx})">Guardar Objeto</button>` : 'Maletín Lleno'}</div>`;
 }
 
 function addToMaletin(eqIdx) {
@@ -386,9 +392,6 @@ window.onload = render;
     
 </body>
 </html>
-
-
-
 
 
 
