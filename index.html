@@ -219,7 +219,7 @@ function render() {
         ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             const vVal = Game.equipos.map((v, vi) => (i===vi || (pactTeams.includes(i) && pactTeams.includes(vi))) ? null : `<option value="${vi}">${v.nombre}</option>`).filter(o=>o).join("");
-            return `<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Atk ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿Víctima?</option>${vVal}</select><div id="atk_ctrls_${i}_${a}" style="display:none;"><button onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button onclick="handleLuchaAtk(${i}, ${a}, false)" style="background:#95a5a6">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Robar</button></div></div>`).join("")}</div></div>`;
+            return `<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span>${renderMaletinUI(i)}<div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Atk ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿Víctima?</option>${vVal}</select><div id="atk_ctrls_${i}_${a}" style="display:none;"><button onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button onclick="handleLuchaAtk(${i}, ${a}, false)" style="background:#95a5a6">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Robar</button></div></div>`).join("")}</div></div>`;
         }).join("")}</div><button onclick="Game.paso=7; render()">Siguiente</button></div>`;
     }
     else if (Game.paso === 7) {
@@ -318,20 +318,34 @@ function saveRoleInv() {
     Game.paso = 4; render();
 }
 
-function updateNightUI(eq) { document.getElementById(`n_ui_${eq}`).style.display = (document.getElementById(`n_act_${eq}`).value==='atk'?'block':'none'); }
+function updateNightUI(eq) { 
+    const isAtk = document.getElementById(`n_act_${eq}`).value === 'atk';
+    document.getElementById(`n_ui_${eq}`).style.display = isAtk ? 'block' : 'none'; 
+}
+
 function loadNightItems(eq) {
     const v = document.getElementById(`n_vic_${eq}`).value;
     if(v==="") return;
-    document.getElementById(`n_obj_${eq}`).innerHTML = Game.equipos[v].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
+    document.getElementById(`n_obj_${eq}`).innerHTML = Game.equipos[v].inventario
+        .map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '')
+        .join("");
 }
 
 function processNightRobbery() {
     Game.equipos.forEach((e, i) => {
+        const hasA = e.inventario.some(it => it.id === 'antifaz');
+        const limit = hasA ? 2 : 1;
         if (document.getElementById(`n_act_${i}`).value === 'atk') {
             const v = parseInt(document.getElementById(`n_vic_${i}`).value);
-            const opts = Array.from(document.getElementById(`n_obj_${i}`).selectedOptions).map(o => parseInt(o.value)).sort((a,b)=>b-a);
+            const opts = Array.from(document.getElementById(`n_obj_${i}`).selectedOptions)
+                .slice(0, limit)
+                .map(o => parseInt(o.value))
+                .sort((a,b)=>b-a);
             if (document.getElementById(`n_act_${v}`).value !== 'def') {
-                opts.forEach(idx => { if(Game.equipos[v].inventario[idx]) Game.equipos[i].inventario.push(Game.equipos[v].inventario.splice(idx, 1)[0]); });
+                opts.forEach(idx => { 
+                    if(Game.equipos[v].inventario[idx]) 
+                        Game.equipos[i].inventario.push(Game.equipos[v].inventario.splice(idx, 1)[0]); 
+                });
             }
         }
     });
@@ -339,13 +353,17 @@ function processNightRobbery() {
 }
 
 function toggleAtkControls(eq, atk) { document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "block"; }
+
 function handleLuchaAtk(eq, atk, win) {
     if(!win) { document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "FALLO"; return; }
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "none";
     document.getElementById(`rob_area_${eq}_${atk}`).style.display = "block";
-    document.getElementById(`item_to_rob_${eq}_${atk}`).innerHTML = Game.equipos[vic].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
+    document.getElementById(`item_to_rob_${eq}_${atk}`).innerHTML = Game.equipos[vic].inventario
+        .map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '')
+        .join("");
 }
+
 function finishLuchaRob(eq, atk) {
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     const idx = document.getElementById(`item_to_rob_${eq}_${atk}`).value;
@@ -400,6 +418,7 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
 
 
