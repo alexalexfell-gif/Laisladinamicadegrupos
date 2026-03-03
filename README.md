@@ -1,4 +1,4 @@
-🌊 La Isla — Herramienta de Simulación de Interacción Visual
+🌊 La Isla — Herramienta de Simulación de Interacción Visual.
 
 Autor: Alejandro Scuro Rossi
 Versión: 1.0 (Prototipo Experimental)
