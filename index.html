@@ -87,11 +87,11 @@ const PACTO_OBJ = [
     { id: "brujula", n: "Brújula", c: "ori", p: 2 }
 ];
 const ROLES_OBJ = [
-    { id: "antifaz", n: "Antifaz (Ladrón)", c: "uti", p: 1, type: "rol" },
-    { id: "guantes", n: "Guantes (Recolector)", c: "ali", p: 1, type: "rol" },
-    { id: "machete", n: "Machete (Luchador)", c: "uti", p: 1, type: "rol" },
-    { id: "maletin", n: "Maletín (Comerciante)", c: "uti", p: 1, type: "rol" },
-    { id: "alianza_mil", n: "Alianza militar (Diplomático)", c: "ori", p: 1, type: "rol" }
+    { id: "antifaz", n: "Antifaz (Ladrón)", p: 0, type: "rol" },
+    { id: "guantes", n: "Guantes (Recolector)", p: 0, type: "rol" },
+    { id: "machete", n: "Machete (Luchador)", p: 0, type: "rol" },
+    { id: "maletin", n: "Maletín (Comerciante)", p: 0, type: "rol" },
+    { id: "alianza_mil", n: "Alianza militar (Diplomático)", p: 0, type: "rol" }
 ];
 
 let Game = {
@@ -238,7 +238,7 @@ function render() {
     else if (Game.paso === 9) {
         ui.innerHTML = `<div class="card" style="text-align:center"><h2>Resultados Finales</h2><div class="grid">${Game.equipos.map(e => {
             const inv = [...e.inventario, ...e.maletin];
-            const p = inv.reduce((acc, i) => { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); return acc; }, { ali:0, uti:0, ori:0 });
+            const p = inv.reduce((acc, i) => { if(i.c) { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); } return acc; }, { ali:0, uti:0, ori:0 });
             const win = p.ali >= 4 && p.uti >= 3 && p.ori >= 2;
             return `<div class="card" style="border-top: 5px solid ${win?'#27ae60':'#e74c3c'}"><h3>${e.nombre}</h3><h1 style="color:${win?'#27ae60':'#e74c3c'}">${win?'VIVE':'MUERE'}</h1><p>🍎${p.ali}/4 🛠${p.uti}/3 🧭${p.ori}/2</p></div>`;
         }).join("")}</div><p style="font-size:0.8em; color:#666; margin-top:20px;">Nota: Al cerrar esta pestaña, todos los datos registrados se borrarán permanentemente.</p><button onclick="location.reload()">Reiniciar Dinámica</button></div>`;
@@ -331,7 +331,7 @@ function processPact() {
 function updateScoreboard() {
     document.getElementById('scoreboard').innerHTML = Game.equipos.map(e => {
         const inv = [...e.inventario, ...e.maletin];
-        const p = inv.reduce((acc, i) => { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); return acc; }, { ali:0, uti:0, ori:0 });
+        const p = inv.reduce((acc, i) => { if(i.c) { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); } return acc; }, { ali:0, uti:0, ori:0 });
         return `<div class="score-card"><b>${e.nombre}</b><br>🍎${p.ali} 🛠${p.uti} 🧭${p.ori}</div>`;
     }).join("");
 }
@@ -399,7 +399,7 @@ function finishLuchaRob(eq, atk) {
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     const idx = document.getElementById(`item_to_rob_${eq}_${atk}`).value;
     if(idx !== "") Game.equipos[eq].inventario.push(Game.equipos[vic].inventario.splice(idx, 1)[0]);
-    document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "ÉXITO";
+    document.getElementById('atk_block_'+eq+'_'+atk).innerHTML = "ÉXITO";
     updateScoreboard();
 }
 
