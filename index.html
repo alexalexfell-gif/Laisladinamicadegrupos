@@ -122,10 +122,20 @@ function render() {
                     </div>
                 </div>
             </div>
-            <div style="font-size: 0.75rem; text-align: left; background: #f8f9fa; padding: 20px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0;">
+            
+            <div style="font-size: 0.75rem; text-align: left; background: #f8f9fa; padding: 20px; border: 1px solid #dfe6e9; border-radius: 8px; margin: 20px 0; color: #636e72; line-height: 1.4;">
+                <p><strong>Descargo de Responsabilidad y Privacidad (RGPD):</strong></p>
+                <p>Al iniciar esta dinámica, usted reconoce y acepta que:</p>
+                <ul>
+                    <li><strong>Privacidad:</strong> Los nombres introducidos se procesan localmente en su navegador y no se envían a ningún servidor externo.</li>
+                    <li><strong>Eliminación de datos:</strong> Toda la información de la sesión se borrará automáticamente al cerrar o recargar esta pestaña.</li>
+                    <li><strong>Propiedad Intelectual:</strong> "La Isla" es una metodología propiedad de Alejandro Scuro Rossi. Este software es una herramienta de soporte para su ejecución.</li>
+                </ul>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
                 <input type="checkbox" id="consent_check" onchange="document.getElementById('start_btn').disabled = !this.checked">
-                <label for="consent_check">He leído el descargo legal y confirmo el consentimiento conforme al RGPD.</label>
+                <label for="consent_check" style="color: #2d3436; font-weight: bold;">He leído el descargo legal y confirmo el consentimiento conforme al RGPD.</label>
             </div>
+            
             <button id="start_btn" disabled onclick="PrivacyKernel.grantConsent()">Iniciar Dinámica</button>
         </div>`;
     }
@@ -338,3 +348,4 @@ window.onload = render;
 </script>
 </body>
 </html>
+
