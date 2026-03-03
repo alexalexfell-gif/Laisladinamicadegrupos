@@ -34,7 +34,6 @@
         .req-list { list-style: none; padding: 0; font-weight: bold; }
         .phase-list { padding-left: 18px; margin: 5px 0; }
 
-        /* Estilos para la tabla de objetos de rol */
         .role-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
         .role-table th, .role-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         .role-table th { background-color: var(--primary); color: white; }
@@ -166,14 +165,10 @@ function render() {
             <div style="margin-top:15px; text-align: left; padding: 0 10px;">
                 <input type="checkbox" id="consent_check" onchange="document.getElementById('start_btn').disabled = !this.checked">
                 <label for="consent_check" style="color: #2d3436; font-weight: bold; cursor:pointer; font-size: 0.85rem;">
-                    He leído el aviso legal y confirmo que he informado a los participantes sobre el uso de sus datos.
+                    He leído el aviso legal, el descargo de responsabilidad y confirmo el consentimiento conforme al RGPD.
                 </label>
             </div>
             
-            <div style="margin-top:15px;">
-                <input type="checkbox" id="consent_check" onchange="document.getElementById('start_btn').disabled = !this.checked">
-                <label for="consent_check" style="color: #2d3436; font-weight: bold; cursor:pointer;">He leído el descargo legal y confirmo el consentimiento conforme al RGPD.</label>
-            </div>
             <button id="start_btn" disabled onclick="PrivacyKernel.grantConsent()">Iniciar Dinámica</button>
         </div>`;
     }
@@ -191,7 +186,7 @@ function render() {
     else if (Game.paso === 3.2) {
         ui.innerHTML = `<div class="card">
             <h2>Introducción a los Objetos de Rol</h2>
-            <p>En este sistema, los <b>Objetos de Rol</b> son componentes funcionales que modifican las capacidades de un jugador durante fases específicas. Cada objeto actúa como una mejora permanente o un modificador de reglas.</p>
+            <p>En este sistema, los <b>Objetos de Rol</b> son componentes funcionales que modifican las capacidades de un jugador durante fases específicas.</p>
             <table class="role-table">
                 <thead>
                     <tr><th>Objeto</th><th>Efecto Mecánico</th></tr>
@@ -405,6 +400,7 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
 
 
