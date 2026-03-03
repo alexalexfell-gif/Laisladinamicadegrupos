@@ -149,13 +149,25 @@ function render() {
                 </div>
             </div>
 
-            <div style="font-size: 0.65rem; text-align: justify; background: #f1f2f6; padding: 20px; border: 1px solid #d1d8e0; border-radius: 8px; margin: 15px 0; color: #4b6584; line-height: 1.4; max-height: 250px; overflow-y: auto; border-left: 5px solid #778ca3;">
+            <div style="font-size: 0.7rem; text-align: justify; background: #f1f2f6; padding: 20px; border: 1px solid #d1d8e0; border-radius: 8px; margin: 15px 0; color: #4b6584; line-height: 1.5; max-height: 250px; overflow-y: auto; border-left: 5px solid #778ca3;">
                 <p style="text-align: center; font-weight: bold; color: #2f3542; margin-bottom: 10px;">AVISO LEGAL, EXENCIÓN DE RESPONSABILIDAD Y TÉRMINOS DE USO DE “LA ISLA”</p>
-                <p><b>1. NATURALEZA DEL SOFTWARE:</b> “La Isla” es una herramienta técnica de soporte visual y logístico para la ejecución de una dinámica grupal presencial. Este software no es un sistema de evaluación automatizada (ATS), ni un test psicotécnico validado, ni realiza perfiles de personalidad de forma autónomatica.</p>
+                
+                <p><b>1. NATURALEZA Y FINALIDAD DEL SOFTWARE:</b> "La Isla" es una herramienta de soporte visual y logístico diseñada para facilitar dinámicas grupales de carácter formativo, experiencial o de desarrollo de habilidades. NO es un sistema de evaluación automatizada (ATS), ni un test psicotécnico validado, ni genera perfiles de personalidad de forma autónoma. Su propósito es servir como apoyo a profesionales (educadores, facilitadores, RRHH, psicólogos grupales) en la gestión de simulaciones, siendo la interpretación y aplicación de los resultados responsabilidad exclusiva del usuario profesional.</p>
+                
                 <p><b>2. PROPIEDAD INTELECTUAL:</b> La metodología, diseño de juego, lógica de roles y sistema de puntuación son propiedad intelectual exclusiva de <b>Alejandro Scuro Rossi</b>.</p>
-                <p><b>3. PRIVACIDAD (RGPD):</b> Este software opera bajo arquitectura Zero-Server. Al recargar o cerrar la pestaña, toda la información es destruida de forma irreversible.</p>
-                <p><b>4. EXENCIÓN DE RESPONSABILIDAD:</b> Alejandro Scuro Rossi declina cualquier responsabilidad derivada de decisiones de contratación o interpretaciones erróneas de los comportamientos observados.</p>
-                <p><b>5. RESPONSABILIDAD: Al hacer click en Iniciar Dinámica acepta ser el único responsable de las consecuencias del uso de esta herramienta asi como de informar a los participantes del tratamiento de sus datos.</p>
+                
+                <p><b>3. PRIVACIDAD Y PROTECCIÓN DE DATOS (RGPD):</b> "La Isla" opera bajo una arquitectura Zero-Server, lo que significa que no almacena datos personales de los participantes en sus servidores. Toda la información generada durante la dinámica es efímera y se destruye de forma irreversible al recargar o cerrar la pestaña del navegador. El profesional que utiliza la herramienta es el <b>ÚNICO RESPONSABLE</b> de informar a los participantes sobre el tratamiento de sus datos personales en el contexto de la dinámica y de cumplir con todas las obligaciones del Reglamento General de Protección de Datos (RGPD) y la legislación nacional aplicable.</p>
+                
+                <p><b>4. EXENCIÓN DE RESPONSABILIDAD:</b> Alejandro Scuro Rossi declina expresamente cualquier responsabilidad por las decisiones, conclusiones o interpretaciones que los profesionales usuarios realicen basándose en los resultados o la experiencia de la dinámica "La Isla". Esto incluye, pero no se limita a, decisiones de contratación, desarrollo de personal, o cualquier otra aplicación profesional. El uso de "La Isla" es una herramienta de apoyo y la responsabilidad de su aplicación, interpretación y las consecuencias derivadas recae enteramente en el profesional usuario.</p>
+                
+                <p><b>5. ACEPTACIÓN Y RESPONSABILIDAD DEL PROFESIONAL USUARIO:</b> Al hacer clic en "Iniciar Dinámica", el profesional usuario acepta y reconoce ser el único y exclusivo responsable de informar a los participantes del uso de sus datos y de la gestión ética de la información resultante.</p>
+            </div>
+
+            <div style="margin-top:15px; text-align: left; padding: 0 10px;">
+                <input type="checkbox" id="consent_check" onchange="document.getElementById('start_btn').disabled = !this.checked">
+                <label for="consent_check" style="color: #2d3436; font-weight: bold; cursor:pointer; font-size: 0.85rem;">
+                    He leído el aviso legal y confirmo que he informado a los participantes sobre el uso de sus datos.
+                </label>
             </div>
             
             <div style="margin-top:15px;">
@@ -393,5 +405,6 @@ window.onload = render;
 </script>
 </body>
 </html>
+
 
 
