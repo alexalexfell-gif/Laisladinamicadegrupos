@@ -34,9 +34,11 @@
         .req-list { list-style: none; padding: 0; font-weight: bold; }
         .phase-list { padding-left: 18px; margin: 5px 0; }
 
-        /* Estilos específicos para la nueva descarga */
-        .disclaimer-box { text-align: left; font-size: 0.85em; line-height: 1.5; background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin: 20px 0; max-height: 300px; overflow-y: auto; color: #555; }
-        .disclaimer-box h2, .disclaimer-box h4 { color: var(--primary); margin-top: 15px; margin-bottom: 5px; }
+        /* Estilos para la tabla de objetos de rol */
+        .role-table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        .role-table th, .role-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .role-table th { background-color: var(--primary); color: white; }
+        .role-table tr:nth-child(even) { background-color: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -111,64 +113,53 @@ function render() {
         ui.innerHTML = `<div class="card" style="text-align:center">
             <h1>🏝️ LA ISLA</h1>
             <p style="font-weight:bold; color:var(--primary); margin-bottom:10px;">Autor: Alejandro Scuro Rossi</p>
+            
             <div class="manual-container">
-                <h3>📜 Guía de Supervivencia</h3>
+                <h3>📜 Guía de Supervivencia y Roles</h3>
                 <div class="manual-grid">
                     <div>
-                        <p><b>Objetivos:</b></p>
+                        <p><b>Objetivos de Equipo:</b></p>
                         <ul class="req-list">
-                            <li style="color:var(--danger)">🍎 4 Ali</li>
-                            <li style="color:var(--primary)">🛠️ 3 Uti</li>
-                            <li style="color:var(--info)">🧭 2 Ori</li>
+                            <li style="color:var(--danger)">🍎 4 Alimentos (Ali)</li>
+                            <li style="color:var(--primary)">🛠️ 3 Utilidades (Uti)</li>
+                            <li style="color:var(--info)">🧭 2 Orientación (Ori)</li>
                         </ul>
                     </div>
                     <div>
-                        <p><b>Roles:</b></p>
-                        <ul class="phase-list" style="list-style:none; padding:0; font-size:0.9em;">
-                            <li>👤 Ladrón</li>
-                            <li>👤 Diplomático</li>
-                            <li>👤 Luchador</li>
-                            <li>👤 Recolector</li>
-                            <li>👤 Comerciante</li>
+                        <p><b>Descripción de Roles:</b></p>
+                        <ul class="phase-list" style="list-style:none; padding:0;">
+                            <li>👤 <b>Ladrón:</b> Roba objetos (mejor con Antifaz).</li>
+                            <li>👤 <b>Diplomático:</b> Negocia Pactos de nivel 2.</li>
+                            <li>👤 <b>Luchador:</b> Ataca para recuperar recursos.</li>
+                            <li>👤 <b>Recolector:</b> Extrae recursos adicionales.</li>
+                            <li>👤 <b>Comerciante:</b> Intercambia en el mercado.</li>
                         </ul>
                     </div>
                     <div>
-                        <p><b>Fases:</b></p>
-                        <ol class="phase-list" style="font-size:0.9em;">
+                        <p><b>Fases del Juego:</b></p>
+                        <ol class="phase-list">
                             <li>Planeación</li>
                             <li>Robo Nocturno</li>
-                            <li>Pacto</li>
-                            <li>Lucha</li>
+                            <li>El Pacto</li>
+                            <li>La Lucha</li>
                             <li>Recolección</li>
-                            <li>Mercado</li>
+                            <li>Mercado Final</li>
                         </ol>
                     </div>
                 </div>
             </div>
 
-            <div class="disclaimer-box">
-                <h2>Descarga de Responsabilidades y Términos de Uso de La Isla</h2>
-                <p>¡Bienvenido/a a La Isla! Antes de empezar a jugar, es importante que leas y entiendas esto. Al continuar, aceptas estos términos.</p>
-                
-                <h4>Naturaleza del Juego:</h4>
-                <p>Esta aplicación es una simulación de interacción grupal con fines puramente lúdicos y recreativos. Su objetivo es el entretenimiento y la experimentación de dinámicas de grupo en un entorno virtual. Las acciones que se realizan dentro del juego (como robos, luchas, diplomacia, mercadeo o recolección) son ficticias y simuladas. No tienen ninguna repercusión en la vida real ni deben interpretarse como un reflejo de comportamientos o habilidades personales. No está diseñada ni debe utilizarse para análisis psicológicos, evaluaciones de habilidades, perfiles profesionales, ni para tomar decisiones en la vida real.</p>
-                
-                <h4>Uso y Responsabilidad del Usuario/Facilitador:</h4>
-                <p>El uso de esta aplicación es bajo tu propio riesgo y responsabilidad. Es responsabilidad exclusiva del facilitador asegurarse de que todos los participantes han sido debidamente informados sobre la naturaleza simulada de la actividad, sus reglas y estos términos antes de comenzar. Los participantes pueden usar su nombre real o un alias/nick. En cualquier caso, la responsabilidad sobre la elección y el uso de dicho nombre recae en el usuario.</p>
-                
-                <h4>Datos y Privacidad (RGPD):</h4>
-                <p>Todos los datos generados durante la sesión se almacenan localmente en el navegador de forma estrictamente temporal. No se envían a ningún servidor externo ni se recopila información personal identificable de los usuarios por parte del autor de la aplicación. Debido a que la aplicación no recopila, almacena ni procesa datos personales de los usuarios en servidores externos, cumple con los principios fundamentales del Reglamento General de Protección de Datos (RGPD) al no requerir un tratamiento de datos que active sus obligaciones más complejas. Una vez finalizada la sesión o cerrado el navegador, estos datos temporales pueden desaparecer.</p>
-                
-                <h4>Exención de Responsabilidad del Autor:</h4>
-                <p>El autor de esta aplicación no se hace responsable de ninguna consecuencia directa o indirecta, daño, pérdida o perjuicio (material o inmaterial) que pueda derivarse del uso de la misma. Esto incluye, pero no se limita a, malentendidos entre participantes, decisiones tomadas basándose en la simulación, o cualquier otro incidente relacionado con la dinámica. La responsabilidad total del uso de esta herramienta recae sobre el facilitador y los participantes.</p>
-                
-                <h4>Asignación de Roles:</h4>
-                <p>Al continuar, reconoces que el azar es el único criterio de asignación de roles o situaciones dentro del juego.</p>
+            <div style="font-size: 0.65rem; text-align: justify; background: #f1f2f6; padding: 20px; border: 1px solid #d1d8e0; border-radius: 8px; margin: 15px 0; color: #4b6584; line-height: 1.4; max-height: 250px; overflow-y: auto; border-left: 5px solid #778ca3;">
+                <p style="text-align: center; font-weight: bold; color: #2f3542; margin-bottom: 10px;">AVISO LEGAL, EXENCIÓN DE RESPONSABILIDAD Y TÉRMINOS DE USO DE “LA ISLA”</p>
+                <p><b>1. NATURALEZA DEL SOFTWARE:</b> “La Isla” es una herramienta técnica de soporte visual y logístico para la ejecución de una dinámica grupal presencial. Este software no es un sistema de evaluación automatizada (ATS), ni un test psicotécnico validado, ni realiza perfiles de personalidad de forma autónomatica.</p>
+                <p><b>2. PROPIEDAD INTELECTUAL:</b> La metodología, diseño de juego, lógica de roles y sistema de puntuación son propiedad intelectual exclusiva de <b>Alejandro Scuro Rossi</b>.</p>
+                <p><b>3. PRIVACIDAD (RGPD):</b> Este software opera bajo arquitectura Zero-Server. Al recargar o cerrar la pestaña, toda la información es destruida de forma irreversible.</p>
+                <p><b>4. EXENCIÓN DE RESPONSABILIDAD:</b> Alejandro Scuro Rossi declina cualquier responsabilidad derivada de decisiones de contratación o interpretaciones erróneas de los comportamientos observados.</p>
             </div>
-
+            
             <div style="margin-top:15px;">
                 <input type="checkbox" id="consent_check" onchange="document.getElementById('start_btn').disabled = !this.checked">
-                <label for="consent_check" style="cursor:pointer;">He leído y acepto la Descarga de Responsabilidades y Términos de Uso.</label>
+                <label for="consent_check" style="color: #2d3436; font-weight: bold; cursor:pointer;">He leído el descargo legal y confirmo el consentimiento conforme al RGPD.</label>
             </div>
             <button id="start_btn" disabled onclick="PrivacyKernel.grantConsent()">Iniciar Dinámica</button>
         </div>`;
@@ -182,26 +173,45 @@ function render() {
             </div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
     }
     else if (Game.paso === 3) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente 5 objetos.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">[${o.c.toUpperCase()}] ${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3: Planeación</h2><p class="instruction">Selecciona exactamente <b>5 objetos</b> (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="p_${i}" multiple style="height:150px;">${CATALOGO_BASE.map(o => `<option value="${o.id}">[${o.c.toUpperCase()}] ${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveInv3()">Siguiente</button></div>`;
+    }
+    else if (Game.paso === 3.2) {
+        ui.innerHTML = `<div class="card">
+            <h2>Introducción a los Objetos de Rol</h2>
+            <p>En este sistema, los <b>Objetos de Rol</b> son componentes funcionales que modifican las capacidades de un jugador durante fases específicas. Cada objeto actúa como una mejora permanente o un modificador de reglas.</p>
+            <table class="role-table">
+                <thead>
+                    <tr><th>Objeto</th><th>Efecto Mecánico</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><b>🧤 Guantes</b></td><td>Permite al <b>Recolector</b> obtener 1 objeto extra en la fase de recolección.</td></tr>
+                    <tr><td><b>🧳 Maletín</b></td><td>Protege 2 objetos para que no puedan ser robados en ningún paso.</td></tr>
+                    <tr><td><b>🤝 Alianza Militar</b></td><td>Si se realiza un pacto, ambos equipos tienen prohibido atacarse en el paso de Lucha.</td></tr>
+                    <tr><td><b>🔪 Machete</b></td><td>El <b>Luchador</b> obtiene 1 ataque extra durante la resolución del combate.</td></tr>
+                    <tr><td><b>🎭 Antifaz</b></td><td>El <b>Ladrón</b> roba 1 objeto extra al realizar una acción de robo.</td></tr>
+                </tbody>
+            </table>
+            <button onclick="Game.paso=3.5; render();">Continuar a Asignación</button>
+        </div>`;
     }
     else if (Game.paso === 3.5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Objetos de Rol</h2><p class="instruction">Elige 2 objetos especiales.</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 3.5: Asignación de Roles</h2><p class="instruction">Selecciona 2 objetos de rol (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><select id="ro_${i}" multiple style="height:120px;">${ROLES_OBJ.map(o => `<option value="${o.id}">${o.n}</option>`).join("")}</select></div>`).join("")}</div><button onclick="saveRoleInv()">Confirmar</button></div>`;
     }
     else if (Game.paso === 4) {
         ui.innerHTML = `<div class="card"><h2>Paso 4: Robo Nocturno</h2><div class="grid">${Game.equipos.map((e, i) => {
             const hasA = e.inventario.some(it => it.id === 'antifaz');
-            return `<div class="card"><h3>${e.nombre} ${hasA ? '🎭' : ''}</h3><span class="player-name-display">👤 Ladrón: ${e.rolesNombres['Ladrón'] || 'No asignado'}</span><select id="n_act_${i}" onchange="updateNightUI(${i})"><option value="def">Defender</option><option value="atk">Robar</option></select><div id="n_ui_${i}" style="display:none"><select id="n_vic_${i}" onchange="loadNightItems(${i})"><option value="">¿Víctima?</option>${Game.equipos.map((v, vi) => i !== vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><select id="n_obj_${i}" multiple style="height:80px;"></select></div></div>`;
+            return `<div class="card"><h3>${e.nombre} ${hasA ? '🎭' : ''}</h3><span class="player-name-display">👤 Ladrón: ${e.rolesNombres['Ladrón'] || 'No asignado'}</span>${renderMaletinUI(i)}<select id="n_act_${i}" onchange="updateNightUI(${i})"><option value="def">Defender</option><option value="atk">Robar (${hasA?2:1})</option></select><div id="n_ui_${i}" style="display:none"><select id="n_vic_${i}" onchange="loadNightItems(${i})"><option value="">¿Víctima?</option>${Game.equipos.map((v, vi) => i !== vi ? `<option value="${vi}">${v.nombre}</option>` : '').join("")}</select><select id="n_obj_${i}" multiple style="height:80px;"></select></div></div>`;
         }).join("")}</div><button onclick="processNightRobbery()">Ejecutar</button></div>`;
     }
     else if (Game.paso === 5) {
-        ui.innerHTML = `<div class="card"><h2>Paso 5: El Pacto</h2><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Diplomático: ${e.rolesNombres['Diplomático'] || 'No asignado'}</span><input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa</label><div id="pact_choice_${i}" style="display:none; margin-top:10px;"><select id="pact_sel_${i}" multiple style="height:80px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">${o.n}</option>`).join("")}</select></div></div>`).join("")}</div><button onclick="processPact()">Cerrar Pacto</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 5: El Pacto</h2><p class="instruction">Los diplomáticos negocian. Selecciona participantes y sus objetos (Ctrl+Click).</p><div class="grid">${Game.equipos.map((e,i)=>`<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Diplomático: ${e.rolesNombres['Diplomático'] || 'No asignado'}</span>${renderMaletinUI(i)}<input type="checkbox" class="p-check" value="${i}" id="chk${i}" onchange="updatePactUI()"><label for="chk${i}"> Participa</label><div id="pact_choice_${i}" style="display:none; margin-top:10px;"><b>Elegir:</b><select id="pact_sel_${i}" multiple style="height:80px;">${PACTO_OBJ.map(o=>`<option value="${o.id}">[${o.c.toUpperCase()}] ${o.n}</option>`).join("")}</select></div></div>`).join("")}</div><div id="pacto-area"></div><button onclick="processPact()">Cerrar Pacto</button></div>`;
     }
     else if (Game.paso === 6) {
         let pactTeams = Array.from(document.querySelectorAll('.p-check:checked')).map(c => parseInt(c.value));
         ui.innerHTML = `<div class="card"><h2>Paso 6: Lucha</h2><div class="grid">${Game.equipos.map((e, i) => {
             let numAtks = 1 + (e.inventario.some(it => it.id === 'machete') ? 1 : 0) + (e.venganza ? 1 : 0);
             const vVal = Game.equipos.map((v, vi) => (i===vi || (pactTeams.includes(i) && pactTeams.includes(vi))) ? null : `<option value="${vi}">${v.nombre}</option>`).filter(o=>o).join("");
-            return `<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Ataque ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿Víctima?</option>${vVal}</select><div id="atk_ctrls_${i}_${a}" style="display:none;"><button onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button onclick="handleLuchaAtk(${i}, ${a}, false)" style="background:#95a5a6">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Robar</button></div></div>`).join("")}</div></div>`;
+            return `<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Luchador: ${e.rolesNombres['Luchador'] || 'No asignado'}</span><div id="lucha_area_${i}">${Array.from({length: numAtks}).map((_, a) => `<div class="trade-slot" id="atk_block_${i}_${a}"><b>Atk ${a+1}:</b><select id="vic_sel_${i}_${a}" onchange="toggleAtkControls(${i}, ${a})"><option value="">¿Víctima?</option>${vVal}</select><div id="atk_ctrls_${i}_${a}" style="display:none;"><button onclick="handleLuchaAtk(${i}, ${a}, true)">ÉXITO</button><button onclick="handleLuchaAtk(${i}, ${a}, false)" style="background:#95a5a6">FALLO</button></div><div id="rob_area_${i}_${a}" style="display:none;"><select id="item_to_rob_${i}_${a}"></select><button onclick="finishLuchaRob(${i}, ${a})">Robar</button></div></div>`).join("")}</div></div>`;
         }).join("")}</div><button onclick="Game.paso=7; render()">Siguiente</button></div>`;
     }
     else if (Game.paso === 7) {
@@ -209,17 +219,20 @@ function render() {
         const eqIdx = Game.recoleccion.secuencia[tIdx].eq;
         const e = Game.equipos[eqIdx];
         const cant = Game.recoleccion.secuencia[tIdx].cant + ((e.inventario.some(it => it.id === 'guantes') && !e.yaUsoGuantes) ? 1 : 0);
-        ui.innerHTML = `<div class="card"><h2>Paso 7: Recolección</h2><div class="grid">${Game.equipos.map((eq, i) => `<div class="card ${eqIdx===i?'active-turn':''}" style="opacity:${eqIdx===i?'1':'0.5'}"><h3>${eq.nombre}</h3><span class="player-name-display">👤 Recolector: ${eq.rolesNombres['Recolector'] || 'No asignado'}</span>${eqIdx===i ? `<select id="rec_sel" multiple style="height:120px;">${CATALOGO_BASE.map(o=>`<option value="${o.id}">[${o.c.toUpperCase()}] ${o.n}</option>`).join("")}</select><button onclick="ejecutarTurnoRecoleccion(${i}, ${cant})">Recolectar (${cant})</button>` : `<p>Esperando...</p>`}</div>`).join("")}</div></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 7: Recolección</h2><p class="instruction">El recolector elige (Ctrl+Click). Cantidad: <b>${cant}</b>.</p><div class="grid">${Game.equipos.map((eq, i) => `<div class="card ${eqIdx===i?'active-turn':''}" style="opacity:${eqIdx===i?'1':'0.5'}"><h3>${eq.nombre}</h3><span class="player-name-display">👤 Recolector: ${eq.rolesNombres['Recolector'] || 'No asignado'}</span>${eqIdx===i ? `<select id="rec_sel" multiple style="height:120px;">${CATALOGO_BASE.map(o=>`<option value="${o.id}">[${o.c.toUpperCase()}] ${o.n}</option>`).join("")}</select><button onclick="ejecutarTurnoRecoleccion(${i}, ${cant})">Recolectar</button>` : `<p>Esperando...</p>`}</div>`).join("")}</div></div>`;
     }
     else if (Game.paso === 8) {
-        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado Final</h2><div class="grid">${Game.equipos.map((e, i) => `<div class="card"><h3>${e.nombre}</h3><span class="player-name-display">👤 Comerciante: ${e.rolesNombres['Comerciante'] || 'No asignado'}</span><div class="trade-slot"><select id="m_partner_${i}" onchange="updateTradeProposalUI(${i})"><option value="">Socio...</option>${Game.equipos.map((p, pIdx) => (pIdx !== i) ? `<option value="${pIdx}">${p.nombre}</option>` : '').join("")}</select><div id="trade_ui_${i}" style="display:none;"><select id="m_give_${i}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><div id="partner_give_area_${i}"></div><button onclick="ejecutarIntercambioDirecto(${i})">Confirmar</button></div></div></div>`).join("")}</div><button onclick="Game.paso=9; render()">Resultados</button></div>`;
+        ui.innerHTML = `<div class="card"><h2>Paso 8: Mercado</h2><div class="grid">${Game.equipos.map((e, i) => {
+            const fin = e.actionsMarket >= 2;
+            return `<div class="card" style="opacity:${fin?'0.7':'1'}"><h3>${e.nombre}</h3><span class="player-name-display">👤 Comerciante: ${e.rolesNombres['Comerciante'] || 'No asignado'}</span><div class="trade-slot"><select id="m_partner_${i}" onchange="updateTradeProposalUI(${i})" ${fin?'disabled':''}><option value="">Socio...</option>${Game.equipos.map((p, pIdx) => (pIdx !== i && p.actionsMarket < 2) ? `<option value="${pIdx}">${p.nombre}</option>` : '').join("")}</select><div id="trade_ui_${i}" style="display:none;"><select id="m_give_${i}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><div id="partner_give_area_${i}"></div><button onclick="ejecutarIntercambioDirecto(${i})">Confirmar</button></div></div></div>`;
+        }).join("")}</div><button onclick="Game.paso=9; render()">Finalizar</button></div>`;
     }
     else if (Game.paso === 9) {
-        ui.innerHTML = `<div class="card" style="text-align:center"><h2>Resultados</h2><div class="grid">${Game.equipos.map(e => {
+        ui.innerHTML = `<div class="card" style="text-align:center"><h2>Resultados Finales</h2><div class="grid">${Game.equipos.map(e => {
             const inv = [...e.inventario, ...e.maletin];
             const p = inv.reduce((acc, i) => { if(i.c) { acc[i.c] = (acc[i.c] || 0) + (i.p || 0); } return acc; }, { ali:0, uti:0, ori:0 });
             const win = p.ali >= 4 && p.uti >= 3 && p.ori >= 2;
-            return `<div class="card" style="border-top: 5px solid ${win?'#27ae60':'#e74c3c'}"><h3>${e.nombre}</h3><h1 style="color:${win?'#27ae60':'#e74c3c'}">${win?'SOBREVIVE':'MUERE'}</h1><p>🍎${p.ali}/4 🛠${p.uti}/3 🧭${p.ori}/2</p></div>`;
+            return `<div class="card" style="border-top: 5px solid ${win?'#27ae60':'#e74c3c'}"><h3>${e.nombre}</h3><h1 style="color:${win?'#27ae60':'#e74c3c'}">${win?'VIVE':'MUERE'}</h1><p>🍎${p.ali}/4 🛠${p.uti}/3 🧭${p.ori}/2</p></div>`;
         }).join("")}</div><button onclick="location.reload()">Reiniciar</button></div>`;
     }
 }
@@ -283,10 +296,10 @@ function updateScoreboard() {
 function saveInv3() {
     for(let i=0; i<3; i++) {
         const s = Array.from(document.getElementById(`p_${i}`).selectedOptions);
-        if(s.length!==5) return alert(`Elige 5 objetos.`);
+        if(s.length!==5) return alert(`Elige 5.`);
         Game.equipos[i].inventario = s.map(o => ({...CATALOGO_BASE.find(b => b.id === o.value)}));
     }
-    Game.paso = 3.5; render();
+    Game.paso = 3.2; render();
 }
 
 function saveRoleInv() {
@@ -298,11 +311,10 @@ function saveRoleInv() {
 }
 
 function updateNightUI(eq) { document.getElementById(`n_ui_${eq}`).style.display = (document.getElementById(`n_act_${eq}`).value==='atk'?'block':'none'); }
-
 function loadNightItems(eq) {
     const v = document.getElementById(`n_vic_${eq}`).value;
     if(v==="") return;
-    document.getElementById(`n_obj_${eq}`).innerHTML = Game.equipos[v].inventario.filter(it => it.type !== 'rol').map((it, idx) => `<option value="${idx}">${it.n}</option>`).join("");
+    document.getElementById(`n_obj_${eq}`).innerHTML = Game.equipos[v].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
 }
 
 function processNightRobbery() {
@@ -319,15 +331,13 @@ function processNightRobbery() {
 }
 
 function toggleAtkControls(eq, atk) { document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "block"; }
-
 function handleLuchaAtk(eq, atk, win) {
     if(!win) { document.getElementById(`atk_block_${eq}_${atk}`).innerHTML = "FALLO"; return; }
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     document.getElementById(`atk_ctrls_${eq}_${atk}`).style.display = "none";
     document.getElementById(`rob_area_${eq}_${atk}`).style.display = "block";
-    document.getElementById(`item_to_rob_${eq}_${atk}`).innerHTML = Game.equipos[vic].inventario.filter(it => it.type !== 'rol').map((it, idx) => `<option value="${idx}">${it.n}</option>`).join("");
+    document.getElementById(`item_to_rob_${eq}_${atk}`).innerHTML = Game.equipos[vic].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("");
 }
-
 function finishLuchaRob(eq, atk) {
     const vic = document.getElementById(`vic_sel_${eq}_${atk}`).value;
     const idx = document.getElementById(`item_to_rob_${eq}_${atk}`).value;
@@ -341,7 +351,7 @@ function ejecutarTurnoRecoleccion(eqIdx, cant) {
     if (opts.length !== cant) return alert(`Elige ${cant}.`);
     opts.forEach(o => {
         const idx = CATALOGO_BASE.findIndex(x => x.id === o.value);
-        if(idx !== -1) Game.equipos[eqIdx].inventario.push({...CATALOGO_BASE[idx]});
+        if(idx !== -1) Game.equipos[eqIdx].inventario.push({...CATALOGO_BASE.splice(idx, 1)[0]});
     });
     Game.equipos[eqIdx].yaUsoGuantes = true;
     Game.recoleccion.indexPaso++;
@@ -353,7 +363,7 @@ function updateTradeProposalUI(eqIdx) {
     const pIdx = document.getElementById(`m_partner_${eqIdx}`).value;
     if (pIdx === "") { document.getElementById(`trade_ui_${eqIdx}`).style.display = "none"; return; }
     document.getElementById(`trade_ui_${eqIdx}`).style.display = "block";
-    document.getElementById(`partner_give_area_${eqIdx}`).innerHTML = `<b>Recibe de ${Game.equipos[pIdx].nombre}:</b><select id="m_partner_give_${eqIdx}">${Game.equipos[pIdx].inventario.filter(it => it.type !== 'rol').map((it, idx) => `<option value="${idx}">${it.n}</option>`).join("")}</select>`;
+    document.getElementById(`partner_give_area_${eqIdx}`).innerHTML = `<b>Da ${Game.equipos[pIdx].nombre}:</b><select id="m_partner_give_${eqIdx}">${Game.equipos[pIdx].inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select>`;
 }
 
 function ejecutarIntercambioDirecto(eqIdx) {
@@ -368,11 +378,18 @@ function ejecutarIntercambioDirecto(eqIdx) {
 
 function renderMaletinUI(eqIdx) {
     const e = Game.equipos[eqIdx];
-    if (!e.inventario.some(it => it.id === 'maletin')) return '';
-    return `<div class="maletin-box"><b>🧳 Maletín</b></div>`;
+    if (!e.inventario.some(it => it.id === 'maletin') && !e.maletin.some(it => it.id === 'maletin')) return '';
+    return `<div class="maletin-box"><b>🧳 Maletín (${e.maletin.length}/2)</b><br>${e.maletin.length < 2 ? `<select id="to_m_${eqIdx}">${e.inventario.map((it, idx) => it.type !== 'rol' ? `<option value="${idx}">${it.n}</option>` : '').join("")}</select><button onclick="addToMaletin(${eqIdx})">Guardar</button>` : 'Lleno'}</div>`;
+}
+
+function addToMaletin(eqIdx) {
+    const idx = document.getElementById(`to_m_${eqIdx}`).value;
+    Game.equipos[eqIdx].maletin.push(Game.equipos[eqIdx].inventario.splice(idx, 1)[0]);
+    render();
 }
 
 window.onload = render;
 </script>
 </body>
 </html>
+
