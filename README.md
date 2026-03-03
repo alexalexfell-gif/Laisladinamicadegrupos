@@ -1,11 +1,27 @@
-La Isla- Herramienta de Soporte Visual
+🌊 La Isla — Herramienta de Simulación de Interacción Visual
 
 Autor: Alejandro Scuro Rossi
 Versión: 1.0 (Prototipo Experimental)
 
 📋 Descripción
 
-"La Isla" es una aplicación web interactiva diseñada como un recurso de soporte visual para dinámicas grupales. La herramienta permite que un facilitador gestione una simulación de supervivencia por turnos, facilitando el seguimiento de recursos, roles y acciones de los participantes dentro de un entorno gamificado.
+La Isla es un prototipo experimental basado en web diseñado para la visualización de comportamientos de interacción grupal dentro de un escenario restringido.
+
+La aplicación proporciona un entorno de simulación por turnos donde los participantes toman decisiones colectivas mientras gestionan recursos y enfrentan desafíos planteados en el escenario.
+
+Esta herramienta está destinada únicamente a fines educativos, experimentales y exploratorios.
+
+Aclaraciones importantes:
+
+No es una herramienta de reclutamiento ni selección de personal.
+
+No es un sistema de evaluación psicológica, de liderazgo o de desempeño.
+
+No mide ni certifica competencias profesionales.
+
+La simulación se ejecuta completamente en el navegador y no recopila ni transmite datos personales.
+
+El proyecto se enfoca en la visualización de flujos de interacción, tensión en la toma de decisiones y dinámicas grupales dentro de un entorno gamificado.
 
 Esta aplicación se ejecuta completamente en el navegador (Client-Side), garantizando la privacidad de los datos, ya que no se almacena ni se envía información a servidores externos.
 Este proyecto es una herramienta de simulación experimental y no está destinado a la toma de decisiones operativas.
