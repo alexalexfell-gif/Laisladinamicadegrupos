@@ -177,7 +177,7 @@ function render() {
             <div class="card">
                 <h3>Equipo ${e.nombre}</h3>
                 <select id="sz_${i}" onchange="updateFieldsUI(${i})"><option value="5">5 Jugadores</option><option value="4">4 Jugadores</option><option value="3">3 Jugadores</option></select>
-                <div id="fields_${i}">${generateFieldsHTML(5)}</div>
+                <div id="fields_${i}">${generateFieldsHTML(5, i)}</div>
             </div>`).join("")}</div><button onclick="saveRegistration()">Continuar</button></div>`;
     }
     else if (Game.paso === 3) {
@@ -245,15 +245,21 @@ function render() {
     }
 }
 
-function generateFieldsHTML(n) {
+function generateFieldsHTML(n, eqIdx) {
     let fields = [];
-    if (n == 5) fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
-    else if (n == 4) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
-    else if (n == 3) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador/Recolector"},{r:"Comerciante"}];
+    if (n == 5) {
+        fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
+    } else if (n == 4) {
+        if (eqIdx === 0) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}];
+        else fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador"},{r:"Recolector"},{r:"Comerciante"}].slice(0, 4); // Fallback para consistencia visual
+    } else if (n == 3) {
+        if (eqIdx === 0 || eqIdx === 1) fields = [{r:"Ladrón/Diplomático"},{r:"Luchador/Recolector"},{r:"Comerciante"}];
+        else fields = [{r:"Ladrón"},{r:"Diplomático"},{r:"Luchador/Recolector"}]; // Fallback para consistencia visual
+    }
     return fields.map(f => `<span class="role-tag">${f.r}</span><input type="text" class="player-input" data-role="${f.r}" placeholder="Nombre...">`).join("");
 }
 
-function updateFieldsUI(i) { document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(parseInt(document.getElementById(`sz_${i}`).value)); }
+function updateFieldsUI(i) { document.getElementById(`fields_${i}`).innerHTML = generateFieldsHTML(parseInt(document.getElementById(`sz_${i}`).value), i); }
 
 function saveRegistration() {
     PrivacyKernel.requireConsent(() => {
@@ -418,8 +424,3 @@ window.onload = render;
 </script>
 </body>
 </html>
-
-
-
-
-
